@@ -22,6 +22,7 @@ from pathlib import Path
 
 import networkx as nx
 
+from ..analysis import short_path
 from ..circuits import build_dynamic, compact_index
 from .base import Backend, reverse_keys
 
@@ -113,7 +114,7 @@ class IBMBackend(Backend):
                     f"{datetime.now():%Y%m%d_%H%M}_{self.name}_calibration.json")
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(cal, indent=1))
-            print(f"calibration saved to {path}")
+            print(f"calibration saved to {short_path(path)}")
         return cal
 
     def error_budget(self, instance, cal):

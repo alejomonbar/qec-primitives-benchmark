@@ -25,6 +25,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from ..analysis import short_path
 from ..circuits import build_iqm
 from ..layout import load_cached_graph, save_graph, validate_batch
 from .aer import local_job_id, simulate_job
@@ -138,7 +139,7 @@ class IQMBackend(Backend):
                     f"{props.service.updatedAt:%Y%m%d_%H%M}_{self.name}_calibration.json")
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(cal, indent=1))
-            print(f"calibration of {cal['updated_at']} saved to {path}")
+            print(f"calibration of {cal['updated_at']} saved to {short_path(path)}")
         return cal
 
     def error_budget(self, instance, cal):

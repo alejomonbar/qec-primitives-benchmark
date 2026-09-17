@@ -19,7 +19,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .analysis import (instance_from_record, make_record, public_job_id, record_key, records_in, result_dir,
-                       run_filename, save_run)
+                       run_filename, save_run, short_path)
 from .layout import pack
 from .primitives import from_dict
 
@@ -145,7 +145,7 @@ def submit(plan, backend, manifest_dir="data/manifests", label=None):
         print(f"  job {len(manifest['jobs']) + 1}: {len(chunk)} circuit(s) -> {record['job_id']}")
         manifest["jobs"].append(record)
         path.write_text(json.dumps(manifest, indent=1))
-    print(f"manifest: {path}")
+    print(f"manifest: {short_path(path)}")
     return str(path)
 
 
@@ -193,7 +193,7 @@ def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
         saved.append(save_run(folder / run_filename(manifest["backend"], structure, kind, stamp),
                               records, run=header))
         written += len(records)
-    print(f"{written} results written to {len(saved)} run file(s) under {data_dir}, "
+    print(f"{written} results written to {len(saved)} run file(s) under {short_path(data_dir)}, "
           f"{skipped} already there")
     return saved
 

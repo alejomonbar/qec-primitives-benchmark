@@ -73,6 +73,12 @@ def run_filename(backend_name, structure, kind, stamp=None):
     return f"{stamp}_{backend_name}_{structure}_{kind}.json"
 
 
+def short_path(path) -> str:
+    """A path as printed: from its last ``data`` folder on (``data/results/...``), so no local directory shows."""
+    parts = Path(path).parts
+    return str(Path(*parts[len(parts) - 1 - parts[::-1].index("data"):])) if "data" in parts else Path(path).name
+
+
 AWS_ACCOUNT_IN_ARN = re.compile(r"(arn:aws:[a-z0-9-]+:[a-z0-9-]*:)\d{12}(:)")
 
 
@@ -354,7 +360,7 @@ def convert_legacy_code(record, filename, placement=None):
     ``energy_values`` is dropped and hosted-emulator runs are flagged ``simulated``. The backend is the one in
     the file name; where the metadata names another, ``benchmark.backend_note`` says so. The instance is a
     logical ``CodePatch`` of the generated structure (``legacy_code_structure``), whose checks must
-    equal the file's Hamiltonian. Simulator files (the noiseless references of that repository) are
+    equal the file's Hamiltonian. Simulator files (the noiseless references of those campaigns) are
     not device runs and give None.
 
     The Quantinuum programs measured the checks one at a time, a fresh ancilla each (``benchmark.program``

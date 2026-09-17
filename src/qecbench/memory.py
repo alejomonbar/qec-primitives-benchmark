@@ -469,7 +469,9 @@ def submit(memory_plan, backend, manifest_dir="data/manifests", noise_model=None
             print(f"  simulated {len(chunk)} circuits -> {record['job_id']}")
         manifest["jobs"].append(record)
         path.write_text(json.dumps(manifest, indent=1))
-    print(f"manifest: {path}")
+    from .analysis import short_path
+
+    print(f"manifest: {short_path(path)}")
     return str(path)
 
 
@@ -505,7 +507,7 @@ def _device_counts(pub, rounds):
 
 def harvest(manifest_path, backend, data_dir="data/results", service=None):
     """Decode every finished job of a manifest into ``<backend>/surface_code/memory/<stamp>_..._memory.json``."""
-    from .analysis import save_run
+    from .analysis import save_run, short_path
     from .primitives import from_dict
 
     manifest = json.loads(Path(manifest_path).read_text())
@@ -532,7 +534,7 @@ def harvest(manifest_path, backend, data_dir="data/results", service=None):
     path = Path(data_dir) / manifest["backend"] / "surface_code" / "memory" / \
         f"{stamp}_{manifest['backend']}_surface_code_memory.json"
     saved = save_run(path, records, run=header)
-    print(f"{len(records)} memory results written to {saved}")
+    print(f"{len(records)} memory results written to {short_path(saved)}")
     return saved
 
 
