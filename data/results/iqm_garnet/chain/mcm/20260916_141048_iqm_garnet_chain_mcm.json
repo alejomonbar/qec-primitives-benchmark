@@ -1,0 +1,6271 @@
+{
+ "run": {
+  "backend": "iqm_garnet",
+  "vendor": "iqm",
+  "created": "2026-09-16T14:10:48.432166",
+  "shots": 500,
+  "delta": 0.5,
+  "depths": [
+   3,
+   6,
+   9,
+   12
+  ],
+  "kinds": [
+   "direct",
+   "mcm"
+  ],
+  "buffer": false,
+  "simulated": false,
+  "noise_model": null,
+  "estimate": {
+   "unit": "USD",
+   "total": 28.699999999999996,
+   "usd": 28.699999999999996
+  },
+  "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json",
+  "results": 60
+ },
+ "results": [
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:01.681276",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c07f1be1-3d17-4792-8e8a-cf469340a570",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     1,
+     5
+    ],
+    "ancillary_qubits": [
+     2
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 167,
+    "00": 137,
+    "01": 149,
+    "11": 47
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.264,
+    "approximation_ratio": 0.632,
+    "optimal_probability": 0.632
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.9032,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     1,
+     2,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.632,
+    "r_err": 0.021588982568353544,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.33386737796183674,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.151769",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f9a8107a-eac8-4fa3-b917-1f26a8480f97",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     4
+    ],
+    "ancillary_qubits": [
+     1
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 148,
+    "10": 126,
+    "11": 33,
+    "00": 193
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "10": -1.0,
+     "11": 1.0,
+     "00": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.096,
+    "approximation_ratio": 0.548,
+    "optimal_probability": 0.548
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 2.1466,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     1,
+     4
+    ],
+    "kind": "mcm",
+    "r": 0.548,
+    "r_err": 0.022279694107843542,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.12140631925884983,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:12:59.292236",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c294f9c3-06ea-42ba-b8b5-05779c295c52",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     10
+    ],
+    "ancillary_qubits": [
+     5
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 159,
+    "00": 137,
+    "10": 167,
+    "11": 37
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.304,
+    "approximation_ratio": 0.652,
+    "optimal_probability": 0.652
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 6.7976,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     5,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.652,
+    "r_err": 0.021323728632807425,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.38445334431969086,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.941676",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8b9ef199-554c-4f27-896a-17586bf79293",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     3,
+     5
+    ],
+    "ancillary_qubits": [
+     4
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 168,
+    "10": 165,
+    "01": 121,
+    "11": 46
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "10": -1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.144,
+    "approximation_ratio": 0.572,
+    "optimal_probability": 0.572
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.2199,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     3,
+     4,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.572,
+    "r_err": 0.02214979066386194,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.18210947888827447,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:01.681438",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c07f1be1-3d17-4792-8e8a-cf469340a570",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     4,
+     10
+    ],
+    "ancillary_qubits": [
+     9
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 157,
+    "01": 219,
+    "10": 92,
+    "11": 32
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "01": -1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.244,
+    "approximation_ratio": 0.622,
+    "optimal_probability": 0.622
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.456,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     4,
+     9,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.622,
+    "r_err": 0.02170655082451827,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.3085743947829097,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.152092",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f9a8107a-eac8-4fa3-b917-1f26a8480f97",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     5,
+     11
+    ],
+    "ancillary_qubits": [
+     6
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 24,
+    "00": 121,
+    "10": 160,
+    "01": 195
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.42,
+    "approximation_ratio": 0.71,
+    "optimal_probability": 0.71
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 9.3915,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     5,
+     6,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.71,
+    "r_err": 0.020313179231745138,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.5311526467574674,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.941809",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8b9ef199-554c-4f27-896a-17586bf79293",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     7
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 165,
+    "00": 110,
+    "11": 61,
+    "10": 164
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "11": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.316,
+    "approximation_ratio": 0.658,
+    "optimal_probability": 0.658
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 7.066,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     7,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.658,
+    "r_err": 0.021236147199899316,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.3996291342270471,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:12:59.292367",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c294f9c3-06ea-42ba-b8b5-05779c295c52",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     11
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 190,
+    "00": 108,
+    "01": 168,
+    "11": 34
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.432,
+    "approximation_ratio": 0.716,
+    "optimal_probability": 0.716
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 9.6598,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     11,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.716,
+    "r_err": 0.020186703693570774,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.5463284366648237,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.152402",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f9a8107a-eac8-4fa3-b917-1f26a8480f97",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     7,
+     17
+    ],
+    "ancillary_qubits": [
+     12
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 127,
+    "11": 59,
+    "01": 187,
+    "00": 127
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "11": 1.0,
+     "01": -1.0,
+     "00": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.256,
+    "approximation_ratio": 0.628,
+    "optimal_probability": 0.628
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.7243,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     7,
+     12,
+     17
+    ],
+    "kind": "mcm",
+    "r": 0.628,
+    "r_err": 0.021637197985722334,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.32375018469026595,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:01.681542",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c07f1be1-3d17-4792-8e8a-cf469340a570",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     8,
+     14
+    ],
+    "ancillary_qubits": [
+     13
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 193,
+    "00": 128,
+    "11": 28,
+    "01": 151
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "11": 1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.376,
+    "approximation_ratio": 0.688,
+    "optimal_probability": 0.688
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 8.4076,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     8,
+     13,
+     14
+    ],
+    "kind": "mcm",
+    "r": 0.688,
+    "r_err": 0.020740596536488014,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.4755080837638279,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.941908",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8b9ef199-554c-4f27-896a-17586bf79293",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     9,
+     11
+    ],
+    "ancillary_qubits": [
+     10
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 166,
+    "00": 126,
+    "10": 176,
+    "11": 32
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.368,
+    "approximation_ratio": 0.684,
+    "optimal_probability": 0.684
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 8.2287,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     9,
+     10,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.6839999999999999,
+    "r_err": 0.020812359515855822,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.4653908904922571,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:12:59.292544",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c294f9c3-06ea-42ba-b8b5-05779c295c52",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     13,
+     18
+    ],
+    "ancillary_qubits": [
+     14
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 246,
+    "10": 127,
+    "00": 88,
+    "11": 39
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "10": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.492,
+    "approximation_ratio": 0.746,
+    "optimal_probability": 0.746
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 11.0015,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     13,
+     14,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.746,
+    "r_err": 0.019486596801643427,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.6222073862016049,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.152526",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f9a8107a-eac8-4fa3-b917-1f26a8480f97",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     15
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 124,
+    "01": 192,
+    "10": 144,
+    "11": 40
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "01": -1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.344,
+    "approximation_ratio": 0.672,
+    "optimal_probability": 0.672
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 7.6921,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     15,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.6719999999999999,
+    "r_err": 0.021017027165175464,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.43503931067754464,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:00.942000",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8b9ef199-554c-4f27-896a-17586bf79293",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     18
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 39,
+    "01": 268,
+    "10": 101,
+    "00": 92
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "01": -1.0,
+     "10": -1.0,
+     "00": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.476,
+    "approximation_ratio": 0.738,
+    "optimal_probability": 0.738
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 10.6437,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     18,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.738,
+    "r_err": 0.019684688820194637,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.6019729996584632,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:01.681636",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c07f1be1-3d17-4792-8e8a-cf469340a570",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     15,
+     18
+    ],
+    "ancillary_qubits": [
+     19
+    ],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 132,
+    "00": 113,
+    "01": 178,
+    "11": 77
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.24,
+    "approximation_ratio": 0.62,
+    "optimal_probability": 0.62
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.3666,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     15,
+     19,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.62,
+    "r_err": 0.021728881438701678,
+    "r_ideal": 0.8953665698212914,
+    "r_ovl": 0.3035157981471243,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:07.462463",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/54fdb76d-6d74-4b44-afd8-8724309b0804",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     1,
+     5
+    ],
+    "ancillary_qubits": [
+     2
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 137,
+    "01": 164,
+    "10": 152,
+    "11": 47
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "01": -1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.264,
+    "approximation_ratio": 0.632,
+    "optimal_probability": 0.632
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.9032,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     1,
+     2,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.632,
+    "r_err": 0.021588982568353544,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.2826835951180422,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:05.968725",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/1d023b48-0a3a-4355-b5f2-683506a2d39f",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     4
+    ],
+    "ancillary_qubits": [
+     1
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 28,
+    "01": 153,
+    "10": 122,
+    "00": 197
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "01": -1.0,
+     "10": -1.0,
+     "00": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.1,
+    "approximation_ratio": 0.55,
+    "optimal_probability": 0.55
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 2.2361,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     1,
+     4
+    ],
+    "kind": "mcm",
+    "r": 0.55,
+    "r_err": 0.022270877485360472,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.10707711936289487,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:04.812821",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/ee93b778-3d58-479e-9909-7c4fc36627af",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     10
+    ],
+    "ancillary_qubits": [
+     5
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 167,
+    "01": 176,
+    "11": 42,
+    "00": 115
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "01": -1.0,
+     "11": 1.0,
+     "00": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.372,
+    "approximation_ratio": 0.686,
+    "optimal_probability": 0.686
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 8.3182,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     5,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.6859999999999999,
+    "r_err": 0.020776701920308976,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.3983268840299684,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:06.649347",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/172c73ef-7f64-4216-ab87-adad20e550ca",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     3,
+     5
+    ],
+    "ancillary_qubits": [
+     4
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 161,
+    "01": 132,
+    "00": 162,
+    "11": 45
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "01": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.172,
+    "approximation_ratio": 0.586,
+    "optimal_probability": 0.586
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.846,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     3,
+     4,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.586,
+    "r_err": 0.022049497969827858,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.18417264530417893,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:07.462710",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/54fdb76d-6d74-4b44-afd8-8724309b0804",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     4,
+     10
+    ],
+    "ancillary_qubits": [
+     9
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 168,
+    "01": 190,
+    "10": 116,
+    "11": 26
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "01": -1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.224,
+    "approximation_ratio": 0.612,
+    "optimal_probability": 0.612
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.0088,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     4,
+     9,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.612,
+    "r_err": 0.021814300984787705,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.23985274737288426,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:05.968860",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/1d023b48-0a3a-4355-b5f2-683506a2d39f",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     5,
+     11
+    ],
+    "ancillary_qubits": [
+     6
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 141,
+    "11": 40,
+    "01": 174,
+    "10": 145
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "11": 1.0,
+     "01": -1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.276,
+    "approximation_ratio": 0.638,
+    "optimal_probability": 0.638
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 6.1715,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     5,
+     6,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.638,
+    "r_err": 0.02151366252758236,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.2955328494415896,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:06.649490",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/172c73ef-7f64-4216-ab87-adad20e550ca",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     7
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 150,
+    "10": 146,
+    "00": 151,
+    "11": 53
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "10": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.184,
+    "approximation_ratio": 0.592,
+    "optimal_probability": 0.592
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 4.1144,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     7,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.592,
+    "r_err": 0.022000910893877113,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.19702189962772632,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:04.812956",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/ee93b778-3d58-479e-9909-7c4fc36627af",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     11
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 174,
+    "00": 163,
+    "10": 123,
+    "11": 40
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.188,
+    "approximation_ratio": 0.594,
+    "optimal_probability": 0.594
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 4.2038,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     11,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.594,
+    "r_err": 0.021983962090086417,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.20130498440224212,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:05.968959",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/1d023b48-0a3a-4355-b5f2-683506a2d39f",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     7,
+     17
+    ],
+    "ancillary_qubits": [
+     12
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 190,
+    "00": 130,
+    "10": 117,
+    "11": 63
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.228,
+    "approximation_ratio": 0.614,
+    "optimal_probability": 0.614
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.0982,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     7,
+     12,
+     17
+    ],
+    "kind": "mcm",
+    "r": 0.614,
+    "r_err": 0.021793529219281196,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.24413583214740006,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:07.462997",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/54fdb76d-6d74-4b44-afd8-8724309b0804",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     8,
+     14
+    ],
+    "ancillary_qubits": [
+     13
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 155,
+    "00": 146,
+    "01": 166,
+    "11": 33
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.284,
+    "approximation_ratio": 0.642,
+    "optimal_probability": 0.642
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 6.3504,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     8,
+     13,
+     14
+    ],
+    "kind": "mcm",
+    "r": 0.642,
+    "r_err": 0.021461434862859133,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.3040990189906212,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:06.649600",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/172c73ef-7f64-4216-ab87-adad20e550ca",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     9,
+     11
+    ],
+    "ancillary_qubits": [
+     10
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 180,
+    "01": 138,
+    "00": 137,
+    "11": 45
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "01": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.272,
+    "approximation_ratio": 0.636,
+    "optimal_probability": 0.636
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 6.0821,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     9,
+     10,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.636,
+    "r_err": 0.02153917063731765,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.2912497646670738,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:04.813054",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/ee93b778-3d58-479e-9909-7c4fc36627af",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     13,
+     18
+    ],
+    "ancillary_qubits": [
+     14
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 90,
+    "00": 91,
+    "01": 280,
+    "11": 39
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.48,
+    "approximation_ratio": 0.74,
+    "optimal_probability": 0.74
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 10.7331,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     13,
+     14,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.74,
+    "r_err": 0.019635965529725526,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.5139701729418948,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:05.969053",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/1d023b48-0a3a-4355-b5f2-683506a2d39f",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     15
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 180,
+    "01": 157,
+    "00": 113,
+    "11": 50
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "01": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.348,
+    "approximation_ratio": 0.674,
+    "optimal_probability": 0.674
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 7.7815,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     15,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.6739999999999999,
+    "r_err": 0.020984009562393675,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.37262837538287363,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:06.649704",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/172c73ef-7f64-4216-ab87-adad20e550ca",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     18
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 305,
+    "10": 60,
+    "00": 87,
+    "11": 48
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "10": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.46,
+    "approximation_ratio": 0.73,
+    "optimal_probability": 0.73
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 10.2859,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     18,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.73,
+    "r_err": 0.019874354831287473,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.4925547490693159,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:07.463348",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/54fdb76d-6d74-4b44-afd8-8724309b0804",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 6,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     15,
+     18
+    ],
+    "ancillary_qubits": [
+     19
+    ],
+    "gammas": [
+     0.08333333333333333,
+     0.16666666666666666,
+     0.25,
+     0.3333333333333333,
+     0.4166666666666667,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4166666666666667,
+     0.3333333333333333,
+     0.25,
+     0.16666666666666666,
+     0.08333333333333333
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 142,
+    "11": 61,
+    "00": 160,
+    "01": 137
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "11": 1.0,
+     "00": 1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.116,
+    "approximation_ratio": 0.558,
+    "optimal_probability": 0.558
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 2.5938,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     15,
+     19,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.558,
+    "r_err": 0.022231970696321195,
+    "r_ideal": 0.9669531670024213,
+    "r_ovl": 0.12420945846095804,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.985075",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/489b1e95-cb70-4350-bf6d-b2ea8f989df8",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     1,
+     5
+    ],
+    "ancillary_qubits": [
+     2
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 165,
+    "00": 154,
+    "10": 136,
+    "11": 45
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.204,
+    "approximation_ratio": 0.602,
+    "optimal_probability": 0.602
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 4.5616,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     1,
+     2,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.602,
+    "r_err": 0.021912377885779953,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.210765353211072,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:11.143412",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f338c704-4aef-408d-9730-9944ae329290",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     4
+    ],
+    "ancillary_qubits": [
+     1
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 112,
+    "00": 173,
+    "11": 52,
+    "01": 163
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "11": 1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.1,
+    "approximation_ratio": 0.55,
+    "optimal_probability": 0.55
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 2.2361,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     1,
+     4
+    ],
+    "kind": "mcm",
+    "r": 0.55,
+    "r_err": 0.022270877485360472,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.1033163496132707,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:10.305024",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8e3e884d-4916-459d-adcb-b85e13b506d6",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     10
+    ],
+    "ancillary_qubits": [
+     5
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 138,
+    "00": 165,
+    "11": 47,
+    "10": 150
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "11": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.152,
+    "approximation_ratio": 0.576,
+    "optimal_probability": 0.576
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.3988,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     5,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.576,
+    "r_err": 0.022122993778135334,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.15704085141217125,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.244011",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fc42e027-0fb2-42c6-b617-6884e29171cd",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     3,
+     5
+    ],
+    "ancillary_qubits": [
+     4
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 158,
+    "01": 127,
+    "00": 157,
+    "11": 58
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "01": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.14,
+    "approximation_ratio": 0.57,
+    "optimal_probability": 0.57
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.1305,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     3,
+     4,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.5700000000000001,
+    "r_err": 0.022162634426652866,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.14464288945857898,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.985219",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/489b1e95-cb70-4350-bf6d-b2ea8f989df8",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     4,
+     10
+    ],
+    "ancillary_qubits": [
+     9
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 50,
+    "01": 143,
+    "00": 168,
+    "10": 139
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.128,
+    "approximation_ratio": 0.564,
+    "optimal_probability": 0.564
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 2.8622,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     4,
+     9,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.5640000000000001,
+    "r_err": 0.0221989546414769,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.1322449275049865,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:11.143578",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f338c704-4aef-408d-9730-9944ae329290",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     5,
+     11
+    ],
+    "ancillary_qubits": [
+     6
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 38,
+    "00": 169,
+    "01": 142,
+    "10": 151
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.172,
+    "approximation_ratio": 0.586,
+    "optimal_probability": 0.586
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.846,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     5,
+     6,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.586,
+    "r_err": 0.022049497969827858,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.17770412133482538,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.244244",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fc42e027-0fb2-42c6-b617-6884e29171cd",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     7
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 196,
+    "10": 111,
+    "01": 132,
+    "11": 61
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "10": -1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": 0.028,
+    "approximation_ratio": 0.486,
+    "optimal_probability": 0.486
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": -0.6261,
+    "qaoa_better_than_random": false
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     7,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.486,
+    "r_err": 0.02237429816635315,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": -0.028928577891715795,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:10.305170",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8e3e884d-4916-459d-adcb-b85e13b506d6",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     11
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 157,
+    "01": 157,
+    "11": 58,
+    "10": 128
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "01": -1.0,
+     "11": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.14,
+    "approximation_ratio": 0.57,
+    "optimal_probability": 0.57
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.1305,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     11,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.5700000000000001,
+    "r_err": 0.02216263442665287,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.14464288945857898,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:11.143679",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f338c704-4aef-408d-9730-9944ae329290",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     7,
+     17
+    ],
+    "ancillary_qubits": [
+     12
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 149,
+    "00": 169,
+    "10": 129,
+    "11": 53
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.112,
+    "approximation_ratio": 0.556,
+    "optimal_probability": 0.556
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 2.5044,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     7,
+     12,
+     17
+    ],
+    "kind": "mcm",
+    "r": 0.556,
+    "r_err": 0.022242244375731048,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.11571431156686318,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.985326",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/489b1e95-cb70-4350-bf6d-b2ea8f989df8",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     8,
+     14
+    ],
+    "ancillary_qubits": [
+     13
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 208,
+    "10": 105,
+    "11": 42,
+    "00": 145
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "10": -1.0,
+     "11": 1.0,
+     "00": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.252,
+    "approximation_ratio": 0.626,
+    "optimal_probability": 0.626
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.6349,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     8,
+     13,
+     14
+    ],
+    "kind": "mcm",
+    "r": 0.626,
+    "r_err": 0.021660710347204473,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.26035720102544196,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.244434",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fc42e027-0fb2-42c6-b617-6884e29171cd",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     9,
+     11
+    ],
+    "ancillary_qubits": [
+     10
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 160,
+    "11": 51,
+    "10": 182,
+    "01": 107
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "11": 1.0,
+     "10": -1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.156,
+    "approximation_ratio": 0.578,
+    "optimal_probability": 0.578
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.4883,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     9,
+     10,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.578,
+    "r_err": 0.02210903931061856,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.16117350539670205,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:10.305270",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8e3e884d-4916-459d-adcb-b85e13b506d6",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     13,
+     18
+    ],
+    "ancillary_qubits": [
+     14
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 90,
+    "11": 53,
+    "01": 241,
+    "00": 116
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "11": 1.0,
+     "01": -1.0,
+     "00": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.324,
+    "approximation_ratio": 0.662,
+    "optimal_probability": 0.662
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 7.2449,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     13,
+     14,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.662,
+    "r_err": 0.021175665695209456,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.3347449727469968,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:11.143796",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f338c704-4aef-408d-9730-9944ae329290",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     15
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 157,
+    "00": 132,
+    "10": 150,
+    "11": 61
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.228,
+    "approximation_ratio": 0.614,
+    "optimal_probability": 0.614
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.0982,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     15,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.614,
+    "r_err": 0.021793529219281196,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.23556127711825697,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.244625",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fc42e027-0fb2-42c6-b617-6884e29171cd",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     18
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 240,
+    "10": 78,
+    "00": 132,
+    "11": 50
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "10": -1.0,
+     "00": 1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.272,
+    "approximation_ratio": 0.636,
+    "optimal_probability": 0.636
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 6.0821,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     18,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.636,
+    "r_err": 0.02153917063731765,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.28102047094809607,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:12.985421",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/489b1e95-cb70-4350-bf6d-b2ea8f989df8",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 9,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     15,
+     18
+    ],
+    "ancillary_qubits": [
+     19
+    ],
+    "gammas": [
+     0.05555555555555555,
+     0.1111111111111111,
+     0.16666666666666666,
+     0.2222222222222222,
+     0.2777777777777778,
+     0.3333333333333333,
+     0.3888888888888889,
+     0.4444444444444444,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4444444444444444,
+     0.3888888888888889,
+     0.3333333333333333,
+     0.2777777777777778,
+     0.2222222222222222,
+     0.16666666666666666,
+     0.1111111111111111,
+     0.05555555555555555
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 154,
+    "11": 58,
+    "10": 152,
+    "01": 136
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "11": 1.0,
+     "10": -1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.152,
+    "approximation_ratio": 0.576,
+    "optimal_probability": 0.576
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.3988,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     15,
+     19,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.576,
+    "r_err": 0.022122993778135334,
+    "r_ideal": 0.9839505091610175,
+    "r_ovl": 0.15704085141217125,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:18.583195",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f181ccbb-8bb7-4f84-ba76-70b362d53d9c",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     1,
+     5
+    ],
+    "ancillary_qubits": [
+     2
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 201,
+    "11": 54,
+    "10": 124,
+    "01": 121
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "11": 1.0,
+     "10": -1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": 0.02,
+    "approximation_ratio": 0.49,
+    "optimal_probability": 0.49
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": -0.4472,
+    "qaoa_better_than_random": false
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     1,
+     2,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.49,
+    "r_err": 0.022378596989230868,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": -0.020173890149111928,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.041204",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/4a86f4bf-a732-4c45-9a4f-611a40fc9080",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     4
+    ],
+    "ancillary_qubits": [
+     1
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 129,
+    "00": 211,
+    "01": 121,
+    "11": 39
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": 0.0,
+    "approximation_ratio": 0.5,
+    "optimal_probability": 0.5
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 0.0,
+    "qaoa_better_than_random": false
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     1,
+     4
+    ],
+    "kind": "mcm",
+    "r": 0.5,
+    "r_err": 0.022383074051792257,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.0,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:16.146008",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/15314ad9-45b8-4bdb-9694-198d9174267b",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     2,
+     10
+    ],
+    "ancillary_qubits": [
+     5
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 55,
+    "01": 120,
+    "00": 177,
+    "10": 148
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.072,
+    "approximation_ratio": 0.536,
+    "optimal_probability": 0.536
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 1.61,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     2,
+     5,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.536,
+    "r_err": 0.02232498173838533,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.07262600453680293,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.828773",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/010e97ef-75e2-4191-9263-1e8a5e521cef",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     3,
+     5
+    ],
+    "ancillary_qubits": [
+     4
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 185,
+    "10": 152,
+    "01": 110,
+    "11": 53
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "10": -1.0,
+     "01": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.048,
+    "approximation_ratio": 0.524,
+    "optimal_probability": 0.524
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 1.0733,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     3,
+     4,
+     5
+    ],
+    "kind": "mcm",
+    "r": 0.524,
+    "r_err": 0.022357273881016475,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.04841733635786862,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:18.583330",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f181ccbb-8bb7-4f84-ba76-70b362d53d9c",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     4,
+     10
+    ],
+    "ancillary_qubits": [
+     9
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 146,
+    "00": 204,
+    "10": 113,
+    "11": 37
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.036,
+    "approximation_ratio": 0.518,
+    "optimal_probability": 0.518
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 0.805,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     4,
+     9,
+     10
+    ],
+    "kind": "mcm",
+    "r": 0.518,
+    "r_err": 0.022368565117387874,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.036313002268401465,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.041540",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/4a86f4bf-a732-4c45-9a4f-611a40fc9080",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     5,
+     11
+    ],
+    "ancillary_qubits": [
+     6
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 192,
+    "11": 43,
+    "10": 116,
+    "01": 149
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "11": 1.0,
+     "10": -1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.06,
+    "approximation_ratio": 0.53,
+    "optimal_probability": 0.53
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 1.3416,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     5,
+     6,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.53,
+    "r_err": 0.022342748192502798,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.06052167044733578,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.829290",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/010e97ef-75e2-4191-9263-1e8a5e521cef",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     7
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 51,
+    "10": 115,
+    "00": 205,
+    "01": 129
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "10": -1.0,
+     "00": 1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": 0.024,
+    "approximation_ratio": 0.488,
+    "optimal_probability": 0.488
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": -0.5367,
+    "qaoa_better_than_random": false
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     7,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.488,
+    "r_err": 0.022376626797927065,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": -0.02420866817893431,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:16.146148",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/15314ad9-45b8-4bdb-9694-198d9174267b",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     6,
+     12
+    ],
+    "ancillary_qubits": [
+     11
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 116,
+    "00": 168,
+    "11": 63,
+    "10": 153
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "11": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.076,
+    "approximation_ratio": 0.538,
+    "optimal_probability": 0.538
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 1.6994,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     6,
+     11,
+     12
+    ],
+    "kind": "mcm",
+    "r": 0.538,
+    "r_err": 0.022318338119870523,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.07666078256662533,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.041822",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/4a86f4bf-a732-4c45-9a4f-611a40fc9080",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     7,
+     17
+    ],
+    "ancillary_qubits": [
+     12
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 123,
+    "11": 53,
+    "00": 196,
+    "10": 128
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "11": 1.0,
+     "00": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.004,
+    "approximation_ratio": 0.502,
+    "optimal_probability": 0.502
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 0.0894,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     7,
+     12,
+     17
+    ],
+    "kind": "mcm",
+    "r": 0.502,
+    "r_err": 0.02238289498648358,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.004034778029822385,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:18.583434",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f181ccbb-8bb7-4f84-ba76-70b362d53d9c",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     8,
+     14
+    ],
+    "ancillary_qubits": [
+     13
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "11": 40,
+    "00": 164,
+    "01": 175,
+    "10": 121
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "11": 1.0,
+     "00": 1.0,
+     "01": -1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.184,
+    "approximation_ratio": 0.592,
+    "optimal_probability": 0.592
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 4.1144,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     8,
+     13,
+     14
+    ],
+    "kind": "mcm",
+    "r": 0.592,
+    "r_err": 0.022000910893877113,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.1855997893718295,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.829457",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/010e97ef-75e2-4191-9263-1e8a5e521cef",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     9,
+     11
+    ],
+    "ancillary_qubits": [
+     10
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "10": 139,
+    "00": 202,
+    "11": 42,
+    "01": 117
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "10": -1.0,
+     "00": 1.0,
+     "11": 1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.024,
+    "approximation_ratio": 0.512,
+    "optimal_probability": 0.512
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 0.5367,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     9,
+     10,
+     11
+    ],
+    "kind": "mcm",
+    "r": 0.512,
+    "r_err": 0.022376626797927058,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.02420866817893431,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:16.146253",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/15314ad9-45b8-4bdb-9694-198d9174267b",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     13,
+     18
+    ],
+    "ancillary_qubits": [
+     14
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 0,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 180,
+    "00": 157,
+    "10": 116,
+    "11": 47
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.184,
+    "approximation_ratio": 0.592,
+    "optimal_probability": 0.592
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 4.1144,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     13,
+     14,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.592,
+    "r_err": 0.022000910893877113,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.1855997893718295,
+    "instances_in_circuit": 3,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.042033",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/4a86f4bf-a732-4c45-9a4f-611a40fc9080",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     15
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 1,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 142,
+    "10": 137,
+    "11": 46,
+    "01": 175
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "10": -1.0,
+     "11": 1.0,
+     "01": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.248,
+    "approximation_ratio": 0.624,
+    "optimal_probability": 0.624
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 5.5454,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     15,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.624,
+    "r_err": 0.02168382753928621,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.25015623784898766,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:17.829715",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/010e97ef-75e2-4191-9263-1e8a5e521cef",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     14,
+     19
+    ],
+    "ancillary_qubits": [
+     18
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 2,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "01": 214,
+    "11": 46,
+    "00": 151,
+    "10": 89
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "01": -1.0,
+     "11": 1.0,
+     "00": 1.0,
+     "10": -1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": -0.212,
+    "approximation_ratio": 0.606,
+    "optimal_probability": 0.606
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 4.7405,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     14,
+     18,
+     19
+    ],
+    "kind": "mcm",
+    "r": 0.606,
+    "r_err": 0.02187429930168918,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": 0.21384323558058618,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-16T14:13:18.583529",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "iqm_garnet",
+    "task_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f181ccbb-8bb7-4f84-ba76-70b362d53d9c",
+    "package": "qecbench",
+    "simulated": false,
+    "noise_model": null
+   },
+   "parameters": {
+    "depth": 12,
+    "delta": 0.5,
+    "num_data_qubits": 2,
+    "data_qubits": [
+     15,
+     18
+    ],
+    "ancillary_qubits": [
+     19
+    ],
+    "gammas": [
+     0.041666666666666664,
+     0.08333333333333333,
+     0.125,
+     0.16666666666666666,
+     0.20833333333333334,
+     0.25,
+     0.2916666666666667,
+     0.3333333333333333,
+     0.375,
+     0.4166666666666667,
+     0.4583333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4583333333333333,
+     0.4166666666666667,
+     0.375,
+     0.3333333333333333,
+     0.2916666666666667,
+     0.25,
+     0.20833333333333334,
+     0.16666666666666666,
+     0.125,
+     0.08333333333333333,
+     0.041666666666666664
+    ],
+    "circuit_index": 3,
+    "shots": 500,
+    "kind": "mcm"
+   },
+   "hamiltonian": {
+    "num_nodes": 2,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0
+    ]
+   },
+   "samples": {
+    "00": 200,
+    "01": 125,
+    "10": 112,
+    "11": 63
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "00": 1.0,
+     "01": -1.0,
+     "10": -1.0,
+     "11": 1.0
+    },
+    "optimal_energy": -1.0,
+    "expected_energy": 0.052,
+    "approximation_ratio": 0.474,
+    "optimal_probability": 0.474
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 500,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.022361,
+    "r_threshold_3sigma": 0.567082
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": -1.1628,
+    "qaoa_better_than_random": false
+   },
+   "benchmark": {
+    "family": "chain",
+    "qubits": [
+     15,
+     19,
+     18
+    ],
+    "kind": "mcm",
+    "r": 0.474,
+    "r_err": 0.022352791650914177,
+    "r_ideal": 0.9956902177064852,
+    "r_ovl": -0.052452114387691005,
+    "instances_in_circuit": 4,
+    "simulated": false,
+    "manifest": "20260916_141048_iqm_garnet_chain2-direct2.json"
+   }
+  }
+ ]
+}

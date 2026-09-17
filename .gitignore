@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+.DS_Store
+
+# experiment outputs: manifests and results are kept, scratch figures are not
+figures/scratch/

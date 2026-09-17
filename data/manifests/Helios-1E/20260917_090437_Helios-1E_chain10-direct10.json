@@ -1,0 +1,206 @@
+{
+ "backend": "Helios-1E",
+ "vendor": "quantinuum",
+ "created": "2026-09-17T09:04:37.847887",
+ "shots": 50,
+ "delta": 0.5,
+ "depths": [
+  3,
+  5,
+  10
+ ],
+ "kinds": [
+  "direct",
+  "mcm"
+ ],
+ "buffer": false,
+ "max_per_batch": null,
+ "estimate": {
+  "unit": "HQC",
+  "total": 138.0,
+  "usd": null
+ },
+ "simulated": true,
+ "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model",
+ "jobs": [
+  {
+   "job_id": "24b374db-a525-4081-a9c4-213914fb8c18",
+   "tasks": [
+    {
+     "kind": "direct",
+     "depth": 3,
+     "batch": 0,
+     "index": 0,
+     "instances": [
+      {
+       "family": "direct",
+       "qubits": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      }
+     ]
+    },
+    {
+     "kind": "mcm",
+     "depth": 3,
+     "batch": 0,
+     "index": 1,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        0,
+        10,
+        1,
+        11,
+        2,
+        12,
+        3,
+        13,
+        4,
+        14,
+        5,
+        15,
+        6,
+        16,
+        7,
+        17,
+        8,
+        18,
+        9
+       ]
+      }
+     ]
+    },
+    {
+     "kind": "direct",
+     "depth": 5,
+     "batch": 0,
+     "index": 2,
+     "instances": [
+      {
+       "family": "direct",
+       "qubits": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      }
+     ]
+    },
+    {
+     "kind": "mcm",
+     "depth": 5,
+     "batch": 0,
+     "index": 3,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        0,
+        10,
+        1,
+        11,
+        2,
+        12,
+        3,
+        13,
+        4,
+        14,
+        5,
+        15,
+        6,
+        16,
+        7,
+        17,
+        8,
+        18,
+        9
+       ]
+      }
+     ]
+    },
+    {
+     "kind": "direct",
+     "depth": 10,
+     "batch": 0,
+     "index": 4,
+     "instances": [
+      {
+       "family": "direct",
+       "qubits": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      }
+     ]
+    },
+    {
+     "kind": "mcm",
+     "depth": 10,
+     "batch": 0,
+     "index": 5,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        0,
+        10,
+        1,
+        11,
+        2,
+        12,
+        3,
+        13,
+        4,
+        14,
+        5,
+        15,
+        6,
+        16,
+        7,
+        17,
+        8,
+        18,
+        9
+       ]
+      }
+     ]
+    }
+   ],
+   "programs": [
+    "qecbench-chain10-direct-p3-7a3734d0",
+    "qecbench-chain10-mcm-p3-8021285e",
+    "qecbench-chain10-direct-p5-2f2fec6a",
+    "qecbench-chain10-mcm-p5-b7e53b77",
+    "qecbench-chain10-direct-p10-c0d2ebf2",
+    "qecbench-chain10-mcm-p10-b6d19276"
+   ],
+   "max_cost": 141.0
+  }
+ ]
+}

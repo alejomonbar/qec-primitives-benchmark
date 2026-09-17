@@ -1,0 +1,634 @@
+{
+ "run": {
+  "backend": "Helios-1E",
+  "vendor": "quantinuum",
+  "created": "2026-09-17T09:04:37.847887",
+  "shots": 50,
+  "delta": 0.5,
+  "depths": [
+   3,
+   5,
+   10
+  ],
+  "kinds": [
+   "direct",
+   "mcm"
+  ],
+  "buffer": false,
+  "simulated": true,
+  "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model",
+  "estimate": {
+   "unit": "HQC",
+   "total": 138.0,
+   "usd": null
+  },
+  "manifest": "20260917_090437_Helios-1E_chain10-direct10.json",
+  "results": 3
+ },
+ "results": [
+  {
+   "metadata": {
+    "timestamp": "2026-09-17T09:58:23.676032",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "Helios-1E",
+    "task_id": "24b374db-a525-4081-a9c4-213914fb8c18",
+    "package": "qecbench",
+    "simulated": true,
+    "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model"
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 10,
+    "data_qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "ancillary_qubits": [],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": 0,
+    "shots": 50,
+    "kind": "direct"
+   },
+   "hamiltonian": {
+    "num_nodes": 10,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      5,
+      6
+     ],
+     [
+      6,
+      7
+     ],
+     [
+      7,
+      8
+     ],
+     [
+      8,
+      9
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "samples": {
+    "1011010101": 1,
+    "1011011010": 3,
+    "1010110010": 1,
+    "0101010010": 3,
+    "0110101010": 1,
+    "1100110110": 1,
+    "0101001010": 2,
+    "0100101010": 1,
+    "0101011010": 1,
+    "0101010101": 8,
+    "1010110110": 1,
+    "0010010110": 1,
+    "1010110101": 1,
+    "0101001011": 1,
+    "1101101001": 1,
+    "1010010101": 4,
+    "0101010100": 1,
+    "0110110101": 1,
+    "1001010101": 1,
+    "1010100101": 1,
+    "0010110110": 1,
+    "0010100101": 2,
+    "0101101001": 1,
+    "0101001001": 1,
+    "1010101010": 4,
+    "0110101101": 1,
+    "1101001010": 1,
+    "0110100101": 1,
+    "1001010010": 1,
+    "1100101010": 1,
+    "1010101001": 1
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "1011010101": -7.0,
+     "1011011010": -5.0,
+     "1010110010": -5.0,
+     "0101010010": -7.0,
+     "0110101010": -7.0,
+     "1100110110": -1.0,
+     "0101001010": -7.0,
+     "0100101010": -7.0,
+     "0101011010": -7.0,
+     "0101010101": -9.0,
+     "1010110110": -5.0,
+     "0010010110": -3.0,
+     "1010110101": -7.0,
+     "0101001011": -5.0,
+     "1101101001": -3.0,
+     "1010010101": -7.0,
+     "0101010100": -7.0,
+     "0110110101": -5.0,
+     "1001010101": -7.0,
+     "1010100101": -7.0,
+     "0010110110": -3.0,
+     "0010100101": -5.0,
+     "0101101001": -5.0,
+     "0101001001": -5.0,
+     "1010101010": -9.0,
+     "0110101101": -5.0,
+     "1101001010": -5.0,
+     "0110100101": -5.0,
+     "1001010010": -5.0,
+     "1100101010": -5.0,
+     "1010101001": -7.0
+    },
+    "optimal_energy": -9.0,
+    "expected_energy": -6.48,
+    "approximation_ratio": 0.86,
+    "optimal_probability": 0.24
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 50,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.02357,
+    "r_threshold_3sigma": 0.570711
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 15.2735,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "direct",
+    "qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "kind": "direct",
+    "r": 0.86,
+    "r_err": 0.015161846268266098,
+    "r_ideal": 0.8447348511121047,
+    "r_ovl": 1.0442808402998722,
+    "instances_in_circuit": 1,
+    "simulated": true,
+    "manifest": "20260917_090437_Helios-1E_chain10-direct10.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-17T09:58:23.680809",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "Helios-1E",
+    "task_id": "24b374db-a525-4081-a9c4-213914fb8c18",
+    "package": "qecbench",
+    "simulated": true,
+    "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model"
+   },
+   "parameters": {
+    "depth": 5,
+    "delta": 0.5,
+    "num_data_qubits": 10,
+    "data_qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "ancillary_qubits": [],
+    "gammas": [
+     0.1,
+     0.2,
+     0.3,
+     0.4,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4,
+     0.3,
+     0.2,
+     0.1
+    ],
+    "circuit_index": 0,
+    "shots": 50,
+    "kind": "direct"
+   },
+   "hamiltonian": {
+    "num_nodes": 10,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      5,
+      6
+     ],
+     [
+      6,
+      7
+     ],
+     [
+      7,
+      8
+     ],
+     [
+      8,
+      9
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "samples": {
+    "0110101010": 3,
+    "1101001001": 1,
+    "0101101010": 1,
+    "0101010101": 4,
+    "1010101010": 8,
+    "0101001010": 3,
+    "0101011001": 1,
+    "1010101001": 2,
+    "0101011010": 3,
+    "1001010101": 3,
+    "1001000101": 1,
+    "0101010110": 2,
+    "1011010100": 1,
+    "1101010101": 1,
+    "1001010110": 1,
+    "0110110110": 1,
+    "0101110010": 1,
+    "1010110110": 2,
+    "0110110100": 1,
+    "1010110101": 4,
+    "1010010101": 1,
+    "0101010010": 2,
+    "0110101001": 1,
+    "1010101101": 1,
+    "0110110101": 1
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "0110101010": -7.0,
+     "1101001001": -3.0,
+     "0101101010": -7.0,
+     "0101010101": -9.0,
+     "1010101010": -9.0,
+     "0101001010": -7.0,
+     "0101011001": -5.0,
+     "1010101001": -7.0,
+     "0101011010": -7.0,
+     "1001010101": -7.0,
+     "1001000101": -3.0,
+     "0101010110": -7.0,
+     "1011010100": -5.0,
+     "1101010101": -7.0,
+     "1001010110": -5.0,
+     "0110110110": -3.0,
+     "0101110010": -3.0,
+     "1010110110": -5.0,
+     "0110110100": -3.0,
+     "1010110101": -7.0,
+     "1010010101": -7.0,
+     "0101010010": -7.0,
+     "0110101001": -5.0,
+     "1010101101": -7.0,
+     "0110110101": -5.0
+    },
+    "optimal_energy": -9.0,
+    "expected_energy": -6.8,
+    "approximation_ratio": 0.877778,
+    "optimal_probability": 0.24
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 50,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.02357,
+    "r_threshold_3sigma": 0.570711
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 16.0278,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "direct",
+    "qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "kind": "direct",
+    "r": 0.8777777777777778,
+    "r_err": 0.013928514900622416,
+    "r_ideal": 0.8643405607073432,
+    "r_ovl": 1.0368809254845166,
+    "instances_in_circuit": 1,
+    "simulated": true,
+    "manifest": "20260917_090437_Helios-1E_chain10-direct10.json"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-09-17T09:58:23.686792",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "Helios-1E",
+    "task_id": "24b374db-a525-4081-a9c4-213914fb8c18",
+    "package": "qecbench",
+    "simulated": true,
+    "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model"
+   },
+   "parameters": {
+    "depth": 10,
+    "delta": 0.5,
+    "num_data_qubits": 10,
+    "data_qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "ancillary_qubits": [],
+    "gammas": [
+     0.05,
+     0.1,
+     0.15,
+     0.2,
+     0.25,
+     0.3,
+     0.35,
+     0.4,
+     0.45,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.45,
+     0.4,
+     0.35,
+     0.3,
+     0.25,
+     0.2,
+     0.15,
+     0.1,
+     0.05
+    ],
+    "circuit_index": 0,
+    "shots": 50,
+    "kind": "direct"
+   },
+   "hamiltonian": {
+    "num_nodes": 10,
+    "hamiltonian_couplings": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      5,
+      6
+     ],
+     [
+      6,
+      7
+     ],
+     [
+      7,
+      8
+     ],
+     [
+      8,
+      9
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "samples": {
+    "0101001010": 1,
+    "0100100101": 1,
+    "1010101010": 6,
+    "1010101101": 3,
+    "0100101101": 1,
+    "0101101101": 1,
+    "0110101010": 1,
+    "0101010010": 3,
+    "0101101001": 1,
+    "1101011010": 1,
+    "0100101010": 3,
+    "1010010101": 1,
+    "1010100101": 1,
+    "0101010101": 7,
+    "0101011010": 4,
+    "1010110101": 3,
+    "1010010110": 1,
+    "0010101010": 1,
+    "1010110010": 1,
+    "0101101011": 1,
+    "0101010110": 2,
+    "1001010101": 1,
+    "0101101010": 1,
+    "1011010101": 1,
+    "1011001010": 1,
+    "0100110010": 1,
+    "1010101001": 1
+   },
+   "energy_analysis": {
+    "energy_values": {
+     "0101001010": -7.0,
+     "0100100101": -5.0,
+     "1010101010": -9.0,
+     "1010101101": -7.0,
+     "0100101101": -5.0,
+     "0101101101": -5.0,
+     "0110101010": -7.0,
+     "0101010010": -7.0,
+     "0101101001": -5.0,
+     "1101011010": -5.0,
+     "0100101010": -7.0,
+     "1010010101": -7.0,
+     "1010100101": -7.0,
+     "0101010101": -9.0,
+     "0101011010": -7.0,
+     "1010110101": -7.0,
+     "1010010110": -5.0,
+     "0010101010": -7.0,
+     "1010110010": -5.0,
+     "0101101011": -5.0,
+     "0101010110": -7.0,
+     "1001010101": -7.0,
+     "0101101010": -7.0,
+     "1011010101": -7.0,
+     "1011001010": -5.0,
+     "0100110010": -3.0,
+     "1010101001": -7.0
+    },
+    "optimal_energy": -9.0,
+    "expected_energy": -7.08,
+    "approximation_ratio": 0.893333,
+    "optimal_probability": 0.26
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 50,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.02357,
+    "r_threshold_3sigma": 0.570711
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 16.6877,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "direct",
+    "qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "kind": "direct",
+    "r": 0.8933333333333332,
+    "r_err": 0.011428571428571427,
+    "r_ideal": 0.9005387503329187,
+    "r_ovl": 0.9820106868721277,
+    "instances_in_circuit": 1,
+    "simulated": true,
+    "manifest": "20260917_090437_Helios-1E_chain10-direct10.json"
+   }
+  }
+ ]
+}
