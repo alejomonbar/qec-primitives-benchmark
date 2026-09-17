@@ -1,9 +1,9 @@
-"""Re-harvest an IBM surface-code position scan of the MCM repository into this package's format.
+"""Re-harvest an earlier IBM surface-code position scan into this package's format.
 
-A position scan (``benchmarking_ibm_sc_position_scan.ipynb``) runs, on each of several surface-code patches of a
+A position scan runs, on each of several surface-code patches of a
 square-lattice chip, the LR-QAOA benchmark at depths ``p`` and a surface-code memory experiment at ``R`` rounds in
 the Z and X bases, all on the same physical qubits. Its manifest names the IBM jobs and every task; the
-repository kept only aggregated numbers. This fetches the finished jobs again (read-only, no QPU time) and writes
+earlier analysis kept only aggregated numbers. This fetches the finished jobs again (read-only, no QPU time) and writes
 
     <dest>/<backend>/surface_code/mcm/<stamp>_<backend>_surface_code_mcm.json        LR-QAOA, one record per patch/depth
     <dest>/<backend>/surface_code/memory/<stamp>_<backend>_surface_code_memory.json  memory, raw shots packed
@@ -69,7 +69,7 @@ def main():
 
     service = QiskitRuntimeService(name=args.account)
     stamp = datetime.fromisoformat(manifest["created"]).strftime("%Y%m%d_%H%M")
-    source = {"source": "Benchmarking-Mid-circuit-measurement position scan", "manifest": manifest_path.name}
+    source = {"source": "legacy position scan", "manifest": manifest_path.name}
     memory_meta = {"backend": backend, "simulated": False, "noise_model": None, "p_2q_model": manifest["p_2q_model"]}
     lrqaoa, memories = [], []
     for job in manifest["jobs"]:
@@ -84,7 +84,7 @@ def main():
                     counts[bits[::-1][:patch.n_data]] = counts.get(bits[::-1][:patch.n_data], 0) + int(n)
                 rec = make_record(counts, patch, depth=task["depth"], delta=manifest["delta"], backend_name=backend,
                                   job_id=job["job_id"], kind="mcm",
-                                  extra={**extra, "program": "nighthawk_sc.sc_lrqaoa",
+                                  extra={**extra, "program": "square-lattice MCM LR-QAOA (legacy builder)",
                                          "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"})
                 rec["energy_analysis"].pop("energy_values", None)
                 lrqaoa.append(rec)
@@ -93,7 +93,7 @@ def main():
             else:
                 counts = memory._device_counts(pub, task["rounds"])
                 rec = memory.memory_record(counts, patch, task["rounds"], task.get("basis", "Z"), memory_meta,
-                                           job["job_id"], extra={**extra, "program": "sc_memory.qiskit_memory"})
+                                           job["job_id"], extra={**extra, "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"})
                 memories.append(rec)
                 b = rec["benchmark"]
                 print(f"  memory d={task['d']} ({task['r0']},{task['c0']}) {rec['parameters']['basis']} "

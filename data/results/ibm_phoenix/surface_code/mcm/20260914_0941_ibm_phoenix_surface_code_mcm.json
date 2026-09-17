@@ -4,7 +4,7 @@
   "created": "2026-09-14T09:41:41.393073",
   "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
   "simulated": false,
-  "source": "Benchmarking-Mid-circuit-measurement position scan",
+  "source": "legacy position scan",
   "calibration": {
    "d3_r7_c2": {
     "data_qubits": [
@@ -7248,14 +7248,14 @@
     "r_ovl": 0.7282771721543524,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -7937,14 +7937,14 @@
     "r_ovl": 0.7447044767894135,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -9639,14 +9639,14 @@
     "r_ovl": 0.5939874845769385,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -11341,14 +11341,14 @@
     "r_ovl": 0.5552281054854572,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -13043,14 +13043,14 @@
     "r_ovl": 0.7403041406472753,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -14745,14 +14745,14 @@
     "r_ovl": 0.4873991920753661,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -16447,14 +16447,14 @@
     "r_ovl": 0.5620109968264668,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -17137,14 +17137,14 @@
     "r_ovl": 0.7246266600132282,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -18839,14 +18839,14 @@
     "r_ovl": 0.7286763269198325,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -19540,14 +19540,14 @@
     "r_ovl": 0.7355781964366024,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -21242,14 +21242,14 @@
     "r_ovl": 0.504840912666533,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -22944,14 +22944,14 @@
     "r_ovl": 0.7625907836248781,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -23616,14 +23616,14 @@
     "r_ovl": 0.6260628322028642,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -24295,14 +24295,14 @@
     "r_ovl": 0.8213652317530292,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -24986,14 +24986,14 @@
     "r_ovl": 0.8870744502932708,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -25672,14 +25672,14 @@
     "r_ovl": 0.7483549889305378,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -26365,14 +26365,14 @@
     "r_ovl": 0.46361504192282,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -27048,14 +27048,14 @@
     "r_ovl": 0.5950334790033047,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -27717,14 +27717,14 @@
     "r_ovl": 0.7155003796604169,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -28374,14 +28374,14 @@
     "r_ovl": 0.3855649215789833,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -28986,14 +28986,14 @@
     "r_ovl": 0.4109224796592198,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -30687,14 +30687,14 @@
     "r_ovl": 0.3097266887549044,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -32391,14 +32391,14 @@
     "r_ovl": 0.36045045571476525,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -34095,14 +34095,14 @@
     "r_ovl": 0.40323977868090427,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -35799,14 +35799,14 @@
     "r_ovl": 0.25758605679616453,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -37503,14 +37503,14 @@
     "r_ovl": 0.38623739869435914,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -38133,14 +38133,14 @@
     "r_ovl": 0.4902461228845755,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -39837,14 +39837,14 @@
     "r_ovl": 0.3613005747140921,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -40480,14 +40480,14 @@
     "r_ovl": 0.3472034875601636,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -42184,14 +42184,14 @@
     "r_ovl": 0.2774221667804677,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -43888,14 +43888,14 @@
     "r_ovl": 0.3819868036977228,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -44482,14 +44482,14 @@
     "r_ovl": 0.3777625960158333,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -45115,14 +45115,14 @@
     "r_ovl": 0.5442122080296947,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -45734,14 +45734,14 @@
     "r_ovl": 0.4941472856661505,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -46352,14 +46352,14 @@
     "r_ovl": 0.5838740296423726,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -46955,14 +46955,14 @@
     "r_ovl": 0.3953178285329203,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -47571,14 +47571,14 @@
     "r_ovl": 0.46878972758591403,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -48184,14 +48184,14 @@
     "r_ovl": 0.37646220842197514,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -48796,14 +48796,14 @@
     "r_ovl": 0.3074126973512684,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -49350,14 +49350,14 @@
     "r_ovl": 0.268129648358387,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -51055,14 +51055,14 @@
     "r_ovl": 0.20730989257947455,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -52761,14 +52761,14 @@
     "r_ovl": 0.19378968219385645,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -54467,14 +54467,14 @@
     "r_ovl": 0.252557530003342,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -56171,14 +56171,14 @@
     "r_ovl": 0.17828650761834822,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -57875,14 +57875,14 @@
     "r_ovl": 0.2233538755704077,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -58484,14 +58484,14 @@
     "r_ovl": 0.33481947571839465,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -60190,14 +60190,14 @@
     "r_ovl": 0.17377977082314203,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -60803,14 +60803,14 @@
     "r_ovl": 0.23113049756276652,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -62509,14 +62509,14 @@
     "r_ovl": 0.2026228863124604,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -64213,14 +64213,14 @@
     "r_ovl": 0.20622827574862476,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -64773,14 +64773,14 @@
     "r_ovl": 0.30558557879346016,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -65364,14 +65364,14 @@
     "r_ovl": 0.5179881111386901,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -65943,14 +65943,14 @@
     "r_ovl": 0.378670321105797,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -66519,14 +66519,14 @@
     "r_ovl": 0.43759489459511913,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -67108,14 +67108,14 @@
     "r_ovl": 0.3594855762488086,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -67669,14 +67669,14 @@
     "r_ovl": 0.343955068507437,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -68225,14 +68225,14 @@
     "r_ovl": 0.195501685685502,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -68824,14 +68824,14 @@
     "r_ovl": 0.24363194485663842,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -69375,14 +69375,14 @@
     "r_ovl": 0.23372820726083998,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -71084,14 +71084,14 @@
     "r_ovl": 0.19838720892200196,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -72792,14 +72792,14 @@
     "r_ovl": 0.14062358342669115,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -74502,14 +74502,14 @@
     "r_ovl": 0.1881523917832699,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -76211,14 +76211,14 @@
     "r_ovl": 0.14286683101874217,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -77920,14 +77920,14 @@
     "r_ovl": 0.15941078201011766,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -78512,14 +78512,14 @@
     "r_ovl": 0.2911698853164703,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -80222,14 +80222,14 @@
     "r_ovl": 0.12323841458829668,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -80828,14 +80828,14 @@
     "r_ovl": 0.13271008378369728,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -82538,14 +82538,14 @@
     "r_ovl": 0.1516996184124426,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -84247,14 +84247,14 @@
     "r_ovl": 0.19362030778889394,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -84795,14 +84795,14 @@
     "r_ovl": 0.29750827737778124,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -85352,14 +85352,14 @@
     "r_ovl": 0.4484412383377472,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -85926,14 +85926,14 @@
     "r_ovl": 0.28086999821683983,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -86471,14 +86471,14 @@
     "r_ovl": 0.43417985619979776,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -87046,14 +87046,14 @@
     "r_ovl": 0.35138460989892406,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -87615,14 +87615,14 @@
     "r_ovl": 0.2971121278739492,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -88187,14 +88187,14 @@
     "r_ovl": 0.17034428664773074,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -88823,14 +88823,14 @@
     "r_ovl": 0.24108753283856507,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -89413,14 +89413,14 @@
     "r_ovl": 0.3122586592252202,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -91126,14 +91126,14 @@
     "r_ovl": 0.20940818341770737,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -92839,14 +92839,14 @@
     "r_ovl": 0.16170819670679032,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -94553,14 +94553,14 @@
     "r_ovl": 0.17586094001662303,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -96267,14 +96267,14 @@
     "r_ovl": 0.17114335891334534,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -97981,14 +97981,14 @@
     "r_ovl": 0.20102137256743646,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -98586,14 +98586,14 @@
     "r_ovl": 0.24854000680575394,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -100300,14 +100300,14 @@
     "r_ovl": 0.140872213500648,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -100924,14 +100924,14 @@
     "r_ovl": 0.10768824882588132,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -102638,14 +102638,14 @@
     "r_ovl": 0.13733402767318972,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -104351,14 +104351,14 @@
     "r_ovl": 0.2236919706470754,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -104916,14 +104916,14 @@
     "r_ovl": 0.302197819369515,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -105503,14 +105503,14 @@
     "r_ovl": 0.3938632491659402,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -106081,14 +106081,14 @@
     "r_ovl": 0.25487460967786474,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -106669,14 +106669,14 @@
     "r_ovl": 0.42851725311336913,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -107264,14 +107264,14 @@
     "r_ovl": 0.3606997400119489,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -107857,14 +107857,14 @@
     "r_ovl": 0.29288222691052856,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -108449,14 +108449,14 @@
     "r_ovl": 0.18742972027480406,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -109097,14 +109097,14 @@
     "r_ovl": 0.168158587717593,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -109700,14 +109700,14 @@
     "r_ovl": 0.28164833416074236,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -111418,14 +111418,14 @@
     "r_ovl": 0.16091359424114465,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -113138,14 +113138,14 @@
     "r_ovl": 0.09999457138363733,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -114858,14 +114858,14 @@
     "r_ovl": 0.1317889617993085,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -116578,14 +116578,14 @@
     "r_ovl": 0.09162123955660957,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -118298,14 +118298,14 @@
     "r_ovl": 0.1234156299722804,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -118923,14 +118923,14 @@
     "r_ovl": 0.15397236941219952,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -120643,14 +120643,14 @@
     "r_ovl": 0.08251979191853565,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -121267,14 +121267,14 @@
     "r_ovl": 0.0629729690629671,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -122987,14 +122987,14 @@
     "r_ovl": 0.09659669759875651,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -124706,14 +124706,14 @@
     "r_ovl": 0.13834200409872155,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -125271,14 +125271,14 @@
     "r_ovl": 0.19687702965290219,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -125897,14 +125897,14 @@
     "r_ovl": 0.3328571221899681,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -126521,14 +126521,14 @@
     "r_ovl": 0.2082952053621216,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -127129,14 +127129,14 @@
     "r_ovl": 0.33700918608422986,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -127748,14 +127748,14 @@
     "r_ovl": 0.2691921424779578,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -128365,14 +128365,14 @@
     "r_ovl": 0.2197133810713407,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   },
@@ -128969,14 +128969,14 @@
     "r_ovl": 0.13355805526541348,
     "instances_in_circuit": null,
     "simulated": false,
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds"
    }
   }

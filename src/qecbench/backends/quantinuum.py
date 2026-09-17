@@ -106,7 +106,7 @@ class HeliosProgram:
 # Guppy programs
 # --------------------------------------------------------------------------------------
 def guppy_mcm_parallel(num_data_qubits: int, depth: int, delta: float = 0.5):
-    """1D-chain LR-QAOA with the MCM gadgets in two colour classes (``benchmarking_quantinuum``).
+    """1D-chain LR-QAOA with the MCM gadgets in two colour classes (the parallel program of the earlier Helios-1 campaign).
 
     Index arithmetic rather than a comptime list of edges: Guppy cannot index a comptime list
     with a runtime loop variable. Guppy angles are in half-turns, hence the division by pi.

@@ -17,7 +17,7 @@
   "chain_lengths": [
    2
   ],
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_files": [
    "20260813_1637_ibm_kingston_tri_0_1_2_mcm_nq2_depth12.json",
    "20260813_1637_ibm_kingston_tri_0_1_2_mcm_nq2_depth3.json",

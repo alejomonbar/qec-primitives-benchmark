@@ -17,7 +17,7 @@
   "codes": [
    "surface_d5"
   ],
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_files": [
    "20260909_1619_ibm_phoenix-scanbest_sc_MCM_nq25_depth10.json",
    "20260909_1619_ibm_phoenix-scanbest_sc_MCM_nq25_depth3.json",
@@ -1720,7 +1720,7 @@
     "instances_in_circuit": null,
     "simulated": false,
     "source_file": "20260909_1619_ibm_phoenix-scanbest_sc_MCM_nq25_depth3.json",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds",
     "placement": "physical qubits rebuilt from the patch anchor; the file stores logical labels",
     "kind_source": "file name",
@@ -3427,7 +3427,7 @@
     "instances_in_circuit": null,
     "simulated": false,
     "source_file": "20260909_1619_ibm_phoenix-scanbest_sc_MCM_nq25_depth5.json",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds",
     "placement": "physical qubits rebuilt from the patch anchor; the file stores logical labels",
     "kind_source": "file name",
@@ -5145,7 +5145,7 @@
     "instances_in_circuit": null,
     "simulated": false,
     "source_file": "20260909_1619_ibm_phoenix-scanbest_sc_MCM_nq25_depth10.json",
-    "program": "nighthawk_sc.sc_lrqaoa",
+    "program": "square-lattice MCM LR-QAOA (legacy builder)",
     "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds",
     "placement": "physical qubits rebuilt from the patch anchor; the file stores logical labels",
     "kind_source": "file name",

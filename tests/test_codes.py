@@ -328,7 +328,7 @@ def test_convert_legacy_ibm_code_run_onto_its_patch():
     stamp, rec = convert_legacy_code(legacy, name, placement=patch)
     assert rec["metadata"]["backend"] == "ibm_phoenix" and rec["benchmark"]["run_tag"] == "scanbest"
     assert instance_from_record(rec) == patch and not patch.logical and "backend_note" not in rec["benchmark"]
-    assert rec["benchmark"]["program"] == "nighthawk_sc.sc_lrqaoa" and not rec["metadata"]["simulated"]
+    assert rec["benchmark"]["program"] == "square-lattice MCM LR-QAOA (legacy builder)" and not rec["metadata"]["simulated"]
 
 
 def test_shots_to_rank_and_white_noise():

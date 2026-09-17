@@ -1,13 +1,13 @@
 """From counts to approximation ratios, result files, and back.
 
-Result files keep the schema of ``utils.save_experiment_results`` (``metadata``,
+Result files keep the schema of the earlier campaigns (``metadata``,
 ``parameters``, ``hamiltonian``, ``samples``, ``energy_analysis``, ``random_baseline``,
 ``statistical_comparison``) so the existing figure notebooks keep working, plus a
 ``benchmark`` block with what this package adds: the exact noiseless reference ``r_ideal``,
 the normalised ``r_ovl = (r - r_rand) / (r_ideal - r_rand)`` and shot-noise error bars.
 
 ``load_results`` reads both new files (``*_chain_<qubits>_<kind>_nq<n>_depth<p>.json``) and
-the legacy triplet files (``*_tri_<d1>_<a>_<d2>_<kind>_nq2_depth<p>.json``) of the MCM repo,
+the legacy triplet files (``*_tri_<d1>_<a>_<d2>_<kind>_nq2_depth<p>.json``) of earlier campaigns,
 recomputing every derived number from the stored samples so old and new runs are compared
 on exactly the same footing.
 """
@@ -71,6 +71,19 @@ def run_filename(backend_name, structure, kind, stamp=None):
     """Name of a run file: every result of one submission, for one structure and kind."""
     stamp = stamp or datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{stamp}_{backend_name}_{structure}_{kind}.json"
+
+
+AWS_ACCOUNT_IN_ARN = re.compile(r"(arn:aws:[a-z0-9-]+:[a-z0-9-]*:)\d{12}(:)")
+
+
+def public_job_id(job_id):
+    """The job id as stored in a result file: an Amazon Braket task ARN loses its AWS account number.
+
+    ``arn:aws:braket:eu-north-1:123456789012:quantum-task/<uuid>`` becomes
+    ``arn:aws:braket:eu-north-1:<aws-account>:quantum-task/<uuid>``; the task uuid still identifies the run. Other
+    ids (IBM, Quantinuum, local) are unchanged. Manifests keep the full ARN, which fetching the task needs.
+    """
+    return None if job_id is None else AWS_ACCOUNT_IN_ARN.sub(r"\1<aws-account>\2", str(job_id))
 
 
 def record_key(record):
@@ -156,7 +169,7 @@ def make_record(counts, primitive, *, depth, delta, backend_name, job_id, kind, 
     return {
         "metadata": {"timestamp": datetime.now().isoformat(),
                      "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
-                     "problem": "Hamiltonian QAOA", "backend": backend_name, "task_id": job_id,
+                     "problem": "Hamiltonian QAOA", "backend": backend_name, "task_id": public_job_id(job_id),
                      "package": "qecbench", "simulated": bool(simulated),
                      "noise_model": noise},
         "parameters": {"depth": depth, "delta": delta, "num_data_qubits": primitive.n_data,
@@ -201,7 +214,7 @@ LEGACY_TRIPLET_RE = re.compile(r"^(?P<stamp>\d{8}_\d{4,6})_(?P<backend>.+?)_tri_
 
 
 def convert_legacy_chain(record, filename):
-    """A 1D-chain result file of the MCM repository, in this package's form. Two namings are read:
+    """A 1D-chain result file of an earlier campaign, in this package's form. Two namings are read:
 
     * ``<stamp>_<backend>_[1d|1dpin|1dfix|1dfree_]<normal|MCM>_nq<n>_depth<p>.json`` - chains;
     * ``<stamp>_<backend>_tri_<d1>_<a>_<d2>_mcm_nq2_depth<p>.json`` - triplets (the ``n = 2`` chain
@@ -296,7 +309,7 @@ LEGACY_CODE_RE = re.compile(r"^(?P<stamp>\d{8}_\d{4,6})_(?P<backend>.+?)_(?P<fam
                             r"(?:_(?P<v1>MCM|normal))?_nq(?P<n>\d+)(?:_(?P<v2>MCM|normal))?_depth(?P<depth>\d+)"
                             r"(?:_(?P<suffix>combined))?\.json$")
 LEGACY_CODE_FAMILIES = {"sc": "surface_code", "cc": "color_code", "qldpc": "qldpc"}
-LEGACY_CODE_PROGRAMS = {       # the Guppy programs of the MCM repository that produced the device runs
+LEGACY_CODE_PROGRAMS = {       # the Guppy programs of the earlier campaigns that produced the device runs
     ("sc", "mcm"): "qaoa_mcm_sc", ("sc", "direct"): "qaoa_normal_sc",
     ("cc", "mcm"): "qaoa_mcm_cc", ("cc", "direct"): "qaoa_normal_cc",
     ("qldpc", "mcm"): "qaoa_mcm_qldpc", ("qldpc", "direct"): "qaoa_normal_qldpc",
@@ -328,8 +341,7 @@ def legacy_code_structure(family_token, n_data, hamiltonian, code_name=None):
 
 
 def convert_legacy_code(record, filename, placement=None):
-    """A code-structure result file of the MCM repository (``benchmarking_quantinuum.ipynb``,
-    ``qldpc_code.ipynb``) in this package's form, or None.
+    """A code-structure result file of an earlier (Quantinuum or IBM) campaign in this package's form, or None.
 
     Names read: ``<stamp>_<backend>_<sc|cc>_<MCM|normal>_nq<n>_depth<p>.json``, the early
     ``<stamp>_<backend>_sc_nq<n>[_MCM]_depth<p>.json``, and
@@ -382,7 +394,7 @@ def convert_legacy_code(record, filename, placement=None):
         if placement is None or placement.kind != kind or placement.code != structure:
             return None
         instance = placement
-        extra = {"source_file": name, "program": "nighthawk_sc.sc_lrqaoa",
+        extra = {"source_file": name, "program": "square-lattice MCM LR-QAOA (legacy builder)",
                  "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds",
                  "placement": "physical qubits rebuilt from the patch anchor; the file stores logical labels"}
     else:
@@ -451,6 +463,8 @@ def load_results(data_dir, backend_name, kind="mcm", n_data=None, job_ids=None, 
     if manifest_path is not None:
         manifest = json.loads(Path(manifest_path).read_text())
         job_ids = {j["job_id"] for j in manifest["jobs"] if j.get("job_id")}
+    if job_ids is not None:
+        job_ids = {public_job_id(j) for j in job_ids}
     root = Path(data_dir)
     scope = root / backend_name if (root / backend_name).is_dir() else root
     results = {}
@@ -468,7 +482,7 @@ def load_results(data_dir, backend_name, kind="mcm", n_data=None, job_ids=None, 
             from_name = parse_filename(path.name) or {}
             if (params.get("kind") or from_name.get("kind") or "mcm") != kind:
                 continue
-            if job_ids is not None and meta.get("task_id") not in job_ids:
+            if job_ids is not None and public_job_id(meta.get("task_id")) not in job_ids:
                 continue
             instance = instance_from_record(record)
             if instance is None or (n_data is not None and instance.n_data != n_data):

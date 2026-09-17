@@ -28,7 +28,7 @@ def dense_reference(hamiltonian, n, depth, delta=0.5):
 
 
 def notebook_noiseless_r(depth, delta=0.5):
-    """Verbatim from benchmarking_ibm_auto.ipynb (section 11): exact two-spin LR-QAOA."""
+    """Exact two-spin LR-QAOA, as the earlier triplet analysis computed it."""
     g = [k * delta / depth for k in range(1, depth + 1)]
     b = [(depth - k + 1) * delta / depth for k in range(1, depth + 1)]
     zz = np.array([1., -1., -1., 1.])

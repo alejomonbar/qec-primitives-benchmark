@@ -570,7 +570,7 @@ Files of any kind load, including kinds this package no longer builds: that camp
 the conditional $X$. Drop it from `EARLIER_KINDS` if you only want the benchmark itself.
 '''),
         code('''
-EARLIER_DATA = ROOT.parent / "Benchmarking-Mid-circuit-measurement" / "Data"
+EARLIER_DATA = Path("path/to/earlier/Data")   # folder of earlier result files
 EARLIER_BACKEND = "ibm_phoenix"
 EARLIER_MANIFEST = EARLIER_DATA / "manifests" / "20260911_102009_ibm_phoenix_mcm_triples.json"  # None = all runs
 EARLIER_KINDS = ("mcm", "mcm_reset")   # mcm_reset: earlier ancilla-recycling variant, still readable
@@ -1414,7 +1414,7 @@ The device data are four runs of the 10-spin chain, in this repository's result 
 `data/results/<backend>/chain/<kind>/`: `ibm_boston` hardware at 10 000 shots per circuit (6 May 2026) and
 `Helios-1E`, Quantinuum's emulator of Helios-1 with its noise model, at 1 000 shots (7-8 May 2026, flagged as
 simulated). Each device ran the circuit both directly (`direct`) and with mid-circuit measurements (`mcm`).
-They were converted from `Benchmarking-Mid-circuit-measurement/Data` (`<stamp>_<backend>_1d_<normal|MCM>_nq10_depth<p>.json`)
+They were converted from earlier result files (`<stamp>_<backend>_1d_<normal|MCM>_nq10_depth<p>.json`)
 by `scripts/import_legacy_chains.py`, so $r$ and the probability of the optimum come from the samples. The
 run files hold every depth that was run. `DEVICE_RUNS` selects the depths used here, the same as in the
 published analysis: $p = 10\ldots50$ for `ibm_boston` and $p = 1\ldots10, 15, 20, 30, 40, 50$ for `Helios-1E`.
@@ -1718,8 +1718,8 @@ def random_sigma(shots):
 ### Data shared by Fig. 3c-3f
 
 **Triplet campaigns.** One campaign per device, 500 shots per circuit, every data-ancilla-data triplet the
-device offers, at $p = 3, 6, 9, 12$. Converted from the triplet files of
-`Benchmarking-Mid-circuit-measurement/Data` (`<stamp>_<backend>_tri_<d1>_<a>_<d2>_mcm_nq2_depth<p>.json`) into
+device offers, at $p = 3, 6, 9, 12$. Converted from the earlier triplet files
+(`<stamp>_<backend>_tri_<d1>_<a>_<d2>_mcm_nq2_depth<p>.json`) into
 `data/results/<backend>/chain/mcm/`:
 
 | device | run file(s) | triplets |
@@ -1981,10 +1981,9 @@ below). The grey curve is serialized too, so the further ~2x between it and 25 A
 the ordering. Those runs are three to five months apart, and the gap most likely reflects improvements in the
 machine's calibration over that time (no calibration record of these runs is kept to confirm it).
 
-*Provenance of the orderings.* The serial program is what the Quantinuum notebook of the earlier repository
-contained for the May runs (commit of 26 May 2026, whose saved output is the 25 May run). The 25 August runs were
-serialized as well; the fit files of that repository record them as "colour?", which is wrong. The parallel program
-first appears in the commit of 1 September. The 9 September runs are recorded as the two-colour ordering, and the
+*Provenance of the orderings.* The serial program is the one the earlier Quantinuum campaign used for the May
+runs. The 25 August runs were serialized as well; their earlier fit files record them as "colour?", which is wrong.
+The parallel program was introduced on 1 September. The 9 September runs are recorded as the two-colour ordering, and the
 15 September run is known to use it.
 
 **IBM Boston.** On 25 August each size used its own layout chosen at submission. The 27 and 31 August
@@ -2203,7 +2202,7 @@ Helios-1E emulator is left out so that no simulated point looks measured.
 
 **Read the MCM curves against each other.** Every MCM curve here uses the two-colour ordering of the gadgets:
 the IBM campaigns, the Helios-1 runs (the parallel program, Fig. 4) and the H2 runs. H2 does not run Guppy, so its
-runs were built as pytket circuits (`benchmarking_quantinuum_h2-1.ipynb` in the earlier repository). That builder
+runs were built as pytket circuits in the earlier H2 campaign. That builder
 colours the bonds into even and odd classes and gives each class a pool of $\lfloor N_q/2 \rfloor$ ancillas, reset and
 reused between classes, since H2-1 has a fixed 56-qubit register. Within a class the gadgets touch disjoint data
 qubits and disjoint ancillas, so none waits on another. The stored runs carry exactly those pools (5, 10 and 15
@@ -2449,13 +2448,13 @@ section 0). For each code, labelled on the $x$ axis by its distance (for qLDPC c
 number of data qubits, the bars give
 $r$ at each depth: **direct** (wide, blue) behind **MCM** (narrow, red). The black line is the noiseless $r_{\rm ideal}$ where one exists.
 
-**Runs.** Converted from `Benchmarking-Mid-circuit-measurement/Data` by `scripts/import_legacy_codes.py`
+**Runs.** Converted from earlier result files by `scripts/import_legacy_codes.py`
 (`<stamp>_<backend>_<sc|cc|qldpc>_..._nq<n>_depth<p>.json`, one file per structure and depth) into
 `data/results/<backend>/<family>/<kind>/`. They are exactly the files the published panels read: for every size,
 kind and depth the newest file. Each converted result is a logical `CodePatch` of the generated structure
 (`qecbench.codes`), whose checks were verified to equal the file's Hamiltonian. The runs up to $d = 5$ (and BB18)
 are on the **Helios-1E emulator**, the larger ones on **Helios-1**. All of them used the serial programs of
-that repository, one check at a time with a fresh ancilla each, not the batched programs of this package.
+the earlier campaigns, one check at a time with a fresh ancilla each, not the batched programs of this package.
 
 | panel | code sizes | Helios-1E runs | Helios-1 runs | shots |
 |---|---|---|---|---|
@@ -2470,7 +2469,7 @@ reference, and the published line is kept as a stored reference (`data/reference
 `scripts/import_legacy_codes.py --references`) for the two structures it was drawn for: the colour code
 $d = 7$ and BB30 (10 000-shot simulations). The surface code $d = 7$ had a simulation too, but the published
 panel left it out, and so does this one. The colour-code $d = 7$ references are matrix-product-state simulations run on an HPC
-system ($p = 10$ at bond dimension 256); earlier, smaller runs of the same problem in that repository's `Data/` are
+system ($p = 10$ at bond dimension 256); earlier, smaller runs of the same problem are
 not used.
 
 Two provenance notes are kept in the converted records (`benchmark.kind_source`, `benchmark.backend_note`):
@@ -2981,7 +2980,7 @@ Helios is all-to-all connected and reuses qubits, so there is no layout to choos
 **logical** labels, data qubits `0..n-1` (character $i$ of a result is data qubit $i$) and one ancilla label
 per check. The program decides how the gadgets meet the machine.
 
-The earlier programs (`benchmarking_quantinuum.ipynb` of the reference study) measured the checks **one at
+The earlier programs measured the checks **one at
 a time**: allocate an ancilla, entangle, measure, correct, then the next check. One round of the $d = 5$
 surface code was 24 measure-and-correct steps in a row, with one of Helios-1's 8 operation zones busy and
 every data qubit idling through the other 23.

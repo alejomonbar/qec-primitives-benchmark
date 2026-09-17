@@ -1,4 +1,4 @@
-"""Device maps, circuit partitions and depth sweeps (house style of the MCM repo)."""
+"""Device maps, circuit partitions, depth sweeps and surface-code drawings."""
 
 from __future__ import annotations
 

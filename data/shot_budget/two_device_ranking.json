@@ -5,7 +5,7 @@
   "kind": "direct",
   "p_layers_delta": 0.5,
   "noise": "two-qubit depolarizing channel of strength lambda after every CNOT (Aer)",
-  "source": "Benchmarking-Mid-circuit-measurement/scripts/two_device_gap_surface.py",
+  "source": "earlier noisy-simulation campaign (moments only)",
   "pairs": {
    "0.02/0.01": {
     "lambda_worse": 0.02,
@@ -91,7 +91,7 @@
   "model": "P = A P_ideal + (1 - A) P_random, A = 2^(-c p lambda), c = kappa_0(n) N_CX",
   "c": 17.77038038296314,
   "n_cx_per_layer": 66,
-  "source": "Benchmarking-Mid-circuit-measurement/scripts/two_device_ranking_color.py (kappa_0 from Data/k_saturation_fit_color_code.json)",
+  "source": "earlier white-noise model (kappa_0 fitted to colour-code simulations)",
   "pairs": {
    "0.02/0.01": {
     "lambda_worse": 0.02,

@@ -13,9 +13,8 @@ that primitive.
 round of syndrome extraction per LR-QAOA layer, on Helios and, for surface-code patches, on IBM's
 square-lattice chips (see *QEC structures*).
 
-It generalises `benchmarking_ibm_auto.ipynb`, `benchmarking_iqm_auto.ipynb` and the chain circuits
-of `benchmarking_ibm.ipynb` from the `Benchmarking-Mid-circuit-measurement` repository, and it reads
-that repository's result files.
+It also reads the result files of earlier campaigns of this benchmark (per-instance JSON files) and
+converts them into its own format (see *Paper figures*).
 
 ## Install
 
@@ -23,10 +22,10 @@ that repository's result files.
 pip install -e ".[ibm,iqm,quantinuum,qec,dev]"  # or any one of them: ".[ibm]" / ".[iqm]" / ".[quantinuum]" / ".[qec]"
 ```
 
-The `.venv` of `Benchmarking-Mid-circuit-measurement` already has every dependency:
+Run the tests with
 
 ```bash
-../Benchmarking-Mid-circuit-measurement/.venv/bin/python -m pytest
+python -m pytest
 ```
 
 ## Workflow
@@ -184,7 +183,7 @@ and a 3-spin chain in the same circuit.
   couplers between groups before instances are selected.
 * **IBM, classical-control memory** (error 6073). Circuits per job are capped (`max_circuits_per_job`, default 8).
 * **IBM cost estimate.** Feed-forward is charged 1.9 µs per conditional per layer. That figure is an
-  *unconfirmed hypothesis* carried over from `ibm_mcm_auto`, so treat the QPU seconds as an order of magnitude.
+  *unconfirmed hypothesis* carried over from earlier campaigns, so treat the QPU seconds as an order of magnitude.
 
 ## QEC structures
 
@@ -209,9 +208,8 @@ plan = build_plan(backend, code_instances(code), depths=[3, 5, 10], shots=50)
 * **Generators.** `surface_code(d)` has `d²` data qubits, `(d−1)²` weight-4 and `2(d−1)` weight-2 checks.
   `color_code(d)` is the triangular 6.6.6 code. `bivariate_bicycle(name)` (`BB18`, `BB24`, `BB30`, `BB48`,
   `GB16`, `GB26`) takes the independent rows of `H_X = [A|B]` and `H_Z = [Bᵀ|Aᵀ]`, with duplicates merged into
-  weight 2. They reproduce the Hamiltonians of the reference study (`utils.sc_hamiltonian`,
-  `color_code_graph`, `qldpc_code.ipynb`) check for check. `load` also reads that study's
-  `graphs/*_hamiltonian.txt` files and the `hamiltonian` block of its result files.
+  weight 2. They reproduce the Hamiltonians the earlier campaigns ran, check for check. `load` also reads
+  `*_hamiltonian.txt` files (a `#n_qubits:<n>` header, one support per line) and the `hamiltonian` block of result files.
 * **References.** `E_min` is exact (integer programming). For these codes every check can read −1 at
   once, so `E_min = −Σw` and `r_rand = 1/2`. `r_ideal` is exact up to 25 data qubits, by direct NumPy
   evolution of the statevector (about 10x faster than Qiskit's gate-by-gate `Statevector`). Above 20 qubits
@@ -248,9 +246,12 @@ do not match the Hamiltonian the runs used, which has 80 checks: 288 CX and 80 M
   legacy seeded bootstrap gave 0.506 ± 0.020 for 500-shot triplets.
 * `r_ideal(p)` comes from an exact statevector. `r_ovl = (r − r_rand)/(r_ideal − r_rand)`: 1 is
   noiseless, 0 is random.
-* Result files keep the `utils.save_experiment_results` schema and add a `benchmark` block. File
+* Result files keep the schema of the earlier campaigns and add a `benchmark` block. File
   names: `<stamp>_<backend>_chain_<qubits>_<kind>_nq<n>_depth<p>.json`.
 * `load_results` also reads the legacy `*_tri_<d1>_<a>_<d2>_*` files and recomputes everything from their samples.
+* Result files never store an AWS account number: an Amazon Braket task ARN is written with `<aws-account>` in its
+  place (`analysis.public_job_id`). Manifests keep the full ARN, which fetching a task needs, so an IQM manifest is
+  best kept out of a public repository once harvested.
 
 ## Noise study
 
@@ -289,11 +290,11 @@ their runs with the same windows as the published figure. Because every referenc
 `κ_0 = 3.69`, the 1000-shot IBM values come out 0.95× the published ones (the ratio of the two `κ_0`),
 and runs with fewer shots move by up to about 12%.
 
-Those runs, 530 files of `Benchmarking-Mid-circuit-measurement/Data`, are converted into 40 run files
+Those runs, 530 earlier result files, are converted into 40 run files
 under `data/results/<backend>/chain/<direct|mcm>/` with
 
 ```bash
-python scripts/import_legacy_chains.py "../Benchmarking-Mid-circuit-measurement/Data/<stamp>_<backend>_1dpin_MCM_nq*" --apply
+python scripts/import_legacy_chains.py "path/to/legacy/Data/<stamp>_<backend>_1dpin_MCM_nq*" --apply
 ```
 
 It reads `<stamp>_<backend>_[1d|1dpin|1dfix|1dfree_]<normal|MCM>_nq<n>_depth<p>.json`, files `normal` as
@@ -337,19 +338,19 @@ figure names the run files it uses, so later campaigns added to `data/` never ch
 The fits use `κ_0 = 3.69` from `data/noise_study/kappa_fits.json`, so every value is 0.95x the published one (3.51 before).
 *Fig. 6 code runs*, in `data/results/<Helios-1E|Helios-1>/<color_code|surface_code|qldpc>/<kind>/`: the newest file
 per code, kind and depth, exactly as the published panels read them (run files named in section 7 of the notebook).
-All were run with the serial programs of the earlier repository, one check at a time. The noiseless line is exact
+All were run with the serial programs of the earlier campaigns, one check at a time. The noiseless line is exact
 up to 25 data qubits; for the colour code `d = 7` and BB30 it is the stored simulation estimate
 (`data/references/ideal_energies.json`). The colour-code `d = 7` references are MPS simulations run on an HPC
 system (`p = 10` at bond dimension 256); earlier, smaller runs of the same problem in the source `Data/` are not used.
 
 **To reproduce** a figure, run its section of `paper_figures.ipynb`. The data is already in the repository,
-so no account or earlier repository is needed.
+so no account or earlier files are needed.
 
 **Where the data came from.** Figures that use earlier campaigns rely on files converted by
-`scripts/import_legacy_chains.py` from `Benchmarking-Mid-circuit-measurement/Data`. For Fig. 3c-3f, 4 and 5:
+`scripts/import_legacy_chains.py` from the earlier result files (`$S` below is the folder holding them). For Fig. 3c-3f, 4 and 5:
 
 ```bash
-S=../Benchmarking-Mid-circuit-measurement/Data
+S=path/to/legacy/Data
 python scripts/import_legacy_chains.py "$S/20260813_0729_iqm_garnet_tri_*_mcm_nq2_depth*" \
     "$S/20260813_0722_iqm_emerald_tri_*_mcm_nq2_depth*" "$S/20260813_0723_iqm_emerald_tri_*_mcm_nq2_depth*" \
     "$S/20260813_1637_ibm_kingston_tri_*_mcm_nq2_depth*" "$S/20260814_0818_ibm_boston_tri_*_mcm_nq2_depth*" \
@@ -374,11 +375,11 @@ python scripts/import_legacy_codes.py "$S"/20260820_070[79]_H2-1E_sc_MCM_nq9_dep
     "$S"/20260825_1229_Helios-1_sc_MCM_nq25_depth3.json "$S"/20260825_1230_Helios-1_sc_MCM_nq25_depth{5,10}.json --apply   # Fig. 8b, 8c
 python scripts/import_legacy_codes.py "$S"/20260909_1631_ibm_phoenix-scanbest_sc_MCM_nq9_depth{3,5,10}.json --anchor 7,4 --apply
 python scripts/import_legacy_codes.py "$S"/20260909_1619_ibm_phoenix-scanbest_sc_MCM_nq25_depth{3,5,10}.json --anchor 2,4 --apply
-python scripts/import_shot_budget.py --apply                                                                   # Fig. 8a
+python scripts/import_shot_budget.py "$S"/figure_data --apply                                                                   # Fig. 8a
 python scripts/import_position_scan.py "$S"/manifests/20260914_0941_ibm_phoenix_sc_position_scan.json --apply   # Fig. 9 (needs the IBM account)
 ```
 
-Fig. 9 re-harvests the finished jobs of the position scan (read-only, no QPU time): the earlier repository kept only
+Fig. 9 re-harvests the finished jobs of the position scan (read-only, no QPU time): the earlier analysis kept only
 aggregated numbers. Both arms are stored in the common format, the memory with every shot's raw syndrome and data bits
 (packed, 15 MB for 228 circuits), and each patch with the calibration snapshot of the scan. The logical error rates
 decoded again from the raw shots equal the published ones exactly; `r_ovl` moves by up to about 0.02 with the exact

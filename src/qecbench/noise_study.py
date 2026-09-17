@@ -434,7 +434,7 @@ def collapse(decays: dict, n: int, lambdas, observable="r"):
 
 
 def fit_kappa(eps, overlap, max_tail=None, tail=None):
-    """Least-squares ``kappa`` of ``r_ovl`` (or ``rho_ovl``) ``= 2^(-kappa eps)``, as in the reference study.
+    """Least-squares ``kappa`` of ``r_ovl`` (or ``rho_ovl``) ``= 2^(-kappa eps)``, as in the earlier noise analysis.
 
     Points with a non-positive overlap are dropped, and so are points whose ``tail`` exceeds
     ``max_tail`` when both are given.

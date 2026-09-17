@@ -1,6 +1,6 @@
 """IBM Quantum (Qiskit Runtime) adapter.
 
-Ported from ``ibm_mcm_auto``.  What drives the design:
+What drives the design:
 
 * **No feed-forward groups** - any coupled path is executable, so chains of any length run.
 * **Billing is time.**  The estimate schedules every transpiled circuit against the
@@ -9,7 +9,7 @@ Ported from ``ibm_mcm_auto``.  What drives the design:
   the terminal ``measure``.
 * **Feed-forward has no published duration.**  Each conditional is charged
   ``FEEDFORWARD_PER_CONDITIONAL`` - a HYPOTHESIS inferred from billed seconds on
-  ibm_kingston (2026-08-13) and not confirmed since (see the notes in ``ibm_mcm_auto``).
+  ibm_kingston (2026-08-13) and not confirmed since.
   Treat every "QPU s" as an order of magnitude.
 * **Classical control memory** (error 6073) caps circuits per job: ``max_circuits_per_job``.
 """

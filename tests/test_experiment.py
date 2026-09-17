@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 import networkx as nx
@@ -15,7 +16,7 @@ from qecbench.backends import AerBackend, IQMBackend
 from qecbench.experiment import build_plan, harvest, print_plan, submit
 from qecbench.layout import restrict_to_groups, select_chains
 
-LEGACY = Path("/Users/alejomonbar/Documents/GitHub/Benchmarking-Mid-circuit-measurement/Data")
+LEGACY = Path(os.environ.get("QECBENCH_LEGACY_DATA", "legacy-data-not-configured"))   # folder of earlier result files
 
 
 def run_loop(backend, instances, tmp_path, depths=(2, 5)):
@@ -150,7 +151,7 @@ def test_filename_roundtrip():
     assert parse_filename("20260911_101110_ibm_boston_tri_4_5_6_mcm_reset_nq2_depth3.json")["kind"] == "mcm_reset"
 
 
-@pytest.mark.skipif(not LEGACY.exists(), reason="legacy MCM repository not present")
+@pytest.mark.skipif(not LEGACY.exists(), reason="set QECBENCH_LEGACY_DATA to a folder of earlier result files")
 def test_legacy_ibm_triplets_load():
     res = load_results(LEGACY, "ibm_phoenix", kind="mcm",
                        manifest_path=LEGACY / "manifests/20260911_102009_ibm_phoenix_mcm_triples.json")
@@ -265,3 +266,12 @@ def test_fig4_serialized_helios_runs_cost_more_per_edge():
     assert all(serial[n] > 4 * parallel[n] for n in serial)
     assert all(august[n] > 2.4 * parallel[n] for n in august)     # same chains, two weeks apart: the ordering
     assert serial[50] == pytest.approx(0.95 * 3.349e-02, rel=0.02)      # published value x (3.51 / 3.69)
+
+
+def test_public_job_id_drops_the_aws_account():
+    from qecbench.analysis import public_job_id
+
+    arn = "arn:aws:braket:eu-north-1:123456789012:quantum-task/24410d46-a910-4965-a501-9fa6e2afc93c"
+    assert public_job_id(arn) == "arn:aws:braket:eu-north-1:<aws-account>:quantum-task/24410d46-a910-4965-a501-9fa6e2afc93c"
+    assert public_job_id(public_job_id(arn)) == public_job_id(arn)
+    assert public_job_id("dajqaehhvn6c73cuomrg") == "dajqaehhvn6c73cuomrg" and public_job_id(None) is None

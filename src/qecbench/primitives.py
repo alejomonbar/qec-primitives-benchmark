@@ -158,8 +158,8 @@ class Chain(Primitive):
     """1D Ising chain on the physical path ``d0 - a0 - d1 - a1 - ... - d(n-1)``.
 
     ``H = sum_i Z_di Z_d(i+1)``, one ancilla per bond.  ``n_data = 2`` is the triplet
-    ``(d1, a, d2)`` of ``benchmarking_ibm_auto.ipynb``; longer chains are the
-    ``qaoa_1d_mcm`` circuits of ``benchmarking_ibm.ipynb``.
+    ``(d1, a, d2)`` of the earlier triplet campaigns; longer chains are their
+    ``qaoa_1d_mcm`` circuits.
 
     The orientation is canonicalised (the lexicographically smaller of the path and its
     reverse), so a triplet is stored as ``(d1, a, d2)`` with ``d1 < d2`` - the same tag as

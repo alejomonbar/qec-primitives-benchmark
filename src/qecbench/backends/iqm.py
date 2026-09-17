@@ -37,7 +37,7 @@ PRICING = {  # USD, aws.amazon.com/braket/pricing, checked 2026-08-12
 
 DEVICE_NAMES = {"iqm_garnet": "Garnet", "iqm_emerald": "Emerald"}
 
-# Transcribed from the AWS qubit-grouping figure for dynamic circuits (as in iqm_mcm_auto).
+# Transcribed from the AWS qubit-grouping figure for dynamic circuits.
 FF_GROUPS = {
     "iqm_garnet": {
         1: [8, 13, 14, 15, 18, 19],

@@ -1,4 +1,4 @@
-"""Bring 1D-chain results of the MCM repository into this package's convention.
+"""Bring 1D-chain result files of earlier campaigns into this package's convention.
 
 The source files are ``<stamp>_<backend>_[1d*_]<normal|MCM>_nq<n>_depth<p>.json`` (chains) and
 ``<stamp>_<backend>_tri_<d1>_<a>_<d2>_mcm_nq2_depth<p>.json`` (triplets) and
@@ -68,7 +68,7 @@ def main():
                "shots": sorted({r["parameters"]["shots"] for r in records}),
                "depths": sorted({r["parameters"]["depth"] for r in records}),
                "chain_lengths": sorted({r["parameters"]["num_data_qubits"] for r in records}),
-               "source": "Benchmarking-Mid-circuit-measurement/Data",
+               "source": "legacy campaign files",
                "source_files": sorted(p.name for p, _ in items)}
         out = save_run(Path(args.dest) / backend / structure / kind / run_filename(backend, structure, kind, stamp),
                        records, run=run)

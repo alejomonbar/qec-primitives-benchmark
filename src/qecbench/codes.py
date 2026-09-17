@@ -205,11 +205,11 @@ def _all_odd_solvable(n, checks) -> bool:
 # Generators
 # ======================================================================================
 def surface_code(d: int) -> CodeStructure:
-    """The surface-code-like Hamiltonian of the reference study on a ``d x d`` data grid.
+    """The surface-code-like Hamiltonian on a ``d x d`` data grid, as the earlier campaigns ran it.
 
     Data qubit ``i * d + j`` sits at row ``i``, column ``j``. Every unit square gives a weight-4
     check, and alternating boundary edges give ``2(d - 1)`` weight-2 checks, as in the rotated
-    surface code (``utils.sc_hamiltonian`` of the reference study; the term order is the same).
+    surface code (the term order is that of the earlier campaigns).
     """
     if d < 2:
         raise ValueError("surface code distance must be >= 2")
@@ -237,7 +237,7 @@ def color_code(d: int) -> CodeStructure:
     """The triangular 6.6.6 colour code of odd distance ``d``: its faces as checks.
 
     Bulk faces have weight 6 and boundary faces weight 4; ``d = 11`` has 91 data qubits and
-    45 checks. Built as in ``utils.color_code_graph`` of the reference study: the honeycomb
+    45 checks. Built as in the earlier campaigns: the honeycomb
     rows are laid out explicitly, the faces read off a planar embedding, and the outer face
     dropped.
     """
@@ -482,7 +482,7 @@ class Schedule:
         return max(map(len, self.batches))
 
     def idle_qubit_steps(self) -> int:
-        """``sum over batches of (n_data - |union of supports|)`` per round (reference study)."""
+        """``sum over batches of (n_data - |union of supports|)`` per round."""
         n = self.structure.n_data
         return sum(n - len({q for c in batch for q in self.structure.checks[c]}) for batch in self.batches)
 

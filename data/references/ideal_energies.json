@@ -101,7 +101,7 @@
   "n": 30,
   "n_terms": 26,
   "shots": 10000,
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_file": "20260630_1540_qasm_simulator_qldpc_BB30_normal_nq30_depth3.json"
  },
  "118bf2edc54a1be6813141f68f7a86f702c26d82": {
@@ -165,7 +165,7 @@
   "n": 37,
   "n_terms": 18,
   "shots": 10000,
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_file": "20260601_1510_qasm_simulator_cc_normal_nq37_depth10_chi256.json"
  },
  "1d5a5c0a1536b494f08d9f572ff721deb81969be": {
@@ -241,7 +241,7 @@
   "n": 37,
   "n_terms": 18,
   "shots": 10000,
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_file": "20260601_1431_qasm_simulator_cc_normal_nq37_depth3.json"
  },
  "2eafb34cb4fb9b261b9c63010bb0a1f3032f81b9": {
@@ -450,7 +450,7 @@
   "n": 30,
   "n_terms": 26,
   "shots": 10000,
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_file": "20260630_1542_qasm_simulator_qldpc_BB30_normal_nq30_depth10.json"
  },
  "58e16e4a85a03a2f903d49205fa1959f1a09a7a8": {
@@ -654,7 +654,7 @@
   "n": 37,
   "n_terms": 18,
   "shots": 10000,
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_file": "20260601_1433_qasm_simulator_cc_normal_nq37_depth5.json"
  },
  "c71e5e3c29ceebd540bb805daae073ffdcc81199": {
@@ -763,7 +763,7 @@
   "n": 30,
   "n_terms": 26,
   "shots": 10000,
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_file": "20260630_1541_qasm_simulator_qldpc_BB30_normal_nq30_depth5.json"
  }
 }

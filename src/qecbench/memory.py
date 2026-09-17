@@ -538,11 +538,13 @@ def harvest(manifest_path, backend, data_dir="data/results", service=None):
 
 def memory_record(counts, patch, rounds, basis, manifest, job_id, extra=None):
     """One stored memory result: raw shots (packed), the decoded logical error rate and where it came from."""
+    from .analysis import public_job_id
+
     syndromes, data = shots_from_counts(counts, rounds, patch.code.n_checks, patch.code.n_data)
     rate, err, fired = decode(syndromes, data, patch.code, rounds, basis, manifest["p_2q_model"])
     return {
         "metadata": {"timestamp": datetime.now().isoformat(), "experiment_type": "surface_code_memory",
-                     "backend": manifest["backend"], "task_id": job_id, "package": "qecbench",
+                     "backend": manifest["backend"], "task_id": public_job_id(job_id), "package": "qecbench",
                      "simulated": manifest["simulated"], "noise_model": manifest["noise_model"]},
         "parameters": {"kind": f"memory_{basis.lower()}", "basis": basis, "rounds": rounds, "depth": rounds,
                        "shots": int(sum(counts.values())), "p_2q_model": manifest["p_2q_model"],

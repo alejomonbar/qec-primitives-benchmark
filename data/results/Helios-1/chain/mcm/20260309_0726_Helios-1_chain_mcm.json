@@ -16,7 +16,7 @@
   "chain_lengths": [
    40
   ],
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_files": [
    "20260309_0726_Helios-1_MCM_nq40_depth10.json",
    "20260309_0726_Helios-1_MCM_nq40_depth3.json",

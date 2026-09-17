@@ -1,6 +1,6 @@
 """Where primitives go on a chip: coupling graphs, instance selection, packing and checks.
 
-Vendor-neutral.  Ported from ``iqm_mcm_auto`` / ``ibm_mcm_auto`` and generalised from
+Vendor-neutral, generalised from
 triplets to chains of any length:
 
 * ``select_chains`` benchmarks every ancilla-capable qubit (at least) once.  For triplets
@@ -443,7 +443,7 @@ def square_lattice_coordinates(G: nx.Graph):
 def surface_code_placements(G: nx.Graph, code, anchors=None):
     """Every placement of a ``codes.surface_code`` patch on a square-lattice chip, as ``CodePatch``.
 
-    As in the Nighthawk position scan of the reference study: data qubit ``(i, j)`` of the ``d x d``
+    As in the earlier Nighthawk position scan: data qubit ``(i, j)`` of the ``d x d``
     grid sits at lattice site ``(i + j + r0, i - j + c0)``, so data qubits are diagonal neighbours
     and every check's data qubits share a common neighbour, its ancilla (weight-4 checks placed
     first, each taking the free common neighbour nearest the patch centre). A placement needs

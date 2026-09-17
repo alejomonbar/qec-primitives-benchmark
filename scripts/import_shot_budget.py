@@ -6,14 +6,14 @@ and ``sigma`` are the mean and spread of the single-shot ``r``?
 
 * Surface code ``d = 3``: ``mu`` and ``sigma`` of noisy simulations, 50 000 shots per device and depth, of
   the direct circuit with a two-qubit depolarizing channel of strength ``lambda`` after every CNOT
-  (``scripts/two_device_gap_surface.py`` of the MCM repository). Only these moments were kept there, and
+  (an earlier simulation script, not included). Only these moments were kept, and
   they are all ``S*`` needs, so they are copied.
 * Colour code ``d = 5``: a white-noise model, ``P = A P_ideal + (1 - A) P_random`` with
-  ``A = 2^(-c p lambda)`` and ``c = kappa_0(n) N_CX`` (``scripts/two_device_ranking_color.py``). Only the
+  ``A = 2^(-c p lambda)`` and ``c = kappa_0(n) N_CX`` (an earlier analysis script). Only the
   model constant ``c`` and the depths are copied; the distributions are exact and recomputed
   (``qecbench.shots``).
 
-    python scripts/import_shot_budget.py [SOURCE_DIR] [--apply]
+    python scripts/import_shot_budget.py SOURCE_DIR [--apply]
 
 writes ``data/shot_budget/two_device_ranking.json``. It only reports unless ``--apply`` is given.
 """
@@ -30,7 +30,7 @@ OUT = ROOT / "data" / "shot_budget" / "two_device_ranking.json"
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("source", nargs="?", default=str(ROOT.parent / "Benchmarking-Mid-circuit-measurement" / "Data" / "figure_data"))
+    parser.add_argument("source", help="folder holding the earlier two_device_* figure-data files")
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
     src = Path(args.source)
@@ -54,13 +54,12 @@ def main():
                     "S* = z^2 (std_worse^2 + std_better^2) / (mean_better - mean_worse)^2, single-shot r",
         "surface_d3": {"code": "surface_d3", "kind": "direct", "p_layers_delta": 0.5,
                        "noise": "two-qubit depolarizing channel of strength lambda after every CNOT (Aer)",
-                       "source": "Benchmarking-Mid-circuit-measurement/scripts/two_device_gap_surface.py",
+                       "source": "earlier noisy-simulation campaign (moments only)",
                        "pairs": surface},
         "color_d5_model": {"code": "color_d5", "kind": "direct",
                            "model": "P = A P_ideal + (1 - A) P_random, A = 2^(-c p lambda), c = kappa_0(n) N_CX",
                            "c": c, "n_cx_per_layer": 66,
-                           "source": "Benchmarking-Mid-circuit-measurement/scripts/two_device_ranking_color.py "
-                                     "(kappa_0 from Data/k_saturation_fit_color_code.json)",
+                           "source": "earlier white-noise model (kappa_0 fitted to colour-code simulations)",
                            "pairs": model},
     }
     print(json.dumps(out, indent=1)[:2000])

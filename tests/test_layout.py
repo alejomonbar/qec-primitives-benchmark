@@ -16,7 +16,7 @@ def garnet():
 
 
 def test_triple_counts_match_legacy_notebook(garnet):
-    # benchmarking_iqm_auto.ipynb: "54 geometric triples, 35 executable"
+    # the earlier IQM triplet campaign: "54 geometric triples, 35 executable"
     assert len(enumerate_chains(garnet, 2)) == 54
     assert len(enumerate_chains(restrict_to_groups(garnet, FF_GROUPS["iqm_garnet"]), 2)) == 35
 

@@ -4,7 +4,7 @@
   "created": "2026-09-14T09:41:41.393073",
   "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
   "simulated": false,
-  "source": "Benchmarking-Mid-circuit-measurement position scan",
+  "source": "legacy position scan",
   "calibration": {
    "d3_r7_c2": {
     "data_qubits": [
@@ -6780,14 +6780,14 @@
     "logical_error_rate_err": 0.0020877582175625603,
     "detection_fraction": 0.06325,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -7003,14 +7003,14 @@
     "logical_error_rate_err": 0.001921913109378257,
     "detection_fraction": 0.06096875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -7226,14 +7226,14 @@
     "logical_error_rate_err": 0.002597110774495381,
     "detection_fraction": 0.06334375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -7449,14 +7449,14 @@
     "logical_error_rate_err": 0.0025742687068369533,
     "detection_fraction": 0.07909375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -7968,14 +7968,14 @@
     "logical_error_rate_err": 0.0021999964488607702,
     "detection_fraction": 0.10154166666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -8487,14 +8487,14 @@
     "logical_error_rate_err": 0.002280265198392503,
     "detection_fraction": 0.087125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -9006,14 +9006,14 @@
     "logical_error_rate_err": 0.0013641618305758301,
     "detection_fraction": 0.0860625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -9525,14 +9525,14 @@
     "logical_error_rate_err": 0.0015136410984774428,
     "detection_fraction": 0.07276041666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -10044,14 +10044,14 @@
     "logical_error_rate_err": 0.001667590889576937,
     "detection_fraction": 0.08777083333333334,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -10563,14 +10563,14 @@
     "logical_error_rate_err": 0.001685804703991539,
     "detection_fraction": 0.08167708333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -11082,14 +11082,14 @@
     "logical_error_rate_err": 0.002407588913207568,
     "detection_fraction": 0.08961458333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -11601,14 +11601,14 @@
     "logical_error_rate_err": 0.002419917353960668,
     "detection_fraction": 0.08885416666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -12120,14 +12120,14 @@
     "logical_error_rate_err": 0.0023321094260347216,
     "detection_fraction": 0.10173958333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -12639,14 +12639,14 @@
     "logical_error_rate_err": 0.002527891290186348,
     "detection_fraction": 0.09879166666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -12862,14 +12862,14 @@
     "logical_error_rate_err": 0.002267101673944069,
     "detection_fraction": 0.08375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -13085,14 +13085,14 @@
     "logical_error_rate_err": 0.0021164201792177283,
     "detection_fraction": 0.07946875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -13604,14 +13604,14 @@
     "logical_error_rate_err": 0.0025161478493920027,
     "detection_fraction": 0.11467708333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -14123,14 +14123,14 @@
     "logical_error_rate_err": 0.002885729976972898,
     "detection_fraction": 0.10813541666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -14346,14 +14346,14 @@
     "logical_error_rate_err": 0.0030230779017418655,
     "detection_fraction": 0.10034375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -14569,14 +14569,14 @@
     "logical_error_rate_err": 0.0030230779017418655,
     "detection_fraction": 0.11075,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -15088,14 +15088,14 @@
     "logical_error_rate_err": 0.0015136410984774428,
     "detection_fraction": 0.09361458333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -15607,14 +15607,14 @@
     "logical_error_rate_err": 0.001493234743769378,
     "detection_fraction": 0.08670833333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -16126,14 +16126,14 @@
     "logical_error_rate_err": 0.002158645408583818,
     "detection_fraction": 0.07997916666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -16645,14 +16645,14 @@
     "logical_error_rate_err": 0.0016305242638489008,
     "detection_fraction": 0.07535416666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -16868,14 +16868,14 @@
     "logical_error_rate_err": 0.0019060717129740948,
     "detection_fraction": 0.04903125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -17091,14 +17091,14 @@
     "logical_error_rate_err": 0.0020732673488964223,
     "detection_fraction": 0.055375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -17314,14 +17314,14 @@
     "logical_error_rate_err": 0.001221065108829173,
     "detection_fraction": 0.03903125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -17537,14 +17537,14 @@
     "logical_error_rate_err": 0.0014725350165615758,
     "detection_fraction": 0.04278125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -17760,14 +17760,14 @@
     "logical_error_rate_err": 0.0020586668926759373,
     "detection_fraction": 0.04559375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -17983,14 +17983,14 @@
     "logical_error_rate_err": 0.0020141840779829435,
     "detection_fraction": 0.06,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -18206,14 +18206,14 @@
     "logical_error_rate_err": 0.0012460876273360554,
     "detection_fraction": 0.04475,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -18429,14 +18429,14 @@
     "logical_error_rate_err": 0.001221065108829173,
     "detection_fraction": 0.03128125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -18652,14 +18652,14 @@
     "logical_error_rate_err": 0.0015925559252346526,
     "detection_fraction": 0.03671875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -18875,14 +18875,14 @@
     "logical_error_rate_err": 0.001667590889576937,
     "detection_fraction": 0.040375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -19098,14 +19098,14 @@
     "logical_error_rate_err": 0.001857686733547936,
     "detection_fraction": 0.04825,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -19321,14 +19321,14 @@
     "logical_error_rate_err": 0.001890089283605407,
     "detection_fraction": 0.04778125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -19544,14 +19544,14 @@
     "logical_error_rate_err": 0.002158645408583818,
     "detection_fraction": 0.0534375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -19767,14 +19767,14 @@
     "logical_error_rate_err": 0.0022135943621178654,
     "detection_fraction": 0.05359375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -19990,14 +19990,14 @@
     "logical_error_rate_err": 0.0036732967991982353,
     "detection_fraction": 0.095140625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -20213,14 +20213,14 @@
     "logical_error_rate_err": 0.0035343824602043286,
     "detection_fraction": 0.09903125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -20436,14 +20436,14 @@
     "logical_error_rate_err": 0.0038344633751021795,
     "detection_fraction": 0.095765625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -20659,14 +20659,14 @@
     "logical_error_rate_err": 0.0040739339096259285,
     "detection_fraction": 0.097984375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -21178,14 +21178,14 @@
     "logical_error_rate_err": 0.004397719579509362,
     "detection_fraction": 0.17738020833333334,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -21697,14 +21697,14 @@
     "logical_error_rate_err": 0.006276623296008771,
     "detection_fraction": 0.16693229166666668,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -22216,14 +22216,14 @@
     "logical_error_rate_err": 0.003454161891834255,
     "detection_fraction": 0.132171875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -22735,14 +22735,14 @@
     "logical_error_rate_err": 0.00346228789964093,
     "detection_fraction": 0.13008333333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -23254,14 +23254,14 @@
     "logical_error_rate_err": 0.0038344633751021795,
     "detection_fraction": 0.13708854166666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -23773,14 +23773,14 @@
     "logical_error_rate_err": 0.0034049022563063394,
     "detection_fraction": 0.1360625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -24292,14 +24292,14 @@
     "logical_error_rate_err": 0.005594962857338733,
     "detection_fraction": 0.17703125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -24811,14 +24811,14 @@
     "logical_error_rate_err": 0.004684880934986502,
     "detection_fraction": 0.17267708333333334,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -25330,14 +25330,14 @@
     "logical_error_rate_err": 0.004575476409621189,
     "detection_fraction": 0.1824375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -25849,14 +25849,14 @@
     "logical_error_rate_err": 0.006038055098705211,
     "detection_fraction": 0.1814375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -26072,14 +26072,14 @@
     "logical_error_rate_err": 0.003883933251228708,
     "detection_fraction": 0.12809375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -26295,14 +26295,14 @@
     "logical_error_rate_err": 0.0037913862075763267,
     "detection_fraction": 0.124828125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -26814,14 +26814,14 @@
     "logical_error_rate_err": 0.005048946362856314,
     "detection_fraction": 0.179578125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -27333,14 +27333,14 @@
     "logical_error_rate_err": 0.005886657317612433,
     "detection_fraction": 0.17519791666666668,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -27556,14 +27556,14 @@
     "logical_error_rate_err": 0.004738141447339875,
     "detection_fraction": 0.159765625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -27779,14 +27779,14 @@
     "logical_error_rate_err": 0.005202108947340492,
     "detection_fraction": 0.168078125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -28298,14 +28298,14 @@
     "logical_error_rate_err": 0.003918766945736886,
     "detection_fraction": 0.14846354166666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -28817,14 +28817,14 @@
     "logical_error_rate_err": 0.0038769168645974342,
     "detection_fraction": 0.14408854166666665,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -29336,14 +29336,14 @@
     "logical_error_rate_err": 0.005973770794062993,
     "detection_fraction": 0.17401041666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -29855,14 +29855,14 @@
     "logical_error_rate_err": 0.003973661331190669,
     "detection_fraction": 0.17071354166666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -30078,14 +30078,14 @@
     "logical_error_rate_err": 0.0042339384000006424,
     "detection_fraction": 0.14296875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -30301,14 +30301,14 @@
     "logical_error_rate_err": 0.005695709734089335,
     "detection_fraction": 0.151796875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -30524,14 +30524,14 @@
     "logical_error_rate_err": 0.0026643215599848305,
     "detection_fraction": 0.071890625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -30747,14 +30747,14 @@
     "logical_error_rate_err": 0.0027189037312858283,
     "detection_fraction": 0.072734375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -30970,14 +30970,14 @@
     "logical_error_rate_err": 0.00346228789964093,
     "detection_fraction": 0.12640625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -31193,14 +31193,14 @@
     "logical_error_rate_err": 0.004711627903389655,
     "detection_fraction": 0.13396875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -31416,14 +31416,14 @@
     "logical_error_rate_err": 0.0025043431024921485,
     "detection_fraction": 0.072421875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -31639,14 +31639,14 @@
     "logical_error_rate_err": 0.0025395742753461653,
     "detection_fraction": 0.0625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -31862,14 +31862,14 @@
     "logical_error_rate_err": 0.003354751760562918,
     "detection_fraction": 0.091890625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -32085,14 +32085,14 @@
     "logical_error_rate_err": 0.0037181459593458675,
     "detection_fraction": 0.10490625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -32308,14 +32308,14 @@
     "logical_error_rate_err": 0.0034865254014562978,
     "detection_fraction": 0.097953125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -32531,14 +32531,14 @@
     "logical_error_rate_err": 0.0036732967991982353,
     "detection_fraction": 0.0965,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -32754,14 +32754,14 @@
     "logical_error_rate_err": 0.004240165091125581,
     "detection_fraction": 0.103859375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -32977,14 +32977,14 @@
     "logical_error_rate_err": 0.00400073235483205,
     "detection_fraction": 0.104796875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -33200,14 +33200,14 @@
     "logical_error_rate_err": 0.004625195941795331,
     "detection_fraction": 0.10914583333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -33423,14 +33423,14 @@
     "logical_error_rate_err": 0.004202610795684035,
     "detection_fraction": 0.11419791666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -33646,14 +33646,14 @@
     "logical_error_rate_err": 0.004657896520963084,
     "detection_fraction": 0.10853125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -33869,14 +33869,14 @@
     "logical_error_rate_err": 0.00487239513740419,
     "detection_fraction": 0.10688541666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -34388,14 +34388,14 @@
     "logical_error_rate_err": 0.005587059546398266,
     "detection_fraction": 0.20836805555555554,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -34907,14 +34907,14 @@
     "logical_error_rate_err": 0.007146868851112353,
     "detection_fraction": 0.20430208333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -35426,14 +35426,14 @@
     "logical_error_rate_err": 0.005020232502085934,
     "detection_fraction": 0.1565798611111111,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -35945,14 +35945,14 @@
     "logical_error_rate_err": 0.005229125165837972,
     "detection_fraction": 0.1548125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -36464,14 +36464,14 @@
     "logical_error_rate_err": 0.005197582070059116,
     "detection_fraction": 0.15757291666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -36983,14 +36983,14 @@
     "logical_error_rate_err": 0.005096198031375939,
     "detection_fraction": 0.15593055555555554,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -37502,14 +37502,14 @@
     "logical_error_rate_err": 0.006869202100680981,
     "detection_fraction": 0.21354166666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -38021,14 +38021,14 @@
     "logical_error_rate_err": 0.005832961297660049,
     "detection_fraction": 0.20690625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -38540,14 +38540,14 @@
     "logical_error_rate_err": 0.005789208711041605,
     "detection_fraction": 0.21362152777777776,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -39059,14 +39059,14 @@
     "logical_error_rate_err": 0.0071691079901895745,
     "detection_fraction": 0.21545486111111112,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -39282,14 +39282,14 @@
     "logical_error_rate_err": 0.00496686520855962,
     "detection_fraction": 0.14823958333333334,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -39505,14 +39505,14 @@
     "logical_error_rate_err": 0.005000935849918493,
     "detection_fraction": 0.14595833333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -40024,14 +40024,14 @@
     "logical_error_rate_err": 0.0064929276428280025,
     "detection_fraction": 0.20140972222222223,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -40543,14 +40543,14 @@
     "logical_error_rate_err": 0.007135605046175131,
     "detection_fraction": 0.2009548611111111,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -40766,14 +40766,14 @@
     "logical_error_rate_err": 0.005840184072441553,
     "detection_fraction": 0.17838541666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -40989,14 +40989,14 @@
     "logical_error_rate_err": 0.005897266315844995,
     "detection_fraction": 0.18386458333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -41508,14 +41508,14 @@
     "logical_error_rate_err": 0.005343401304412762,
     "detection_fraction": 0.17217013888888888,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -42027,14 +42027,14 @@
     "logical_error_rate_err": 0.005381935931892909,
     "detection_fraction": 0.17140625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -42546,14 +42546,14 @@
     "logical_error_rate_err": 0.006992754062241857,
     "detection_fraction": 0.21232638888888888,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -43065,14 +43065,14 @@
     "logical_error_rate_err": 0.00522014726803756,
     "detection_fraction": 0.20852083333333332,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -43288,14 +43288,14 @@
     "logical_error_rate_err": 0.005883111421688357,
     "detection_fraction": 0.18501041666666668,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -43511,14 +43511,14 @@
     "logical_error_rate_err": 0.005523018592671946,
     "detection_fraction": 0.17929166666666665,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -43734,14 +43734,14 @@
     "logical_error_rate_err": 0.003396606762638266,
     "detection_fraction": 0.0856875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -43957,14 +43957,14 @@
     "logical_error_rate_err": 0.0036277381899745744,
     "detection_fraction": 0.08342708333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -44180,14 +44180,14 @@
     "logical_error_rate_err": 0.0044212484096689255,
     "detection_fraction": 0.16414583333333332,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -44403,14 +44403,14 @@
     "logical_error_rate_err": 0.005829342533682508,
     "detection_fraction": 0.17508333333333334,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -44626,14 +44626,14 @@
     "logical_error_rate_err": 0.00347846949102619,
     "detection_fraction": 0.08859375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -44849,14 +44849,14 @@
     "logical_error_rate_err": 0.0038344633751021795,
     "detection_fraction": 0.08125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -45072,14 +45072,14 @@
     "logical_error_rate_err": 0.0043139019460344714,
     "detection_fraction": 0.1211875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -45295,14 +45295,14 @@
     "logical_error_rate_err": 0.004743416490252569,
     "detection_fraction": 0.13321875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -45518,14 +45518,14 @@
     "logical_error_rate_err": 0.004897544027367186,
     "detection_fraction": 0.12128125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -45741,14 +45741,14 @@
     "logical_error_rate_err": 0.004674115892337288,
     "detection_fraction": 0.11995833333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -45964,14 +45964,14 @@
     "logical_error_rate_err": 0.00501541997244498,
     "detection_fraction": 0.12411458333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -46187,14 +46187,14 @@
     "logical_error_rate_err": 0.005255895499341668,
     "detection_fraction": 0.12607291666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -46410,14 +46410,14 @@
     "logical_error_rate_err": 0.005688089255189303,
     "detection_fraction": 0.1244875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -46633,14 +46633,14 @@
     "logical_error_rate_err": 0.005386186034663118,
     "detection_fraction": 0.1272625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -46856,14 +46856,14 @@
     "logical_error_rate_err": 0.005946212029519298,
     "detection_fraction": 0.12085625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -47079,14 +47079,14 @@
     "logical_error_rate_err": 0.006090944867177834,
     "detection_fraction": 0.12366875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -47598,14 +47598,14 @@
     "logical_error_rate_err": 0.006967530722931906,
     "detection_fraction": 0.2385875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -48117,14 +48117,14 @@
     "logical_error_rate_err": 0.007820397008784145,
     "detection_fraction": 0.23685833333333334,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -48636,14 +48636,14 @@
     "logical_error_rate_err": 0.006686636626511119,
     "detection_fraction": 0.17957291666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -49155,14 +49155,14 @@
     "logical_error_rate_err": 0.006718774999953488,
     "detection_fraction": 0.1809,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -49674,14 +49674,14 @@
     "logical_error_rate_err": 0.00675758370277424,
     "detection_fraction": 0.17669375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -50193,14 +50193,14 @@
     "logical_error_rate_err": 0.006597343215264763,
     "detection_fraction": 0.17592291666666668,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -50712,14 +50712,14 @@
     "logical_error_rate_err": 0.007748377854428629,
     "detection_fraction": 0.24470625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -51231,14 +51231,14 @@
     "logical_error_rate_err": 0.006900434768911304,
     "detection_fraction": 0.23482083333333334,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -51750,14 +51750,14 @@
     "logical_error_rate_err": 0.006961160104465347,
     "detection_fraction": 0.241375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -52269,14 +52269,14 @@
     "logical_error_rate_err": 0.007774388038617574,
     "detection_fraction": 0.24519166666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -52492,14 +52492,14 @@
     "logical_error_rate_err": 0.006199696313126959,
     "detection_fraction": 0.16506875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -52715,14 +52715,14 @@
     "logical_error_rate_err": 0.0061745432523385895,
     "detection_fraction": 0.16321875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -53234,14 +53234,14 @@
     "logical_error_rate_err": 0.007508457731118955,
     "detection_fraction": 0.22489166666666666,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -53753,14 +53753,14 @@
     "logical_error_rate_err": 0.007712894033694486,
     "detection_fraction": 0.22863541666666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -53976,14 +53976,14 @@
     "logical_error_rate_err": 0.006860170369604533,
     "detection_fraction": 0.19701875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -54199,14 +54199,14 @@
     "logical_error_rate_err": 0.0069759844735349,
     "detection_fraction": 0.1993625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -54718,14 +54718,14 @@
     "logical_error_rate_err": 0.0066129418566928284,
     "detection_fraction": 0.19251458333333332,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -55237,14 +55237,14 @@
     "logical_error_rate_err": 0.00685109024170606,
     "detection_fraction": 0.19120416666666668,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -55756,14 +55756,14 @@
     "logical_error_rate_err": 0.007689049640560269,
     "detection_fraction": 0.24249583333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -56275,14 +56275,14 @@
     "logical_error_rate_err": 0.006589498036648922,
     "detection_fraction": 0.2400625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -56498,14 +56498,14 @@
     "logical_error_rate_err": 0.007093473012213411,
     "detection_fraction": 0.21173125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -56721,14 +56721,14 @@
     "logical_error_rate_err": 0.0066232733599029415,
     "detection_fraction": 0.2095125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -56944,14 +56944,14 @@
     "logical_error_rate_err": 0.004952144421864128,
     "detection_fraction": 0.0994625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -57167,14 +57167,14 @@
     "logical_error_rate_err": 0.004912533396833043,
     "detection_fraction": 0.09746875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -57390,14 +57390,14 @@
     "logical_error_rate_err": 0.005665100120474483,
     "detection_fraction": 0.20145,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -57613,14 +57613,14 @@
     "logical_error_rate_err": 0.0067040099940259635,
     "detection_fraction": 0.20855625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -57836,14 +57836,14 @@
     "logical_error_rate_err": 0.004208902395518337,
     "detection_fraction": 0.1015875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -58059,14 +58059,14 @@
     "logical_error_rate_err": 0.004927448629869215,
     "detection_fraction": 0.09315625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -58282,14 +58282,14 @@
     "logical_error_rate_err": 0.005803872629546587,
     "detection_fraction": 0.14955,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -58505,14 +58505,14 @@
     "logical_error_rate_err": 0.00574846582794053,
     "detection_fraction": 0.1544,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -58728,14 +58728,14 @@
     "logical_error_rate_err": 0.006103993313806954,
     "detection_fraction": 0.13389375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -58951,14 +58951,14 @@
     "logical_error_rate_err": 0.005440873953235822,
     "detection_fraction": 0.13209375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -59174,14 +59174,14 @@
     "logical_error_rate_err": 0.006309683777734032,
     "detection_fraction": 0.1447875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -59397,14 +59397,14 @@
     "logical_error_rate_err": 0.006573715416338009,
     "detection_fraction": 0.1405875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -59620,14 +59620,14 @@
     "logical_error_rate_err": 0.0064680706164976275,
     "detection_fraction": 0.13253571428571428,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -59843,14 +59843,14 @@
     "logical_error_rate_err": 0.006152316636845018,
     "detection_fraction": 0.13789732142857142,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -60066,14 +60066,14 @@
     "logical_error_rate_err": 0.006459720146802027,
     "detection_fraction": 0.12516517857142856,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -60289,14 +60289,14 @@
     "logical_error_rate_err": 0.006774306929494707,
     "detection_fraction": 0.12349107142857142,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -60808,14 +60808,14 @@
     "logical_error_rate_err": 0.007483288673771713,
     "detection_fraction": 0.2513883928571429,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -61327,14 +61327,14 @@
     "logical_error_rate_err": 0.007885460314718476,
     "detection_fraction": 0.2513020833333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -61846,14 +61846,14 @@
     "logical_error_rate_err": 0.007311035109681802,
     "detection_fraction": 0.1938422619047619,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -62365,14 +62365,14 @@
     "logical_error_rate_err": 0.0073922668630806345,
     "detection_fraction": 0.19484375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -62884,14 +62884,14 @@
     "logical_error_rate_err": 0.00740860563804013,
     "detection_fraction": 0.18968154761904762,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -63403,14 +63403,14 @@
     "logical_error_rate_err": 0.007135605046175131,
     "detection_fraction": 0.18745535714285713,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -63922,14 +63922,14 @@
     "logical_error_rate_err": 0.007884018645335639,
     "detection_fraction": 0.2568482142857143,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -64441,14 +64441,14 @@
     "logical_error_rate_err": 0.007322358738821802,
     "detection_fraction": 0.2484717261904762,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -64960,14 +64960,14 @@
     "logical_error_rate_err": 0.0073922668630806345,
     "detection_fraction": 0.25254910714285717,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -65479,14 +65479,14 @@
     "logical_error_rate_err": 0.007864461202142204,
     "detection_fraction": 0.2514702380952381,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -65702,14 +65702,14 @@
     "logical_error_rate_err": 0.006860170369604533,
     "detection_fraction": 0.17540625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -65925,14 +65925,14 @@
     "logical_error_rate_err": 0.0069114477047142586,
     "detection_fraction": 0.1728080357142857,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -66444,14 +66444,14 @@
     "logical_error_rate_err": 0.007804484888511221,
     "detection_fraction": 0.23878720238095238,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -66963,14 +66963,14 @@
     "logical_error_rate_err": 0.007868413912600175,
     "detection_fraction": 0.23710714285714285,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -67186,14 +67186,14 @@
     "logical_error_rate_err": 0.007363355213487938,
     "detection_fraction": 0.20700446428571428,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -67409,14 +67409,14 @@
     "logical_error_rate_err": 0.007461441507845518,
     "detection_fraction": 0.20730357142857142,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -67928,14 +67928,14 @@
     "logical_error_rate_err": 0.007271278042751494,
     "detection_fraction": 0.2046205357142857,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -68447,14 +68447,14 @@
     "logical_error_rate_err": 0.0074446614681260015,
     "detection_fraction": 0.20328273809523809,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -68966,14 +68966,14 @@
     "logical_error_rate_err": 0.007840663237252318,
     "detection_fraction": 0.2557172619047619,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -69485,14 +69485,14 @@
     "logical_error_rate_err": 0.007158036349097426,
     "detection_fraction": 0.251641369047619,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -69708,14 +69708,14 @@
     "logical_error_rate_err": 0.007666746376397226,
     "detection_fraction": 0.22704464285714285,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -69931,14 +69931,14 @@
     "logical_error_rate_err": 0.007291337968781861,
     "detection_fraction": 0.22572767857142856,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -70154,14 +70154,14 @@
     "logical_error_rate_err": 0.005691902142517912,
     "detection_fraction": 0.10895089285714285,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -70377,14 +70377,14 @@
     "logical_error_rate_err": 0.005792882216565429,
     "detection_fraction": 0.10279464285714286,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -70600,14 +70600,14 @@
     "logical_error_rate_err": 0.00638308311084855,
     "detection_fraction": 0.2178169642857143,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -70823,14 +70823,14 @@
     "logical_error_rate_err": 0.007083713715276755,
     "detection_fraction": 0.22253125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -71046,14 +71046,14 @@
     "logical_error_rate_err": 0.005211141909409108,
     "detection_fraction": 0.10614732142857143,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -71269,14 +71269,14 @@
     "logical_error_rate_err": 0.005767061643506162,
     "detection_fraction": 0.10180357142857142,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -71492,14 +71492,14 @@
     "logical_error_rate_err": 0.006411781148791652,
     "detection_fraction": 0.1609107142857143,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -71715,14 +71715,14 @@
     "logical_error_rate_err": 0.00659473156201221,
     "detection_fraction": 0.1636875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -71938,14 +71938,14 @@
     "logical_error_rate_err": 0.006821243242620806,
     "detection_fraction": 0.14398214285714286,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -72161,14 +72161,14 @@
     "logical_error_rate_err": 0.006297716600086098,
     "detection_fraction": 0.14150446428571428,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -72384,14 +72384,14 @@
     "logical_error_rate_err": 0.006860170369604533,
     "detection_fraction": 0.1509107142857143,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -72607,14 +72607,14 @@
     "logical_error_rate_err": 0.006996917848238609,
     "detection_fraction": 0.14856696428571428,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -72830,14 +72830,14 @@
     "logical_error_rate_err": 0.0070659737032485485,
     "detection_fraction": 0.140815625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -73053,14 +73053,14 @@
     "logical_error_rate_err": 0.00679558220463854,
     "detection_fraction": 0.144365625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      3
     ],
     "calibration": "run.calibration[d3_r0_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -73276,14 +73276,14 @@
     "logical_error_rate_err": 0.007128042113722393,
     "detection_fraction": 0.127975,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -73499,14 +73499,14 @@
     "logical_error_rate_err": 0.0071691079901895745,
     "detection_fraction": 0.12645625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d3_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -74018,14 +74018,14 @@
     "logical_error_rate_err": 0.007801265922912768,
     "detection_fraction": 0.26204375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -74537,14 +74537,14 @@
     "logical_error_rate_err": 0.007905574575892634,
     "detection_fraction": 0.25964270833333336,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      4
     ],
     "calibration": "run.calibration[d5_r0_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -75056,14 +75056,14 @@
     "logical_error_rate_err": 0.007761684739797153,
     "detection_fraction": 0.20394375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -75575,14 +75575,14 @@
     "logical_error_rate_err": 0.007785795359178149,
     "detection_fraction": 0.20671354166666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      0,
      5
     ],
     "calibration": "run.calibration[d5_r0_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -76094,14 +76094,14 @@
     "logical_error_rate_err": 0.007770714252885638,
     "detection_fraction": 0.19990833333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -76613,14 +76613,14 @@
     "logical_error_rate_err": 0.007657707514328292,
     "detection_fraction": 0.19686354166666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      4
     ],
     "calibration": "run.calibration[d5_r1_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -77132,14 +77132,14 @@
     "logical_error_rate_err": 0.007904032791872767,
     "detection_fraction": 0.264615625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -77651,14 +77651,14 @@
     "logical_error_rate_err": 0.00778086997063953,
     "detection_fraction": 0.25971458333333336,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      1,
      5
     ],
     "calibration": "run.calibration[d5_r1_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -78170,14 +78170,14 @@
     "logical_error_rate_err": 0.007761684739797153,
     "detection_fraction": 0.2590177083333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -78689,14 +78689,14 @@
     "logical_error_rate_err": 0.007902369106793228,
     "detection_fraction": 0.26109375,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      4
     ],
     "calibration": "run.calibration[d5_r2_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -78912,14 +78912,14 @@
     "logical_error_rate_err": 0.007404178507775187,
     "detection_fraction": 0.181990625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -79135,14 +79135,14 @@
     "logical_error_rate_err": 0.007330372389926722,
     "detection_fraction": 0.1790625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d3_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -79654,14 +79654,14 @@
     "logical_error_rate_err": 0.007885460314718476,
     "detection_fraction": 0.24690208333333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -80173,14 +80173,14 @@
     "logical_error_rate_err": 0.0079042670438188,
     "detection_fraction": 0.24672604166666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      2,
      5
     ],
     "calibration": "run.calibration[d5_r2_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -80396,14 +80396,14 @@
     "logical_error_rate_err": 0.007683341354840354,
     "detection_fraction": 0.214078125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -80619,14 +80619,14 @@
     "logical_error_rate_err": 0.007768485011570789,
     "detection_fraction": 0.216428125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      2
     ],
     "calibration": "run.calibration[d3_r3_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -81138,14 +81138,14 @@
     "logical_error_rate_err": 0.007641203071179302,
     "detection_fraction": 0.21331979166666667,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -81657,14 +81657,14 @@
     "logical_error_rate_err": 0.007799963942224348,
     "detection_fraction": 0.21128020833333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      4
     ],
     "calibration": "run.calibration[d5_r3_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -82176,14 +82176,14 @@
     "logical_error_rate_err": 0.007888975693966866,
     "detection_fraction": 0.26505416666666665,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -82695,14 +82695,14 @@
     "logical_error_rate_err": 0.007580171502017615,
     "detection_fraction": 0.2603739583333333,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      5
     ],
     "calibration": "run.calibration[d5_r3_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -82918,14 +82918,14 @@
     "logical_error_rate_err": 0.007815045585279717,
     "detection_fraction": 0.238290625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -83141,14 +83141,14 @@
     "logical_error_rate_err": 0.007651583782132951,
     "detection_fraction": 0.236565625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      3,
      7
     ],
     "calibration": "run.calibration[d3_r3_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -83364,14 +83364,14 @@
     "logical_error_rate_err": 0.0064513370707164255,
     "detection_fraction": 0.11385,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -83587,14 +83587,14 @@
     "logical_error_rate_err": 0.006218388808606294,
     "detection_fraction": 0.10933125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      3
     ],
     "calibration": "run.calibration[d3_r6_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -83810,14 +83810,14 @@
     "logical_error_rate_err": 0.006860170369604533,
     "detection_fraction": 0.226953125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -84033,14 +84033,14 @@
     "logical_error_rate_err": 0.007511058513951279,
     "detection_fraction": 0.234828125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      6,
      4
     ],
     "calibration": "run.calibration[d3_r6_c4]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -84256,14 +84256,14 @@
     "logical_error_rate_err": 0.006024656369868741,
     "detection_fraction": 0.112015625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -84479,14 +84479,14 @@
     "logical_error_rate_err": 0.00636568437012078,
     "detection_fraction": 0.106446875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      2
     ],
     "calibration": "run.calibration[d3_r7_c2]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -84702,14 +84702,14 @@
     "logical_error_rate_err": 0.006866948694653251,
     "detection_fraction": 0.165196875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -84925,14 +84925,14 @@
     "logical_error_rate_err": 0.007043986797261903,
     "detection_fraction": 0.170271875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      3
     ],
     "calibration": "run.calibration[d3_r7_c3]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -85148,14 +85148,14 @@
     "logical_error_rate_err": 0.007383231634927892,
     "detection_fraction": 0.1463625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -85371,14 +85371,14 @@
     "logical_error_rate_err": 0.006891570938472592,
     "detection_fraction": 0.14380625,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      5
     ],
     "calibration": "run.calibration[d3_r7_c5]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -85594,14 +85594,14 @@
     "logical_error_rate_err": 0.007414474863400644,
     "detection_fraction": 0.156696875,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   },
   {
@@ -85817,14 +85817,14 @@
     "logical_error_rate_err": 0.007497962223164372,
     "detection_fraction": 0.152678125,
     "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
-    "source": "Benchmarking-Mid-circuit-measurement position scan",
+    "source": "legacy position scan",
     "manifest": "20260914_0941_ibm_phoenix_sc_position_scan.json",
     "anchor": [
      7,
      7
     ],
     "calibration": "run.calibration[d3_r7_c7]",
-    "program": "sc_memory.qiskit_memory"
+    "program": "surface-code memory (legacy builder, the schedule of qecbench.memory)"
    }
   }
  ]

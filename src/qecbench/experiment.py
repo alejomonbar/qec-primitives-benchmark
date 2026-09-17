@@ -18,7 +18,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-from .analysis import (instance_from_record, make_record, record_key, records_in, result_dir,
+from .analysis import (instance_from_record, make_record, public_job_id, record_key, records_in, result_dir,
                        run_filename, save_run)
 from .layout import pack
 from .primitives import from_dict
@@ -162,7 +162,7 @@ def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
         if not record.get("job_id"):
             continue
         todo = [t for t in record["tasks"]
-                if any((record["job_id"], t["kind"], t["depth"], from_dict(s).identity) not in existing
+                if any((public_job_id(record["job_id"]), t["kind"], t["depth"], from_dict(s).identity) not in existing
                        for s in t["instances"])]
         if not todo:
             skipped += sum(len(t["instances"]) for t in record["tasks"])
@@ -173,7 +173,7 @@ def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
         for task, inst_counts in zip(todo, per_task):
             for spec, counts in zip(task["instances"], inst_counts):
                 inst = from_dict(spec)
-                key = (record["job_id"], task["kind"], task["depth"], inst.identity)
+                key = (public_job_id(record["job_id"]), task["kind"], task["depth"], inst.identity)
                 if key in existing:
                     skipped += 1
                     continue

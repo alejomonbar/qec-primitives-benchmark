@@ -21,7 +21,7 @@
   "chain_lengths": [
    40
   ],
-  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source": "legacy campaign files",
   "source_files": [
    "20260428_110944_ibm_pittsburgh_1d_normal_nq40_depth10.json",
    "20260428_110944_ibm_pittsburgh_1d_normal_nq40_depth15.json",

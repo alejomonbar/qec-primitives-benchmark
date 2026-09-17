@@ -1,6 +1,6 @@
 """Linear-ramp QAOA on diagonal Ising Hamiltonians: schedule, energies and exact references.
 
-Conventions (identical to ``utils.py`` / ``benchmarking_ibm*.ipynb`` in the MCM repo):
+Conventions (identical to those of the earlier campaigns, so their files compare directly):
 
 * bitstring character ``i`` is data qubit ``i``; spin ``z_i = 1 - 2 x_i``;
 * ``H = sum_t c_t prod_{i in t} z_i``;
@@ -353,7 +353,7 @@ def random_baseline(primitive, shots: int):
 
     Distinct ``Z`` products are orthogonal under the uniform distribution, so
     ``E[H] = 0`` and ``Var[H] = sum c_t^2``; ``shots`` samples average that down.  This
-    replaces the seeded 2000-sample bootstrap of ``utils.statistical_analysis``, whose
+    replaces the seeded 2000-sample bootstrap of the earlier analysis, whose
     mean for a triplet fluctuated around the exact 1/2 (0.5056 in the legacy files).
     """
     ham = primitive.hamiltonian

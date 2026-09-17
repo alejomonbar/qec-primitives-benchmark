@@ -1,4 +1,4 @@
-"""Bring code-structure results of the MCM repository into this package's convention.
+"""Bring code-structure result files of earlier campaigns into this package's convention.
 
 Device runs, ``<stamp>_<backend>_<sc|cc|qldpc>_..._nq<n>_depth<p>.json`` one per structure and depth,
 are converted by ``qecbench.analysis.convert_legacy_code`` (the kind renamed, every derived number
@@ -9,7 +9,7 @@ run file per backend, family, kind and day:
 
 where ``<stamp>`` is the day's first ``YYYYMMDD_HHMM``.
 
-``--references`` reads noiseless *simulator* files of that repository instead. Above
+``--references`` reads noiseless *simulator* files of those campaigns instead. Above
 ``lrqaoa.MAX_STATEVECTOR_QUBITS`` data qubits there is no exact reference, so their sampled
 ``<H>`` and the histogram of their energies are kept in the reference store (``qecbench.references``)
 as estimates, with the file and the number of shots they came from. Smaller problems are skipped: their reference is exact.
@@ -82,7 +82,7 @@ def import_runs(paths, dest, apply, anchor=None, grid=None):
                "shots": sorted({r["parameters"]["shots"] for r in records}),
                "depths": sorted({r["parameters"]["depth"] for r in records}),
                "codes": sorted({r["benchmark"]["instance"]["code"]["name"] for r in records}),
-               "source": "Benchmarking-Mid-circuit-measurement/Data",
+               "source": "legacy campaign files",
                "source_files": sorted(p.name for _, p, _ in items)}
         out = save_run(Path(dest) / backend / family / kind / run_filename(backend, family, kind, stamp), records, run=run)
         print("wrote", out)
@@ -128,7 +128,7 @@ def import_references(paths, apply, method=None):
         if apply:
             references.store(structure.hamiltonian, n, depth, delta, energy, method_note, code=structure.name,
                              shots=shots, backend=record["metadata"].get("backend"), source_file=path.name,
-                             source="Benchmarking-Mid-circuit-measurement/Data",
+                             source="legacy campaign files",
                              distribution=[[float(e), float(q)] for e, q in zip(levels, frequencies)])
     if not apply:
         print("\nreport only - re-run with --apply to write")
