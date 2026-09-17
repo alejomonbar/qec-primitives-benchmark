@@ -105,7 +105,8 @@ def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubi
             for r in rounds:
                 for d, a in r:
                     qc.cz(qi[d], qi[a])
-            qc.rx(2 * gammas[layer], ancs)
+            for term in (t for inst in batch for t in inst.terms):
+                qc.rx(2 * term.weight * gammas[layer], qi[term.ancilla])
             qc.barrier()
             for k, inst in enumerate(batch):
                 for j, term in enumerate(inst.terms):
@@ -118,9 +119,20 @@ def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubi
                             qc.z(qi[d])
                         qc.x(qi[term.ancilla])      # ancilla back to |0> for the next layer
         else:
-            for r in rounds:
-                for u, v in r:
-                    qc.rzz(2 * gammas[layer], qi[u], qi[v])
+            if all(len(t.data) == 2 for inst in batch for t in inst.terms):
+                weight = {tuple(sorted(t.data)): t.weight for inst in batch for t in inst.terms}
+                for r in rounds:
+                    for u, v in r:
+                        qc.rzz(2 * weight[tuple(sorted((u, v)))] * gammas[layer], qi[u], qi[v])
+            else:                                          # many-body checks: CNOT ladders
+                for inst in batch:
+                    for term in inst.terms:
+                        ladder = list(zip(term.data[:-1], term.data[1:]))
+                        for u, v in ladder:
+                            qc.cx(qi[u], qi[v])
+                        qc.rz(2 * term.weight * gammas[layer], qi[term.data[-1]])
+                        for u, v in reversed(ladder):
+                            qc.cx(qi[u], qi[v])
         qc.barrier()
         qc.rx(-2 * betas[layer], data)
     for k, inst in enumerate(batch):

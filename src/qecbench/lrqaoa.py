@@ -24,19 +24,51 @@ def angles(depth: int, delta: float = 0.5):
 
 
 def energy(bitstring: str, hamiltonian) -> float:
-    spins = [1 - 2 * int(b) for b in bitstring]
-    return float(sum(c * np.prod([spins[i] for i in term]) for term, c in hamiltonian.items()))
+    return float(bitstring_energies([bitstring], hamiltonian)[0])
+
+
+def bitstring_energies(bitstrings, hamiltonian, chunk: int = 2048) -> np.ndarray:
+    """``E`` of each bitstring (character ``i`` is qubit ``i``, spin ``1 - 2x``), vectorised.
+
+    Terms of equal support size are evaluated together as the parity of a gathered bit array,
+    so a sample costs a few array operations rather than a Python loop over its terms.
+    """
+    bitstrings = list(bitstrings)
+    out = np.zeros(len(bitstrings))
+    if not bitstrings:
+        return out
+    by_size = {}
+    for term, c in hamiltonian.items():
+        by_size.setdefault(len(term), ([], []))
+        by_size[len(term)][0].append(list(term))
+        by_size[len(term)][1].append(float(c))
+    width = len(bitstrings[0])
+    for start in range(0, len(bitstrings), chunk):
+        block = bitstrings[start:start + chunk]
+        bits = (np.frombuffer("".join(block).encode(), dtype=np.uint8).reshape(len(block), width) - 48)
+        e = np.zeros(len(block))
+        for size, (terms, weights) in by_size.items():
+            if size == 0:
+                e += sum(weights)
+                continue
+            parity = bits[:, np.array(terms)].sum(axis=2) & 1          # (bitstrings, terms)
+            e += (1.0 - 2.0 * parity) @ np.array(weights)
+        out[start:start + len(block)] = e
+    return out
 
 
 def energies(hamiltonian, n: int) -> np.ndarray:
     """Energy of every basis state; index ``k`` is bitstring ``format(k, f'0{n}b')``."""
     if n > 26:
         raise ValueError(f"{n} data qubits is too many for a dense energy table")
-    bits = (np.arange(2 ** n)[:, None] >> np.arange(n - 1, -1, -1)) & 1
-    spins = 1 - 2 * bits
+    index = np.arange(2 ** n, dtype=np.uint32 if n <= 32 else np.uint64)
     out = np.zeros(2 ** n)
     for term, c in hamiltonian.items():
-        out += c * np.prod(spins[:, list(term)], axis=1)
+        mask = 0
+        for q in term:
+            mask |= 1 << (n - 1 - q)                       # character q is the (n-1-q)-th bit
+        parity = np.bitwise_count(index & np.uint32(mask)) & 1
+        out += c * (1.0 - 2.0 * parity)
     return out
 
 
@@ -80,6 +112,7 @@ def ideal_circuit(hamiltonian, n: int, depth: int, delta: float = 0.5):
 
 
 MAX_STATEVECTOR_QUBITS = 25   # 2^25 amplitudes is 0.5 GB; beyond this the dense path is hopeless
+STORE_REFERENCE_QUBITS = 20      # exact references above this take seconds to minutes and are stored
 
 
 def ideal_probabilities(hamiltonian, n: int, depth: int, delta: float = 0.5) -> np.ndarray:
@@ -102,6 +135,79 @@ def ideal_probabilities(hamiltonian, n: int, depth: int, delta: float = 0.5) -> 
 
     state = Statevector(ideal_circuit(hamiltonian, n, depth, delta))
     return np.asarray(state.probabilities(range(n - 1, -1, -1)))
+
+
+def diagonal_statevector_energy(hamiltonian, n: int, depth: int, delta: float = 0.5) -> float:
+    """Exact ``<H>`` by evolving the state directly: the cost layer is one diagonal phase.
+
+    ``exp(-i gamma H)`` multiplies amplitude ``k`` by ``exp(-i gamma E_k)`` from the energy table,
+    and the mixer is ``RX(-2 beta)`` on each qubit, applied in place on paired halves. Far
+    faster than a gate-by-gate simulation for many-body terms (a weight-6 check is 11 gates),
+    at the memory of one statevector plus the energy table (~0.8 GB at 25 qubits).
+    """
+    probabilities, table = _evolve(hamiltonian, n, depth, delta)
+    return float(probabilities @ table)
+
+
+def _evolve(hamiltonian, n, depth, delta):
+    """Basis-state probabilities of the noiseless LR-QAOA and the energy table they refer to."""
+    if n > MAX_STATEVECTOR_QUBITS:
+        raise ValueError(f"{n} data qubits is past the {MAX_STATEVECTOR_QUBITS}-qubit exact limit")
+    gammas, betas = angles(depth, delta)
+    table = energies(hamiltonian, n)
+    psi = np.full(2 ** n, 2 ** (-n / 2), dtype=complex)
+    for gamma, beta in zip(gammas, betas):
+        psi *= np.exp(-1j * gamma * table)
+        _mixer(psi, n, beta)
+    return psi.real ** 2 + psi.imag ** 2, table
+
+
+def ideal_energy_distribution(hamiltonian, n: int, depth: int, delta: float = 0.5):
+    """Exact distribution of the energy of one noiseless LR-QAOA shot: ``(levels, probabilities)``.
+
+    Everything a finite-shot question needs (how the mean of ``S`` shots spreads, how often it clears
+    the random-guessing threshold) follows from it. It has one entry per distinct energy, so it is
+    small even when the statevector is not; above ``STORE_REFERENCE_QUBITS`` it is kept in the
+    reference store (``references``) next to ``<H>``. Past ``MAX_STATEVECTOR_QUBITS`` only a stored
+    distribution can be returned (e.g. the histogram of a large noiseless simulation, stored by
+    ``scripts/import_legacy_codes.py --references``); otherwise this raises.
+    """
+    from . import references
+
+    stored = references.lookup(hamiltonian, n, depth, delta) if n > STORE_REFERENCE_QUBITS else None
+    if stored is not None and "distribution" in stored:
+        levels, probabilities = map(np.array, zip(*stored["distribution"]))
+        return levels, probabilities
+    if n > MAX_STATEVECTOR_QUBITS:
+        raise ValueError(f"no noiseless energy distribution for {n} data qubits at p = {depth}: the exact one "
+                         f"stops at {MAX_STATEVECTOR_QUBITS} qubits and none is stored")
+    probabilities, table = _evolve(hamiltonian, n, depth, delta)
+    levels, inverse = np.unique(np.round(table, 9), return_inverse=True)
+    probabilities = np.bincount(inverse, weights=probabilities, minlength=len(levels))
+    if n > STORE_REFERENCE_QUBITS:
+        references.store(hamiltonian, n, depth, delta, float(probabilities @ levels), "statevector",
+                         distribution=[[float(e), float(q)] for e, q in zip(levels, probabilities)])
+    return levels, probabilities
+
+
+def _mixer(psi, n, beta, width=8):
+    """``RX(-2 beta)`` on every qubit, as dense ``2^w x 2^w`` blocks applied by BLAS."""
+    c, s = np.cos(beta), 1j * np.sin(beta)
+    one = np.array([[c, s], [s, c]])
+    q = 0
+    while q < n:
+        w = min(width, n - q)
+        block = one
+        for _ in range(w - 1):
+            block = np.kron(block, one)
+        left, right = 2 ** q, 2 ** (n - q - w)
+        view = psi.reshape(left, 2 ** w, right)
+        if left == 1:
+            psi[:] = (block @ view[0]).reshape(-1)
+        else:
+            moved = np.ascontiguousarray(view.transpose(1, 0, 2)).reshape(2 ** w, -1)
+            psi[:] = (block @ moved).reshape(2 ** w, left, right).transpose(1, 0, 2).reshape(-1)
+        q += w
 
 
 def open_chain_couplings(hamiltonian, n: int):
@@ -158,26 +264,52 @@ def ideal_energy(hamiltonian, n: int, depth: int, delta: float = 0.5, method: st
 
     * An open ZZ chain (any couplings) is solved exactly as free fermions at any length and depth
       (``chain_energy_free_fermions``), in milliseconds.
-    * Otherwise, up to ``MAX_STATEVECTOR_QUBITS``, the exact distribution is contracted with the
-      energy table.
-    * Above that, the circuit runs on Aer's **matrix-product-state** simulator and ``<H>`` is read
-      off directly, never building the 2**n amplitudes. A warning says so, because MPS is only
-      exact while the bond dimension keeps up with the entanglement, and a deep enough ramp will
-      eventually outgrow it.
+    * Otherwise, up to ``MAX_STATEVECTOR_QUBITS``, it is exact: direct NumPy evolution of the
+      statevector (``diagonal_statevector_energy``, about 10x faster than applying the circuit gate by
+      gate). Above ``STORE_REFERENCE_QUBITS`` that takes seconds to minutes, so the result is stored
+      (``references``).
+    * Above that there is no exact reference. A stored one (``references``) is used if present;
+      otherwise the result is NaN with a warning. ``method="mps"`` runs Aer's
+      **matrix-product-state** simulator explicitly, never building the 2**n amplitudes, which is
+      exact only while the bond dimension keeps up with the entanglement - fine for chains and
+      shallow circuits, not something to start silently on a 2D code at depth 10.
 
     ``method`` forces ``"free_fermions"``, ``"statevector"`` or ``"mps"``.
     """
     if method is None:
         chain = open_chain_couplings(hamiltonian, n)
-        method = ("free_fermions" if chain is not None else
-                  "statevector" if n <= MAX_STATEVECTOR_QUBITS else "mps")
+        if chain is not None:
+            method = "free_fermions"
+        elif n <= MAX_STATEVECTOR_QUBITS:
+            method = "statevector"
+        else:
+            from . import references
+
+            stored = references.lookup(hamiltonian, n, depth, delta)
+            if stored is not None:
+                return float(stored["energy"])
+            warnings.warn(
+                f"no noiseless reference for {n} data qubits at p = {depth}: an exact statevector "
+                f"stops at {MAX_STATEVECTOR_QUBITS} qubits and none is stored. Compute an estimate "
+                f"explicitly (ideal_energy(..., method='mps', max_bond_dimension=...)) and keep it "
+                f"with references.store(); until then r_ideal and r_ovl are NaN", stacklevel=2)
+            return float("nan")
     if method == "free_fermions":
         couplings = open_chain_couplings(hamiltonian, n)
         if couplings is None:
             raise ValueError("free fermions need an open ZZ chain on qubits 0..n-1")
         return chain_energy_free_fermions(couplings, depth, delta)
     if method == "statevector":
-        return float(ideal_probabilities(hamiltonian, n, depth, delta) @ energies(hamiltonian, n))
+        if n <= STORE_REFERENCE_QUBITS:
+            return diagonal_statevector_energy(hamiltonian, n, depth, delta)
+        from . import references
+
+        stored = references.lookup(hamiltonian, n, depth, delta)
+        if stored is not None and stored["method"] == "statevector":
+            return float(stored["energy"])
+        energy = diagonal_statevector_energy(hamiltonian, n, depth, delta)
+        references.store(hamiltonian, n, depth, delta, energy, "statevector")
+        return energy
 
     warnings.warn(
         f"noiseless reference for {n} data qubits: using a matrix-product-state simulation"

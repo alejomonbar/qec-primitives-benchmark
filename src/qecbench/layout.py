@@ -19,6 +19,7 @@ from collections import Counter
 from pathlib import Path
 
 import networkx as nx
+import numpy as np
 
 from .primitives import Chain, Direct
 
@@ -417,3 +418,85 @@ def validate_batch(batch, G) -> list[str]:
                 problems.append(f"qubit {q} is used by both {owner[q]} and {inst}")
             owner[q] = inst
     return problems
+
+
+# --------------------------------------------------------------------------------------
+# Code patches on square-lattice chips
+# --------------------------------------------------------------------------------------
+def square_lattice_coordinates(G: nx.Graph):
+    """``{qubit: (row, col)}`` for a chip whose couplers form a square lattice, else None.
+
+    Uses ``grid_layout`` (labels numbered row by row, as on IBM Nighthawk / ``ibm_phoenix``) and
+    checks that every coupler joins lattice neighbours.
+    """
+    pos = grid_layout(G)
+    if not pos or not all(isinstance(v, tuple) for v in pos.values()):
+        return None
+    coords = {q: (-int(y), int(x)) for q, (x, y) in pos.items()}
+    rmin = min(r for r, _ in coords.values())
+    cmin = min(c for _, c in coords.values())
+    coords = {q: (r - rmin, c - cmin) for q, (r, c) in coords.items()}
+    ok = all(abs(coords[u][0] - coords[v][0]) + abs(coords[u][1] - coords[v][1]) == 1 for u, v in G.edges)
+    return coords if ok else None
+
+
+def surface_code_placements(G: nx.Graph, code, anchors=None):
+    """Every placement of a ``codes.surface_code`` patch on a square-lattice chip, as ``CodePatch``.
+
+    As in the Nighthawk position scan of the reference study: data qubit ``(i, j)`` of the ``d x d``
+    grid sits at lattice site ``(i + j + r0, i - j + c0)``, so data qubits are diagonal neighbours
+    and every check's data qubits share a common neighbour, its ancilla (weight-4 checks placed
+    first, each taking the free common neighbour nearest the patch centre). A placement needs
+    every site to be a qubit and every (data, ancilla) pair to be a coupler. ``anchors`` restricts
+    the ``(r0, c0)`` tried.
+    """
+    from .primitives import CodePatch
+
+    coords = square_lattice_coordinates(G)
+    if coords is None:
+        raise ValueError("surface-code placements need a square-lattice coupling map")
+    if code.family != "surface_code":
+        raise ValueError(f"{code.name}: placements are defined for surface_code structures")
+    d = code.info.get("distance") or int(round(code.n_data ** 0.5))
+    site = {rc: q for q, rc in coords.items()}
+    rows = 1 + max(r for r, _ in coords.values())
+    cols = 1 + max(c for _, c in coords.values())
+    out = []
+    for r0, c0 in (anchors or [(r, c) for r in range(rows) for c in range(cols)]):
+        cells = {n: (n // d + n % d + r0, n // d - n % d + c0) for n in range(d * d)}
+        if not all(rc in site for rc in cells.values()):
+            continue
+        centre = (np.mean([r for r, _ in cells.values()]), np.mean([c for _, c in cells.values()]))
+        used, anc = set(cells.values()), {}
+        feasible = True
+        for c_index in sorted(range(code.n_checks), key=lambda k: (-len(code.checks[k]), k)):
+            support = [cells[q] for q in code.checks[c_index]]
+            common = set.intersection(*({(r + dr, c + dc) for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1))}
+                                        for r, c in support))
+            common = [rc for rc in common if rc in site and rc not in used
+                      and all(G.has_edge(site[rc], site[s]) for s in support)]
+            if not common:
+                feasible = False
+                break
+            choice = min(common, key=lambda rc: (abs(rc[0] - centre[0]) + abs(rc[1] - centre[1]), rc))
+            anc[c_index] = choice
+            used.add(choice)
+        if feasible:
+            out.append(CodePatch(code, [site[cells[n]] for n in range(d * d)],
+                                 [site[anc[c]] for c in range(code.n_checks)], kind="mcm"))
+    return out
+
+
+def spread_selection(items, scores, k):
+    """``k`` of ``items`` spread over their ranking by ``scores`` (lowest first), log-spaced.
+
+    For a position scan the point is contrast, not the best positions: a correlation needs the
+    good, the typical and the bad. Log spacing keeps more of the low-error end, where positions
+    differ least in rank but most matter. Returns ``(item, score)`` pairs, lowest score first;
+    all of them when ``k`` is at least their number. Ties in rank may return a few fewer than ``k``.
+    """
+    ranked = sorted(zip(items, scores), key=lambda pair: pair[1])
+    if k >= len(ranked):
+        return ranked
+    index = np.unique(np.round(np.geomspace(1, len(ranked), k)).astype(int) - 1)
+    return [ranked[i] for i in index]

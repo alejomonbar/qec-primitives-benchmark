@@ -1,0 +1,123 @@
+{
+ "question": "shots per device to rank two devices whose error rates differ by a factor of two: S* = z^2 (std_worse^2 + std_better^2) / (mean_better - mean_worse)^2, single-shot r",
+ "surface_d3": {
+  "code": "surface_d3",
+  "kind": "direct",
+  "p_layers_delta": 0.5,
+  "noise": "two-qubit depolarizing channel of strength lambda after every CNOT (Aer)",
+  "source": "Benchmarking-Mid-circuit-measurement/scripts/two_device_gap_surface.py",
+  "pairs": {
+   "0.02/0.01": {
+    "lambda_worse": 0.02,
+    "lambda_better": 0.01,
+    "shots_per_depth": 50000,
+    "source_file": "two_device_gap_surface_d3.json",
+    "moments": {
+     "3": {
+      "mean_worse": 0.6395975,
+      "std_worse": 0.17980816303424602,
+      "mean_better": 0.6955150000000001,
+      "std_better": 0.17099564256144073
+     },
+     "5": {
+      "mean_worse": 0.5992725,
+      "std_worse": 0.18320830560798818,
+      "mean_better": 0.6766475,
+      "std_better": 0.17689608035157253
+     },
+     "8": {
+      "mean_worse": 0.5551325,
+      "std_worse": 0.18300640683798475,
+      "mean_better": 0.6371775,
+      "std_better": 0.1848584485322486
+     },
+     "12": {
+      "mean_worse": 0.5230775,
+      "std_worse": 0.1794372912572802,
+      "mean_better": 0.58998,
+      "std_better": 0.1876478739554488
+     }
+    }
+   },
+   "0.002/0.001": {
+    "lambda_worse": 0.002,
+    "lambda_better": 0.001,
+    "shots_per_depth": 50000,
+    "source_file": "two_device_gap_surface_d3_p002_p001.json",
+    "moments": {
+     "3": {
+      "mean_worse": 0.7552325,
+      "std_worse": 0.15204377147305312,
+      "mean_better": 0.7645175000000001,
+      "std_better": 0.14662513322670845
+     },
+     "10": {
+      "mean_worse": 0.7858325,
+      "std_worse": 0.15135048544272992,
+      "mean_better": 0.8213625,
+      "std_better": 0.128207180351765
+     },
+     "25": {
+      "mean_worse": 0.7248450000000001,
+      "std_worse": 0.1929371036763017,
+      "mean_better": 0.8041324999999999,
+      "std_better": 0.17076477957632247
+     },
+     "42": {
+      "mean_worse": 0.6558475,
+      "std_worse": 0.20212618396375567,
+      "mean_better": 0.7592325000000001,
+      "std_better": 0.19651831579715412
+     },
+     "60": {
+      "mean_worse": 0.6004149999999999,
+      "std_worse": 0.1967468621731996,
+      "mean_better": 0.7124250000000001,
+      "std_better": 0.2068906580177075
+     },
+     "85": {
+      "mean_worse": 0.5546275,
+      "std_worse": 0.1885169720310349,
+      "mean_better": 0.659845,
+      "std_better": 0.20705573156761442
+     }
+    }
+   }
+  }
+ },
+ "color_d5_model": {
+  "code": "color_d5",
+  "kind": "direct",
+  "model": "P = A P_ideal + (1 - A) P_random, A = 2^(-c p lambda), c = kappa_0(n) N_CX",
+  "c": 17.77038038296314,
+  "n_cx_per_layer": 66,
+  "source": "Benchmarking-Mid-circuit-measurement/scripts/two_device_ranking_color.py (kappa_0 from Data/k_saturation_fit_color_code.json)",
+  "pairs": {
+   "0.02/0.01": {
+    "lambda_worse": 0.02,
+    "lambda_better": 0.01,
+    "depths": [
+     1,
+     3,
+     5,
+     7,
+     11,
+     15
+    ]
+   },
+   "0.002/0.001": {
+    "lambda_worse": 0.002,
+    "lambda_better": 0.001,
+    "depths": [
+     3,
+     12,
+     28,
+     49,
+     73,
+     106,
+     146
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,1350 @@
+{
+ "run": {
+  "backend": "Helios-1E",
+  "structure": "qldpc",
+  "kind": "direct",
+  "stamp": "20260629_1457",
+  "simulated": true,
+  "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model",
+  "shots": [
+   10
+  ],
+  "depths": [
+   3,
+   5,
+   10
+  ],
+  "codes": [
+   "BB18"
+  ],
+  "source": "Benchmarking-Mid-circuit-measurement/Data",
+  "source_files": [
+   "20260629_1457_Helios-1E_qldpc_BB18_normal_nq18_depth10.json",
+   "20260629_1457_Helios-1E_qldpc_BB18_normal_nq18_depth3.json",
+   "20260629_1457_Helios-1E_qldpc_BB18_normal_nq18_depth5.json"
+  ],
+  "results": 3
+ },
+ "results": [
+  {
+   "metadata": {
+    "timestamp": "2026-06-29T14:57:09.645965",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "Helios-1E",
+    "task_id": "a6e54bd7-1025-4e77-a1ee-8e3293f175d9",
+    "package": "qecbench",
+    "simulated": true,
+    "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model",
+    "converted": "2026-09-17T12:39:35"
+   },
+   "parameters": {
+    "depth": 3,
+    "delta": 0.5,
+    "num_data_qubits": 18,
+    "data_qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
+    ],
+    "ancillary_qubits": [],
+    "gammas": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.3333333333333333,
+     0.16666666666666666
+    ],
+    "circuit_index": null,
+    "shots": 10,
+    "kind": "direct"
+   },
+   "hamiltonian": {
+    "num_nodes": 18,
+    "hamiltonian_couplings": [
+     [
+      0,
+      6,
+      9,
+      11,
+      16
+     ],
+     [
+      1,
+      7,
+      9,
+      10,
+      17
+     ],
+     [
+      2,
+      8,
+      10,
+      11,
+      15
+     ],
+     [
+      0,
+      3,
+      10,
+      12,
+      14
+     ],
+     [
+      1,
+      4,
+      11,
+      12,
+      13
+     ],
+     [
+      2,
+      5,
+      9,
+      13,
+      14
+     ],
+     [
+      3,
+      6,
+      13,
+      15,
+      17
+     ],
+     [
+      0,
+      1,
+      5,
+      9,
+      12
+     ],
+     [
+      1,
+      2,
+      3,
+      10,
+      13
+     ],
+     [
+      0,
+      2,
+      4,
+      11,
+      14
+     ],
+     [
+      3,
+      4,
+      8,
+      12,
+      15
+     ],
+     [
+      4,
+      5,
+      6,
+      13,
+      16
+     ],
+     [
+      3,
+      5,
+      7,
+      14,
+      17
+     ],
+     [
+      2,
+      6,
+      7,
+      9,
+      15
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "samples": {
+    "111111101010000111": 1,
+    "100001100111100000": 1,
+    "000110011111011110": 1,
+    "011011111000110011": 1,
+    "111110111010100011": 1,
+    "011101110001101011": 1,
+    "000111011010110001": 1,
+    "100111110010111001": 1,
+    "001111110101010111": 1,
+    "111111111001111000": 1
+   },
+   "energy_analysis": {
+    "optimal_energy": -14.0,
+    "expected_energy": -4.0,
+    "approximation_ratio": 0.642857,
+    "optimal_probability": 0.0
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 10,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.042258,
+    "r_threshold_3sigma": 0.626773
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 3.3806,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "code",
+    "qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
+    ],
+    "kind": "direct",
+    "instance": {
+     "family": "code",
+     "kind": "direct",
+     "code": {
+      "name": "BB18",
+      "family": "qldpc",
+      "n_data": 18,
+      "checks": [
+       [
+        0,
+        6,
+        9,
+        11,
+        16
+       ],
+       [
+        1,
+        7,
+        9,
+        10,
+        17
+       ],
+       [
+        2,
+        8,
+        10,
+        11,
+        15
+       ],
+       [
+        0,
+        3,
+        10,
+        12,
+        14
+       ],
+       [
+        1,
+        4,
+        11,
+        12,
+        13
+       ],
+       [
+        2,
+        5,
+        9,
+        13,
+        14
+       ],
+       [
+        3,
+        6,
+        13,
+        15,
+        17
+       ],
+       [
+        0,
+        1,
+        5,
+        9,
+        12
+       ],
+       [
+        1,
+        2,
+        3,
+        10,
+        13
+       ],
+       [
+        0,
+        2,
+        4,
+        11,
+        14
+       ],
+       [
+        3,
+        4,
+        8,
+        12,
+        15
+       ],
+       [
+        4,
+        5,
+        6,
+        13,
+        16
+       ],
+       [
+        3,
+        5,
+        7,
+        14,
+        17
+       ],
+       [
+        2,
+        6,
+        7,
+        9,
+        15
+       ]
+      ],
+      "weights": [
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "info": {
+       "label": "BB[[18,4,3]]",
+       "ell": 3,
+       "m": 3,
+       "k": 4,
+       "distance": 3,
+       "A_terms": [
+        [
+         0,
+         0
+        ],
+        [
+         1,
+         0
+        ]
+       ],
+       "B_terms": [
+        [
+         0,
+         0
+        ],
+        [
+         0,
+         1
+        ],
+        [
+         1,
+         2
+        ]
+       ],
+       "x_checks": 7,
+       "z_checks": 7
+      }
+     },
+     "data_qubits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "ancillas": [],
+     "qubits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ]
+    },
+    "r": 0.6428571428571429,
+    "r_err": 0.05429406786186371,
+    "r_ideal": 0.5735594832540719,
+    "r_ovl": 1.942062893015701,
+    "instances_in_circuit": null,
+    "simulated": true,
+    "source_file": "20260629_1457_Helios-1E_qldpc_BB18_normal_nq18_depth3.json",
+    "program": "qaoa_normal_qldpc",
+    "circuit_variant": "serial (one check at a time)",
+    "kind_source": "file name"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-06-29T14:57:30.820514",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "Helios-1E",
+    "task_id": "f7a6e4ee-6fb3-4ea2-b51e-a7771594307d",
+    "package": "qecbench",
+    "simulated": true,
+    "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model",
+    "converted": "2026-09-17T12:39:35"
+   },
+   "parameters": {
+    "depth": 5,
+    "delta": 0.5,
+    "num_data_qubits": 18,
+    "data_qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
+    ],
+    "ancillary_qubits": [],
+    "gammas": [
+     0.1,
+     0.2,
+     0.3,
+     0.4,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.4,
+     0.3,
+     0.2,
+     0.1
+    ],
+    "circuit_index": null,
+    "shots": 10,
+    "kind": "direct"
+   },
+   "hamiltonian": {
+    "num_nodes": 18,
+    "hamiltonian_couplings": [
+     [
+      0,
+      6,
+      9,
+      11,
+      16
+     ],
+     [
+      1,
+      7,
+      9,
+      10,
+      17
+     ],
+     [
+      2,
+      8,
+      10,
+      11,
+      15
+     ],
+     [
+      0,
+      3,
+      10,
+      12,
+      14
+     ],
+     [
+      1,
+      4,
+      11,
+      12,
+      13
+     ],
+     [
+      2,
+      5,
+      9,
+      13,
+      14
+     ],
+     [
+      3,
+      6,
+      13,
+      15,
+      17
+     ],
+     [
+      0,
+      1,
+      5,
+      9,
+      12
+     ],
+     [
+      1,
+      2,
+      3,
+      10,
+      13
+     ],
+     [
+      0,
+      2,
+      4,
+      11,
+      14
+     ],
+     [
+      3,
+      4,
+      8,
+      12,
+      15
+     ],
+     [
+      4,
+      5,
+      6,
+      13,
+      16
+     ],
+     [
+      3,
+      5,
+      7,
+      14,
+      17
+     ],
+     [
+      2,
+      6,
+      7,
+      9,
+      15
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "samples": {
+    "111010011111001101": 1,
+    "010111100110010111": 1,
+    "010111101101111111": 1,
+    "101101110111000011": 1,
+    "110101000110101010": 1,
+    "111100111011100000": 1,
+    "101000000000010101": 1,
+    "111111011100000010": 1,
+    "001000010101110111": 1,
+    "001111100111001001": 1
+   },
+   "energy_analysis": {
+    "optimal_energy": -14.0,
+    "expected_energy": -5.2,
+    "approximation_ratio": 0.685714,
+    "optimal_probability": 0.0
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 10,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.042258,
+    "r_threshold_3sigma": 0.626773
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": true,
+    "n_sigmas_above_random": 4.3948,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "code",
+    "qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
+    ],
+    "kind": "direct",
+    "instance": {
+     "family": "code",
+     "kind": "direct",
+     "code": {
+      "name": "BB18",
+      "family": "qldpc",
+      "n_data": 18,
+      "checks": [
+       [
+        0,
+        6,
+        9,
+        11,
+        16
+       ],
+       [
+        1,
+        7,
+        9,
+        10,
+        17
+       ],
+       [
+        2,
+        8,
+        10,
+        11,
+        15
+       ],
+       [
+        0,
+        3,
+        10,
+        12,
+        14
+       ],
+       [
+        1,
+        4,
+        11,
+        12,
+        13
+       ],
+       [
+        2,
+        5,
+        9,
+        13,
+        14
+       ],
+       [
+        3,
+        6,
+        13,
+        15,
+        17
+       ],
+       [
+        0,
+        1,
+        5,
+        9,
+        12
+       ],
+       [
+        1,
+        2,
+        3,
+        10,
+        13
+       ],
+       [
+        0,
+        2,
+        4,
+        11,
+        14
+       ],
+       [
+        3,
+        4,
+        8,
+        12,
+        15
+       ],
+       [
+        4,
+        5,
+        6,
+        13,
+        16
+       ],
+       [
+        3,
+        5,
+        7,
+        14,
+        17
+       ],
+       [
+        2,
+        6,
+        7,
+        9,
+        15
+       ]
+      ],
+      "weights": [
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "info": {
+       "label": "BB[[18,4,3]]",
+       "ell": 3,
+       "m": 3,
+       "k": 4,
+       "distance": 3,
+       "A_terms": [
+        [
+         0,
+         0
+        ],
+        [
+         1,
+         0
+        ]
+       ],
+       "B_terms": [
+        [
+         0,
+         0
+        ],
+        [
+         0,
+         1
+        ],
+        [
+         1,
+         2
+        ]
+       ],
+       "x_checks": 7,
+       "z_checks": 7
+      }
+     },
+     "data_qubits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "ancillas": [],
+     "qubits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ]
+    },
+    "r": 0.6857142857142857,
+    "r_err": 0.03229680944345365,
+    "r_ideal": 0.6652231862468406,
+    "r_ovl": 1.1240207257402224,
+    "instances_in_circuit": null,
+    "simulated": true,
+    "source_file": "20260629_1457_Helios-1E_qldpc_BB18_normal_nq18_depth5.json",
+    "program": "qaoa_normal_qldpc",
+    "circuit_variant": "serial (one check at a time)",
+    "kind_source": "file name"
+   }
+  },
+  {
+   "metadata": {
+    "timestamp": "2026-06-29T14:57:57.474013",
+    "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
+    "problem": "Hamiltonian QAOA",
+    "backend": "Helios-1E",
+    "task_id": "187ccb4f-ef1c-4465-b4aa-e3c85bf4a896",
+    "package": "qecbench",
+    "simulated": true,
+    "noise_model": "Helios-1E: Quantinuum's hosted emulator and its Helios noise model",
+    "converted": "2026-09-17T12:39:35"
+   },
+   "parameters": {
+    "depth": 10,
+    "delta": 0.5,
+    "num_data_qubits": 18,
+    "data_qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
+    ],
+    "ancillary_qubits": [],
+    "gammas": [
+     0.05,
+     0.1,
+     0.15,
+     0.2,
+     0.25,
+     0.3,
+     0.35,
+     0.4,
+     0.45,
+     0.5
+    ],
+    "betas": [
+     0.5,
+     0.45,
+     0.4,
+     0.35,
+     0.3,
+     0.25,
+     0.2,
+     0.15,
+     0.1,
+     0.05
+    ],
+    "circuit_index": null,
+    "shots": 10,
+    "kind": "direct"
+   },
+   "hamiltonian": {
+    "num_nodes": 18,
+    "hamiltonian_couplings": [
+     [
+      0,
+      6,
+      9,
+      11,
+      16
+     ],
+     [
+      1,
+      7,
+      9,
+      10,
+      17
+     ],
+     [
+      2,
+      8,
+      10,
+      11,
+      15
+     ],
+     [
+      0,
+      3,
+      10,
+      12,
+      14
+     ],
+     [
+      1,
+      4,
+      11,
+      12,
+      13
+     ],
+     [
+      2,
+      5,
+      9,
+      13,
+      14
+     ],
+     [
+      3,
+      6,
+      13,
+      15,
+      17
+     ],
+     [
+      0,
+      1,
+      5,
+      9,
+      12
+     ],
+     [
+      1,
+      2,
+      3,
+      10,
+      13
+     ],
+     [
+      0,
+      2,
+      4,
+      11,
+      14
+     ],
+     [
+      3,
+      4,
+      8,
+      12,
+      15
+     ],
+     [
+      4,
+      5,
+      6,
+      13,
+      16
+     ],
+     [
+      3,
+      5,
+      7,
+      14,
+      17
+     ],
+     [
+      2,
+      6,
+      7,
+      9,
+      15
+     ]
+    ],
+    "hamiltonian_weights": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "samples": {
+    "001110111101010101": 1,
+    "111110110101011010": 1,
+    "011000000101111011": 1,
+    "001011101011111100": 1,
+    "101011010001101100": 1,
+    "111111011000111101": 1,
+    "111111011111010110": 1,
+    "110001111110011100": 1,
+    "101111101000110111": 1,
+    "011001111100110110": 1
+   },
+   "energy_analysis": {
+    "optimal_energy": -14.0,
+    "expected_energy": -3.2,
+    "approximation_ratio": 0.614286,
+    "optimal_probability": 0.1
+   },
+   "random_baseline": {
+    "method": "exact uniform distribution",
+    "shots_per_bootstrap": 10,
+    "r_mean_of_means": 0.5,
+    "r_std_of_means": 0.042258,
+    "r_threshold_3sigma": 0.626773
+   },
+   "statistical_comparison": {
+    "passes_3sigma_test": false,
+    "n_sigmas_above_random": 2.7045,
+    "qaoa_better_than_random": true
+   },
+   "benchmark": {
+    "family": "code",
+    "qubits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
+    ],
+    "kind": "direct",
+    "instance": {
+     "family": "code",
+     "kind": "direct",
+     "code": {
+      "name": "BB18",
+      "family": "qldpc",
+      "n_data": 18,
+      "checks": [
+       [
+        0,
+        6,
+        9,
+        11,
+        16
+       ],
+       [
+        1,
+        7,
+        9,
+        10,
+        17
+       ],
+       [
+        2,
+        8,
+        10,
+        11,
+        15
+       ],
+       [
+        0,
+        3,
+        10,
+        12,
+        14
+       ],
+       [
+        1,
+        4,
+        11,
+        12,
+        13
+       ],
+       [
+        2,
+        5,
+        9,
+        13,
+        14
+       ],
+       [
+        3,
+        6,
+        13,
+        15,
+        17
+       ],
+       [
+        0,
+        1,
+        5,
+        9,
+        12
+       ],
+       [
+        1,
+        2,
+        3,
+        10,
+        13
+       ],
+       [
+        0,
+        2,
+        4,
+        11,
+        14
+       ],
+       [
+        3,
+        4,
+        8,
+        12,
+        15
+       ],
+       [
+        4,
+        5,
+        6,
+        13,
+        16
+       ],
+       [
+        3,
+        5,
+        7,
+        14,
+        17
+       ],
+       [
+        2,
+        6,
+        7,
+        9,
+        15
+       ]
+      ],
+      "weights": [
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "info": {
+       "label": "BB[[18,4,3]]",
+       "ell": 3,
+       "m": 3,
+       "k": 4,
+       "distance": 3,
+       "A_terms": [
+        [
+         0,
+         0
+        ],
+        [
+         1,
+         0
+        ]
+       ],
+       "B_terms": [
+        [
+         0,
+         0
+        ],
+        [
+         0,
+         1
+        ],
+        [
+         1,
+         2
+        ]
+       ],
+       "x_checks": 7,
+       "z_checks": 7
+      }
+     },
+     "data_qubits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "ancillas": [],
+     "qubits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ]
+    },
+    "r": 0.6142857142857142,
+    "r_err": 0.07079080355865953,
+    "r_ideal": 0.7913257991268431,
+    "r_ovl": 0.39229520567093434,
+    "instances_in_circuit": null,
+    "simulated": true,
+    "source_file": "20260629_1457_Helios-1E_qldpc_BB18_normal_nq18_depth10.json",
+    "program": "qaoa_normal_qldpc",
+    "circuit_variant": "serial (one check at a time)",
+    "kind_source": "file name"
+   }
+  }
+ ]
+}

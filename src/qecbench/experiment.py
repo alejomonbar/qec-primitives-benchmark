@@ -82,7 +82,7 @@ def print_plan(plan, backend=None):
           f"{len({a for i in inst for a in i.ancillas})} qubits benchmarked as ancilla")
     for kind in plan["kinds"]:
         of_kind = [i for i in inst if i.kind == kind]
-        fam = Counter((i.family, i.n_data) for i in of_kind)
+        fam = Counter((i.code.name if i.family == "code" else i.family, i.n_data) for i in of_kind)
         batches = plan["batches"][kind]
         print(f"  {kind:<7}: " + ", ".join(f"{c} x {f} of {k} data qubits"
                                            for (f, k), c in sorted(fam.items())))
@@ -116,7 +116,7 @@ def print_plan(plan, backend=None):
 def submit(plan, backend, manifest_dir="data/manifests", label=None):
     n, size = len(plan["circuits"]), backend.max_circuits_per_job
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    families = sorted({f"{i.family}{i.n_data}" for i in plan["instances"]})
+    families = sorted({i.code.name if i.family == "code" else f"{i.family}{i.n_data}" for i in plan["instances"]})
     name = f"{stamp}_{backend.name}_{'-'.join(families)}{'_' + label if label else ''}"
     path = Path(manifest_dir) / backend.name / f"{name}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -162,7 +162,7 @@ def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
         if not record.get("job_id"):
             continue
         todo = [t for t in record["tasks"]
-                if any((record["job_id"], t["kind"], t["depth"], tuple(from_dict(s).qubits)) not in existing
+                if any((record["job_id"], t["kind"], t["depth"], from_dict(s).identity) not in existing
                        for s in t["instances"])]
         if not todo:
             skipped += sum(len(t["instances"]) for t in record["tasks"])
@@ -173,7 +173,7 @@ def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
         for task, inst_counts in zip(todo, per_task):
             for spec, counts in zip(task["instances"], inst_counts):
                 inst = from_dict(spec)
-                key = (record["job_id"], task["kind"], task["depth"], inst.qubits)
+                key = (record["job_id"], task["kind"], task["depth"], inst.identity)
                 if key in existing:
                     skipped += 1
                     continue

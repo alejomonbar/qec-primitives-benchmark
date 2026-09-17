@@ -199,7 +199,8 @@ def test_legacy_1d_chain_files_convert_to_this_convention(tmp_path):
 
 def test_imported_helios_chains_are_in_the_repository():
     root = Path(__file__).resolve().parent.parent / "data" / "results"
-    res = load_results(root, "Helios-1", kind="mcm")
+    files = {f.name for f in (root / "Helios-1" / "chain" / "mcm").glob("*.json")}
+    res = load_results(root, "Helios-1", kind="mcm", files=files)
     assert sorted(c.n_data for c in res) == [20, 30, 40, 50]
     assert all(set(by) == {3, 5, 10} and by[3]["shots"] == 50 for by in res.values())
 

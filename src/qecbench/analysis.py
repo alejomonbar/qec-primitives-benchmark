@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .lrqaoa import angles, energy, ideal_r, random_baseline
+from .lrqaoa import angles, bitstring_energies, energy, ideal_r, random_baseline
 from .primitives import FAMILIES
 
 FILE_RE = re.compile(r"^(?P<stamp>\d{8}_\d{4,6})_(?P<backend>.+?)_(?P<family>tri|chain|direct)_"
@@ -33,7 +33,7 @@ def analyse(counts, primitive, depth, delta=0.5) -> dict:
     ham = primitive.hamiltonian
     shots = sum(counts.values())
     e_opt, e_max = primitive.optimal_energy(), primitive.max_energy()
-    e = {b: energy(b, ham) for b in counts}
+    e = dict(zip(counts, bitstring_energies(counts, ham).tolist()))
     values = np.repeat(list(e.values()), list(counts.values()))
     mean_e = float(values.mean())
     err_e = float(values.std(ddof=1) / np.sqrt(shots)) if shots > 1 else float("nan")
@@ -78,7 +78,7 @@ def record_key(record):
     meta, params = record.get("metadata", {}), record["parameters"]
     instance = instance_from_record(record)
     return (meta.get("task_id"), params.get("kind"), params.get("depth"),
-            instance.qubits if instance else tuple(params.get("data_qubits", [])))
+            instance.identity if instance else tuple(params.get("data_qubits", [])))
 
 
 def records_in(document):
@@ -99,6 +99,10 @@ def instance_from_record(record):
     params = record.get("parameters", {})
     data, ancillas = params.get("data_qubits") or [], params.get("ancillary_qubits") or []
     try:
+        if benchmark.get("family") == "code" and benchmark.get("instance"):
+            from .primitives import from_dict
+
+            return from_dict(benchmark["instance"])
         if benchmark.get("family") in FAMILIES and benchmark.get("qubits"):
             return FAMILIES[benchmark["family"]](benchmark["qubits"])
         if ancillas and len(ancillas) == len(data) - 1:   # files written before "benchmark"
@@ -176,6 +180,7 @@ def make_record(counts, primitive, *, depth, delta, backend_name, job_id, kind, 
                                    "n_sigmas_above_random": round(a["n_sigmas"], 4),
                                    "qaoa_better_than_random": bool(a["r"] > a["r_rand"])},
         "benchmark": {"family": primitive.family, "qubits": list(primitive.qubits), "kind": kind,
+                      **({"instance": primitive.to_dict()} if primitive.family == "code" else {}),
                       "r": a["r"], "r_err": a["r_err"], "r_ideal": a["r_ideal"],
                       "r_ovl": a["r_ovl"], "instances_in_circuit": batch_size,
                       "simulated": bool(simulated), **(extra or {})},
@@ -281,6 +286,123 @@ def convert_legacy_chain(record, filename):
     for key in ("layout_source", "layout_frozen", "circuit_variant", "ancilla_reset"):
         if params.get(key) is not None:
             converted["parameters"][key] = params[key]
+    converted["metadata"]["timestamp"] = meta.get("timestamp")
+    converted["metadata"]["converted"] = datetime.now().isoformat(timespec="seconds")
+    return m["stamp"], converted
+
+
+
+LEGACY_CODE_RE = re.compile(r"^(?P<stamp>\d{8}_\d{4,6})_(?P<backend>.+?)_(?P<family>sc|cc|qldpc)(?:_(?P<code>[A-Z]{2}\d+))?"
+                            r"(?:_(?P<v1>MCM|normal))?_nq(?P<n>\d+)(?:_(?P<v2>MCM|normal))?_depth(?P<depth>\d+)"
+                            r"(?:_(?P<suffix>combined))?\.json$")
+LEGACY_CODE_FAMILIES = {"sc": "surface_code", "cc": "color_code", "qldpc": "qldpc"}
+LEGACY_CODE_PROGRAMS = {       # the Guppy programs of the MCM repository that produced the device runs
+    ("sc", "mcm"): "qaoa_mcm_sc", ("sc", "direct"): "qaoa_normal_sc",
+    ("cc", "mcm"): "qaoa_mcm_cc", ("cc", "direct"): "qaoa_normal_cc",
+    ("qldpc", "mcm"): "qaoa_mcm_qldpc", ("qldpc", "direct"): "qaoa_normal_qldpc",
+}
+
+
+def legacy_code_structure(family_token, n_data, hamiltonian, code_name=None):
+    """The generated structure (``codes``) a legacy code file ran, or None if its checks differ.
+
+    ``family_token`` is ``sc``, ``cc`` or ``qldpc`` and ``hamiltonian`` the file's
+    ``{support: weight}``. The size follows from ``n_data`` (``d^2`` data qubits for the surface code,
+    ``(3d^2 + 1)/4`` for the colour code) or from ``code_name`` (``BB18``). The checks must agree as a
+    set, weights included; their order does not matter.
+    """
+    from . import codes
+
+    try:
+        if family_token == "sc":
+            structure = codes.surface_code(int(round(n_data ** 0.5)))
+        elif family_token == "cc":
+            structure = codes.color_code(int(round(((4 * n_data - 1) / 3) ** 0.5)))
+        else:
+            structure = codes.bivariate_bicycle(code_name or f"BB{n_data}")
+    except (KeyError, ValueError):
+        return None
+    ours = {frozenset(c): w for c, w in structure.hamiltonian.items()}
+    theirs = {frozenset(int(q) for q in c): float(w) for c, w in hamiltonian.items()}
+    return structure if structure.n_data == n_data and ours == theirs else None
+
+
+def convert_legacy_code(record, filename, placement=None):
+    """A code-structure result file of the MCM repository (``benchmarking_quantinuum.ipynb``,
+    ``qldpc_code.ipynb``) in this package's form, or None.
+
+    Names read: ``<stamp>_<backend>_<sc|cc>_<MCM|normal>_nq<n>_depth<p>.json``, the early
+    ``<stamp>_<backend>_sc_nq<n>[_MCM]_depth<p>.json``, and
+    ``<stamp>_<backend>_qldpc_<BB..>_<MCM|normal>_nq<n>_depth<p>[_combined].json`` (``combined`` merges
+    the samples of several jobs; ``metadata.merged_from`` names them). A name with no ``MCM`` or
+    ``normal`` token is read as ``direct``, as the paper figures did, and ``benchmark.kind_source``
+    records that it was inferred.
+
+    As for chains, ``normal`` becomes ``direct``, everything derived is recomputed from the samples,
+    ``energy_values`` is dropped and hosted-emulator runs are flagged ``simulated``. The backend is the one in
+    the file name; where the metadata names another, ``benchmark.backend_note`` says so. The instance is a
+    logical ``CodePatch`` of the generated structure (``legacy_code_structure``), whose checks must
+    equal the file's Hamiltonian. Simulator files (the noiseless references of that repository) are
+    not device runs and give None.
+
+    The Quantinuum programs measured the checks one at a time, a fresh ancilla each (``benchmark.program``
+    names the function), unlike the batched programs of ``code_programs``.
+
+    A run on a fixed-layout chip (IBM) stores logical labels only. ``placement`` - the physical ``CodePatch``
+    it ran on, e.g. from ``layout.surface_code_placements(G, code, anchors=[(r0, c0)])`` - puts it back on its
+    qubits; without one such a file gives None. A name tagged after the device (``ibm_phoenix-scanbest``) is
+    filed under the device of its metadata, the tag kept as ``benchmark.run_tag``.
+    """
+    from .primitives import CodePatch
+
+    name = Path(filename).name
+    m = LEGACY_CODE_RE.match(name)
+    if not m or "samples" not in record or "hamiltonian" not in record:
+        return None
+    meta, params = record.get("metadata", {}), record["parameters"]
+    backend = m["backend"]                      # the name wins: one Helios-1E file says Helios-1 inside
+    if "simulator" in backend or "simulator" in str(meta.get("backend")):
+        return None
+    run_tag = None
+    if meta.get("backend") and backend.startswith(f"{meta['backend']}-"):
+        backend, run_tag = meta["backend"], backend[len(meta["backend"]) + 1:]
+    physical = backend.startswith("ibm_")
+    token = m["v1"] or m["v2"]
+    kind = LEGACY_KINDS[token] if token else "direct"
+    n_data = int(params["num_data_qubits"])
+    if [int(q) for q in params["data_qubits"]] != list(range(n_data)) or n_data != int(m["n"]):
+        return None
+    ham = record["hamiltonian"]
+    hamiltonian = dict(zip((tuple(c) for c in ham["hamiltonian_couplings"]),
+                           ham.get("hamiltonian_weights") or [1] * len(ham["hamiltonian_couplings"])))
+    structure = legacy_code_structure(m["family"], n_data, hamiltonian, m["code"])
+    if structure is None:
+        return None
+    if physical:
+        if placement is None or placement.kind != kind or placement.code != structure:
+            return None
+        instance = placement
+        extra = {"source_file": name, "program": "nighthawk_sc.sc_lrqaoa",
+                 "circuit_variant": "square-lattice embedding, the CZ of every check in 4 rounds",
+                 "placement": "physical qubits rebuilt from the patch anchor; the file stores logical labels"}
+    else:
+        instance = CodePatch(structure, kind=kind)
+        extra = {"source_file": name, "program": LEGACY_CODE_PROGRAMS[(m["family"], kind)],
+                 "circuit_variant": "serial (one check at a time" + (", a fresh ancilla each)" if kind == "mcm" else ")"),
+                 **({"ancilla_labels": "logical (a fresh ancilla per check; no fixed physical ancilla)"}
+                    if kind == "mcm" else {})}
+    extra["kind_source"] = "file name" if token else "inferred: no MCM or normal token in the file name"
+    if run_tag:
+        extra["run_tag"] = run_tag
+    if meta.get("merged_from"):
+        extra["merged_from"] = list(meta["merged_from"])
+    if meta.get("backend") and meta["backend"] != backend and not run_tag:
+        extra["backend_note"] = f"metadata says {meta['backend']}, the file name {backend}; the name is used"
+    converted = make_record(
+        dict(record["samples"]), instance, depth=int(params["depth"]), delta=float(params.get("delta") or 0.5),
+        backend_name=backend, job_id=meta.get("task_id"), kind=kind,
+        simulated=backend in LEGACY_EMULATORS, noise=LEGACY_EMULATORS.get(backend), extra=extra)
+    converted["energy_analysis"].pop("energy_values", None)
     converted["metadata"]["timestamp"] = meta.get("timestamp")
     converted["metadata"]["converted"] = datetime.now().isoformat(timespec="seconds")
     return m["stamp"], converted

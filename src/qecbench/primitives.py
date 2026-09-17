@@ -9,7 +9,8 @@ the same machinery covers every family we want to benchmark:
 * ``Chain``       - 1D Ising chain ``d0-a0-d1-a1-...-d(n-1)``; the *triplet* is ``n = 2``;
 * ``Direct``      - the same Ising chain without ancillas, every bond one native two-qubit
   rotation: the reference the measurement-based version is judged against;
-* surface / colour code patches (later) - terms with 4 or 6 data qubits.
+* ``CodePatch``   - the checks of a QEC code (``qecbench.codes``: surface, colour, qLDPC or any
+  structure you load), each check a term of 2, 4, 5, 6... data qubits, in either kind.
 
 Everything downstream (layout search, packing, circuit builders, analysis) only talks to the
 ``Primitive`` interface, so adding a family is adding a subclass.
@@ -28,14 +29,16 @@ from functools import cached_property
 
 @dataclass(frozen=True)
 class Term:
-    """One ``Z...Z`` term: the data qubits it acts on, and the ancilla that measures it.
+    """One ``weight * Z...Z`` term: the data qubits it acts on, and the ancilla that measures it.
 
     ``ancilla = None`` means the term is applied **directly** to its data qubits (one native
-    two-qubit rotation per bond) instead of through a mid-circuit measurement.
+    two-qubit rotation per bond, or a CNOT ladder for more than two) instead of through a
+    mid-circuit measurement.
     """
 
     ancilla: int | None
     data: tuple[int, ...]
+    weight: float = 1.0
 
 
 class Primitive:
@@ -97,9 +100,14 @@ class Primitive:
 
     @cached_property
     def hamiltonian(self) -> dict[tuple[int, ...], float]:
-        """``{(i, j, ...): 1.0}`` on data indices: ``H = sum Z_i Z_j ...``."""
+        """``{(i, j, ...): weight}`` on data indices: ``H = sum w Z_i Z_j ...``."""
         index = {q: i for i, q in enumerate(self.data_qubits)}
-        return {tuple(index[d] for d in t.data): 1.0 for t in self.terms}
+        return {tuple(index[d] for d in t.data): float(t.weight) for t in self.terms}
+
+    @property
+    def identity(self) -> tuple:
+        """What distinguishes this instance from any other in a result file."""
+        return (self.family, self.qubits)
 
     @property
     def tag(self) -> str:
@@ -252,11 +260,109 @@ class Direct(Primitive):
         return float(self.n_data - 1)
 
 
-FAMILIES = {"chain": Chain, "direct": Direct}
+class CodePatch(Primitive):
+    """The checks of a QEC code (``codes.CodeStructure``) placed on qubits, in one kind.
+
+    ``kind="mcm"`` gives every check an ancilla: its gadget is one round of syndrome extraction.
+    ``kind="direct"`` applies each check as a CNOT ladder on its data qubits, no ancilla. Both
+    solve the same Hamiltonian and share the noiseless reference.
+
+    ``data_qubits[i]`` is the qubit of the structure's data qubit ``i``, and ``ancillas[c]`` the
+    ancilla of check ``c``. The defaults are **logical** labels - data ``0..n-1``, ancillas
+    ``n..n+m-1`` - for devices without a fixed layout (Quantinuum). On a fixed-coupling device
+    they are physical qubits (see ``layout.surface_code_placements``).
+    """
+
+    family = "code"
+
+    def __init__(self, code, data_qubits=None, ancillas=None, kind="mcm"):
+        if kind not in ("mcm", "direct"):
+            raise ValueError(f"unknown kind {kind!r}")
+        self.code, self.kind = code, kind
+        n, m = code.n_data, code.n_checks
+        data = tuple(range(n)) if data_qubits is None else tuple(int(q) for q in data_qubits)
+        if len(data) != n:
+            raise ValueError(f"{code.name}: {len(data)} data qubits for n_data = {n}")
+        if kind == "mcm":
+            anc = tuple(range(n, n + m)) if ancillas is None else tuple(int(q) for q in ancillas)
+            if len(anc) != m:
+                raise ValueError(f"{code.name}: {len(anc)} ancillas for {m} checks")
+        else:
+            if ancillas:
+                raise ValueError("a direct code patch has no ancillas")
+            anc = ()
+        self._data, self._anc = data, anc
+        super().__init__(data + anc)
+
+    @property
+    def structure(self) -> str:
+        return self.code.family
+
+    @cached_property
+    def data_qubits(self):
+        return self._data
+
+    @cached_property
+    def terms(self):
+        return tuple(Term(self._anc[c] if self.kind == "mcm" else None,
+                          tuple(self._data[q] for q in check), w)
+                     for c, (check, w) in enumerate(zip(self.code.checks, self.code.weights)))
+
+    @property
+    def logical(self) -> bool:
+        """Whether the labels are the default logical ones."""
+        n, m = self.code.n_data, self.code.n_checks
+        return (self._data == tuple(range(n))
+                and self._anc == (tuple(range(n, n + m)) if self.kind == "mcm" else ()))
+
+    @property
+    def identity(self):
+        return (self.family, self.code.name, self.kind, self.qubits)
+
+    @property
+    def tag(self) -> str:
+        return f"{self.code.name}_{self.kind}" + ("" if self.logical else f"_{min(self.qubits)}")
+
+    def optimal_energy(self):
+        return self.code.optimal_energy()
+
+    def max_energy(self):
+        return self.code.max_energy()
+
+    def to_dict(self):
+        return {"family": self.family, "kind": self.kind, "code": self.code.to_dict(),
+                "data_qubits": list(self._data), "ancillas": list(self._anc), "qubits": list(self.qubits)}
+
+    @classmethod
+    def from_dict(cls, spec):
+        from .codes import CodeStructure
+
+        return cls(CodeStructure.from_dict(spec["code"]), spec["data_qubits"], spec["ancillas"] or None,
+                   spec["kind"])
+
+    def __eq__(self, other):
+        return isinstance(other, CodePatch) and self.identity == other.identity
+
+    def __hash__(self):
+        return hash(self.identity)
+
+    def __lt__(self, other):
+        if isinstance(other, CodePatch):
+            return self.identity < other.identity
+        return (self.family, self.qubits) < (other.family, other.qubits)
+
+    def __repr__(self):
+        where = "logical" if self.logical else f"qubits {min(self.qubits)}..{max(self.qubits)}"
+        return f"CodePatch({self.code.name}, {self.kind}, {where})"
+
+
+FAMILIES = {"chain": Chain, "direct": Direct, "code": CodePatch}
 
 
 def from_dict(spec) -> Primitive:
     """Inverse of ``Primitive.to_dict``; a bare qubit list is read as a chain."""
     if isinstance(spec, (list, tuple)):
         return Chain(spec)
+    if spec["family"] == "code":
+        return CodePatch.from_dict(spec)
     return FAMILIES[spec["family"]](spec["qubits"])

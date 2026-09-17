@@ -8,8 +8,10 @@ that primitive.
 
 **Version 0.1** covers **1D chains**, with the triplet `(d1, a, d2)` as the `n_data = 2` case, on
 **IBM Quantum** (Qiskit Runtime), **IQM Garnet/Emerald** (Amazon Braket through
-`qiskit-braket-provider`), **Quantinuum Helios** (Guppy programs through Nexus) and **Aer**. Surface- and colour-code patches come next. They fit the same
-interface (see *Extending*).
+`qiskit-braket-provider`), **Quantinuum Helios** (Guppy programs through Nexus) and **Aer**. It also runs
+**QEC structures**: the checks of a surface, colour or qLDPC code, or any Hamiltonian you load, with one
+round of syndrome extraction per LR-QAOA layer, on Helios and, for surface-code patches, on IBM's
+square-lattice chips (see *QEC structures*).
 
 It generalises `benchmarking_ibm_auto.ipynb`, `benchmarking_iqm_auto.ipynb` and the chain circuits
 of `benchmarking_ibm.ipynb` from the `Benchmarking-Mid-circuit-measurement` repository, and it reads
@@ -18,7 +20,7 @@ that repository's result files.
 ## Install
 
 ```bash
-pip install -e ".[ibm,iqm,quantinuum,dev]"      # or any one of them: ".[ibm]" / ".[iqm]" / ".[quantinuum]"
+pip install -e ".[ibm,iqm,quantinuum,qec,dev]"  # or any one of them: ".[ibm]" / ".[iqm]" / ".[quantinuum]" / ".[qec]"
 ```
 
 The `.venv` of `Benchmarking-Mid-circuit-measurement` already has every dependency:
@@ -65,6 +67,9 @@ results   = load_results("data/results", backend.name, kind="mcm")  # {Chain: {d
 | `benchmark_ibm.ipynb` | triplets or chains on any IBM backend; section 8 reloads the earlier `ibm_phoenix` triplet campaign |
 | `benchmark_iqm.ipynb` | triplets on Garnet/Emerald; `LOCAL = True` rehearses the exact IQM circuit on Aer |
 | `benchmark_quantinuum.ipynb` | 1D chains of 20-50 spins on Helios-1 / Helios-1E with the parallel MCM program; quote in HQC, `λ_eff` per edge |
+| `benchmark_codes_quantinuum.ipynb` | any QEC structure (surface, colour, qLDPC or a loaded Hamiltonian) on Helios-1 / Helios-1E, checks measured in batches that use the operation zones in parallel |
+| `benchmark_codes_ibm.ipynb` | surface-code patches at many positions on a square-lattice IBM chip, scored against their calibrated error |
+| `benchmark_qec_memory.ipynb` | rotated surface-code memory experiment (Z and X basis, `R` rounds) on the same patches as the LR-QAOA benchmark: detectors, `pymatching` decoding, logical error rate and error per round |
 | `paper_figures.ipynb` | every device-data figure of the paper, redrawn from `data/` (see *Paper figures*) |
 | `noise_study.ipynb` | not a benchmark: depolarizing simulation of 1D chains giving `κ_r = κ_0/N_q`, `κ_ρ` and device `λ_eff` (see *Noise study*) |
 
@@ -76,9 +81,14 @@ regenerating a notebook replaces any edits made to its `.ipynb`.
 
 ```
 src/qecbench/
-  primitives.py   Primitive / Term interface; Chain (d0-a0-d1-...; triplet = n_data 2) and Direct
-                  (the same chain with no ancillas), whose family fixes the circuit each one gets
+  primitives.py   Primitive / Term interface; Chain (d0-a0-d1-...; triplet = n_data 2), Direct
+                  (the same chain with no ancillas) and CodePatch (the checks of a code structure)
+  codes.py        QEC structures as Hamiltonians (surface, colour, qLDPC, loaded) and their schedules
+  code_programs.py  a structure's LR-QAOA program for Helios: generated Guppy source and its Qiskit copy
   lrqaoa.py       schedule, energies, exact noiseless r_ideal(p), exact random baseline
+  references.py   stored noiseless references for problems too slow to recompute
+  shots.py        shot budgets: shots to separate LR-QAOA from random guessing, or to rank two devices
+  memory.py       surface-code memory experiments: typed checks, stim reference, circuits, detectors, decoding
   layout.py       coupling graphs, select_chains / select_direct_chains, pack, validate
   circuits.py     the gadget in two dialects: build_dynamic (if_test) and build_iqm (r, cz, MeasureFF, CCPRx)
   backends/       base.Backend, AerBackend, IBMBackend, IQMBackend, QuantinuumBackend
@@ -100,7 +110,7 @@ data/
   calibration/<backend>/<stamp>_<backend>_calibration.json
 ```
 
-`structure` is the problem (`chain` now, `surface_code` / `color_code` later) and `kind` the
+`structure` is the problem (`chain`, `surface_code`, `color_code`, `qldpc`, `custom`) and `kind` the
 implementation (`mcm` or `direct`), so a `Direct` reference sits next to the chain it is compared with.
 
 **One file per run**, holding a `run` header (manifest, shots, depths, `simulated`, noise model) and a
@@ -175,6 +185,61 @@ and a 3-spin chain in the same circuit.
 * **IBM, classical-control memory** (error 6073). Circuits per job are capped (`max_circuits_per_job`, default 8).
 * **IBM cost estimate.** Feed-forward is charged 1.9 µs per conditional per layer. That figure is an
   *unconfirmed hypothesis* carried over from `ibm_mcm_auto`, so treat the QPU seconds as an order of magnitude.
+
+## QEC structures
+
+A code structure (`qecbench.codes.CodeStructure`) is `n_data` and a list of weighted checks, read as
+the Ising Hamiltonian `H = Σ_c w_c Π_{i∈S_c} Z_i`. Measuring a term through an ancilla is the
+syndrome-extraction gadget with one phase rotation added (`CX` from the support, `RZ(2wγ)`, `H`,
+mid-circuit measurement, `Z` on the support if the outcome is 1). One LR-QAOA layer is therefore one
+round of syndrome extraction. The direct reference is a `CX` ladder, `2(w−1)` CNOTs per check.
+
+```python
+from qecbench import codes
+from qecbench.backends import QuantinuumBackend, code_instances
+from qecbench.experiment import build_plan
+
+code = codes.surface_code(5)                    # or codes.color_code(7), codes.bivariate_bicycle("BB18")
+code = codes.load("graphs/qldpc_BB_d3_hamiltonian.txt")        # or any Hamiltonian from a file
+code = codes.from_hamiltonian("mine", {(0, 1, 2): 1.0, (2, 3): 0.5})
+backend = QuantinuumBackend("Helios-1")
+plan = build_plan(backend, code_instances(code), depths=[3, 5, 10], shots=50)
+```
+
+* **Generators.** `surface_code(d)` has `d²` data qubits, `(d−1)²` weight-4 and `2(d−1)` weight-2 checks.
+  `color_code(d)` is the triangular 6.6.6 code. `bivariate_bicycle(name)` (`BB18`, `BB24`, `BB30`, `BB48`,
+  `GB16`, `GB26`) takes the independent rows of `H_X = [A|B]` and `H_Z = [Bᵀ|Aᵀ]`, with duplicates merged into
+  weight 2. They reproduce the Hamiltonians of the reference study (`utils.sc_hamiltonian`,
+  `color_code_graph`, `qldpc_code.ipynb`) check for check. `load` also reads that study's
+  `graphs/*_hamiltonian.txt` files and the `hamiltonian` block of its result files.
+* **References.** `E_min` is exact (integer programming). For these codes every check can read −1 at
+  once, so `E_min = −Σw` and `r_rand = 1/2`. `r_ideal` is exact up to 25 data qubits, by direct NumPy
+  evolution of the statevector (about 10x faster than Qiskit's gate-by-gate `Statevector`). Above 20 qubits
+  that takes seconds to minutes, so it is stored in `data/references/ideal_energies.json`
+  (`QECBENCH_REFERENCES` moves it). Above 25 a stored estimate is used if present, otherwise `r_ideal` and
+  `r_ovl` are NaN with a warning, and `n_σ` above random is the measure. MPS is never started silently.
+* **Schedules.** `codes.schedule` colours the conflict graph of the checks (DSATUR) into batches of
+  disjoint supports: 4 per round for the surface code, 3 for the colour code, 7 for BB18.
+* **Helios.** Each batch allocates its ancillas together, applies the `CX` in rounds, reads the batch with
+  one `measure_array` and applies the corrections, so up to 8 gadgets run at once in Helios-1's operation
+  zones. The earlier programs measured one check at a time, which kept a single zone busy: one round of the
+  `d = 5` surface code took 24 sequential steps, against about 4 now. A program holds
+  `n_data + largest batch` qubits, and a batch never exceeds the qubits left free. Smaller batches only add idling, so the
+  notebook has no setting for it; `QuantinuumBackend(max_parallel=k)` caps them for a study of batch size. The program is generated as Guppy source with one function per batch
+  (`code_programs.guppy_source`), since Guppy cannot index a compile-time list with a runtime loop
+  variable. The 91-qubit colour code at `p = 10` compiles in about 13 s.
+* **IBM.** `layout.surface_code_placements` embeds a surface-code patch diagonally in a square lattice
+  (data `(i, j)` at site `(i+j+r0, i−j+c0)`, each check's ancilla at a common neighbour of its data): 48
+  placements of `d = 3` and 8 of `d = 5` on a `12 × 10` chip. Only `mcm` runs, because the data qubits are
+  not coupled to each other. `spread_selection` picks positions log-spaced over their calibrated
+  `error_budget`.
+* **Local rehearsal.** Aer simulates circuits with mid-circuit measurements shot by shot, so local runs
+  are limited to about 20 active qubits (surface or colour code `d = 3`). A `d = 3` patch on IBM, with its
+  17 qubits, takes about 15 s per circuit at 200 shots.
+
+The surface-code gate counts tabulated in the paper (e.g. `d = 9`: 356 CX with MCM, 518 direct, 97 MCMs)
+do not match the Hamiltonian the runs used, which has 80 checks: 288 CX and 80 MCMs, and 416 CX direct.
+`CodeStructure.counts` gives the counts of the structure itself. The colour-code and BB counts agree.
 
 ## Analysis conventions
 
@@ -254,6 +319,12 @@ figure names the run files it uses, so later campaigns added to `data/` never ch
 | Fig. 5b | `λ_eff` of a 10-spin chain, direct and MCM, on IBM Boston and the Helios-1E emulator | 6 | Boston `20260506_1507` (direct), `20260506_1537` (MCM); Helios-1E `20260507_0900` (direct), `20260508_0700` (MCM) |
 | Fig. 5c | `λ_eff` against `N_q` for eight devices, direct and MCM (as in `noise_study.ipynb` section 7) | 6 | the direct and MCM chain runs listed in the notebook section, converted with `noise_study.ipynb` section 7 |
 | Fig. 5d | mean MCM `λ_eff` of eight devices against their release date | 6 | MCM runs `ibm_fez 20260828_1028`, `ibm_marrakesh 20260828_1034`, `ibm_kingston 20260827_1205`, `ibm_pittsburgh 20260828_1025`, `ibm_boston 20260827_1035`, `ibm_phoenix 20260904_1435`, `H2-1 20260820_0650`, Helios-1 `20260909` runs |
+| Fig. 6a-c | `r` of MCM and direct LR-QAOA on the check Hamiltonians of colour codes (`d = 3…11`), surface codes (`d = 3…9`) and qLDPC codes (BB18, BB30, BB48): Helios-1E up to `d = 5` and BB18, Helios-1 beyond | 7 | Helios code runs listed in `scripts/figure6_sources.txt` |
+| Fig. 7a | probability that the mean of `S` shots of a noiseless device clears the random-guessing `3σ` threshold, surface code `d = 3, 5` at `p = 3` | 8 | none: exact noiseless distribution (`lrqaoa.ideal_energy_distribution`) and exact random baseline |
+| Fig. 7b | the same for the BB qLDPC codes BB18, BB24, BB30 at `p = 3` | 8 | none for BB18 and BB24 (exact); BB30 from the stored histogram of the published 10 000-shot noiseless simulation |
+| Fig. 8a | shots per device to rank two devices a factor of two apart in error rate (`S* = 9 (σ_A² + σ_B²)/Δμ²`), against depth: surface code `d = 3` (noisy simulations) and colour code `d = 5` (white-noise model) | 9 | `data/shot_budget/two_device_ranking.json` |
+| Fig. 8b, 8c | MCM `r_ovl` of the surface code `d = 3` and `d = 5` against depth: H2-1, Helios-1, IBM Phoenix (best patch of the position scan) and the H2-1E / Helios-1E emulators | 9 | H2-1E `20260820_0707`, Helios-1E `20260306_1514` + `_1518`, `20260309_1203`, H2-1 `20260820_0736`, Helios-1 `20260825_1229`, ibm_phoenix `20260909_1631`, `20260909_1619` (`surface_code/mcm/`) |
+| Fig. 9 | LR-QAOA `r_ovl` at depth `p` against the decoded logical error rate of a surface-code Z memory after `R = p` rounds, on the same patch, `d = 3` and `d = 5`, the two best patches highlighted | 10 | ibm_phoenix position scan `20260914_0941` (`surface_code/mcm/` and `surface_code/memory/`) |
 
 *Triplet campaigns*, in `data/results/<device>/chain/mcm/`: `20260813_0729_iqm_garnet`,
 `20260813_0722` + `20260813_0723_iqm_emerald`, `20260813_1637_ibm_kingston`, `20260814_0818_ibm_boston`,
@@ -264,6 +335,12 @@ figure names the run files it uses, so later campaigns added to `data/` never ch
 `20260526_0735`, `20260825_1505`, `_1540`, `_1541`, `_1542`, `_1543`, `_1606` (all serialized) and `20260909_1423`, `_1509`,
 `_1521` (parallel); ibm_boston `20260825_1618`, `_1619`, `_1620`, `_1621`, `_1629`, `20260827_1035` and `20260831_1122`.
 The fits use `κ_0 = 3.69` from `data/noise_study/kappa_fits.json`, so every value is 0.95x the published one (3.51 before).
+*Fig. 6 code runs*, in `data/results/<Helios-1E|Helios-1>/<color_code|surface_code|qldpc>/<kind>/`: the newest file
+per code, kind and depth, exactly as the published panels read them (run files named in section 7 of the notebook).
+All were run with the serial programs of the earlier repository, one check at a time. The noiseless line is exact
+up to 25 data qubits; for the colour code `d = 7` and BB30 it is the stored simulation estimate
+(`data/references/ideal_energies.json`). The colour-code `d = 7` references are MPS simulations run on an HPC
+system (`p = 10` at bond dimension 256); earlier, smaller runs of the same problem in the source `Data/` are not used.
 
 **To reproduce** a figure, run its section of `paper_figures.ipynb`. The data is already in the repository,
 so no account or earlier repository is needed.
@@ -286,21 +363,56 @@ python scripts/import_legacy_chains.py "$S/20260309_0726_Helios-1_MCM_nq40_depth
 python scripts/import_legacy_chains.py "$S/20260506_1507_ibm_boston_1d_normal_nq10_*" \
     "$S/20260506_1537_ibm_boston_1d_MCM_nq10_*" "$S/20260507_0900_Helios-1E_1d_normal_nq10_*" \
     "$S/20260508_0700_Helios-1E_1d_MCM_nq10_*" --apply           # Fig. 5b (5c and 5d use the runs of noise_study section 7)
+python scripts/import_legacy_codes.py $(sed "s#^#$S/#" scripts/figure6_sources.txt) --apply     # Fig. 6
+python scripts/import_legacy_codes.py --references "$S/20260630_154[012]_qasm_simulator_qldpc_BB30_normal_nq30_depth*" --apply   # Fig. 6, 7b
+python scripts/import_legacy_codes.py --references \
+    "$S/20260601_1431_qasm_simulator_cc_normal_nq37_depth3.json" "$S/20260601_1433_qasm_simulator_cc_normal_nq37_depth5.json" \
+    "$S/20260601_1510_qasm_simulator_cc_normal_nq37_depth10_chi256.json" \
+    --method "MPS simulation on an HPC system" --apply     # Fig. 6: colour code d = 7 references
+python scripts/import_legacy_codes.py "$S"/20260820_070[79]_H2-1E_sc_MCM_nq9_depth{3,5,10}.json \
+    "$S"/20260306_151851_Helios-1E_sc_nq9_MCM_depth10.json "$S"/20260820_073[678]_H2-1_sc_MCM_nq25_depth{3,5,10}.json \
+    "$S"/20260825_1229_Helios-1_sc_MCM_nq25_depth3.json "$S"/20260825_1230_Helios-1_sc_MCM_nq25_depth{5,10}.json --apply   # Fig. 8b, 8c
+python scripts/import_legacy_codes.py "$S"/20260909_1631_ibm_phoenix-scanbest_sc_MCM_nq9_depth{3,5,10}.json --anchor 7,4 --apply
+python scripts/import_legacy_codes.py "$S"/20260909_1619_ibm_phoenix-scanbest_sc_MCM_nq25_depth{3,5,10}.json --anchor 2,4 --apply
+python scripts/import_shot_budget.py --apply                                                                   # Fig. 8a
+python scripts/import_position_scan.py "$S"/manifests/20260914_0941_ibm_phoenix_sc_position_scan.json --apply   # Fig. 9 (needs the IBM account)
 ```
+
+Fig. 9 re-harvests the finished jobs of the position scan (read-only, no QPU time): the earlier repository kept only
+aggregated numbers. Both arms are stored in the common format, the memory with every shot's raw syndrome and data bits
+(packed, 15 MB for 228 circuits), and each patch with the calibration snapshot of the scan. The logical error rates
+decoded again from the raw shots equal the published ones exactly; `r_ovl` moves by up to about 0.02 with the exact
+references, and the highlighted patches are the same.
+
+Fig. 8b and 8c take, per device and depth, the run with the most shots, as the published panels did. The IBM Phoenix
+files store logical labels; `--anchor` puts them back on the physical patch of the position scan, which
+`layout.surface_code_placements` reproduces qubit for qubit. Their `r` is unchanged; `r_ovl` moves by up to about 0.03
+with the exact references. Fig. 8a copies the means and spreads of the surface-code noisy simulations (all `S*` needs)
+and recomputes the colour-code white-noise model from exact distributions, reproducing the published curve. Its `λ`
+is that model's parameter, counted per CNOT.
+
+Fig. 7 needs no device data: the random threshold is exact, and so is the noiseless single-shot distribution up to 25
+data qubits. BB30 uses the energy histogram of the published noiseless simulation, stored by the BB30 `--references`
+command above. The published panels resampled 500- and 10 000-shot simulations instead, which moves the probabilities
+by a few hundredths and the shots needed for 95 % by at most one grid step (BB24: 50 here, 30 published, at 0.949
+against 0.956 for `S = 30`).
 
 Conversion puts earlier campaigns in the same format and analysis as data taken with this package: `r`
 and its error from the samples, an exact `r_ideal`, and an exact random baseline (`1/2 ± 1/(2√((n−1)S))`)
 in place of the bootstrap estimate of the original files. For Fig. 3c-3f the values of `r` are unchanged: every
 count, median, quartile and range matches the published panels, and the same best triplets are chosen.
 Only the random reference moves, from `0.506 ± 3·0.020` to `0.500 ± 3·0.022`. Runs on a hosted emulator
-(Helios-1E, H2-1E) are flagged `simulated` when converted.
+(Helios-1E, H2-1E) are flagged `simulated` when converted. For Fig. 6 every converted `r` equals the stored one (82 of 82
+files); the code runs become logical `CodePatch` results of the generated structures, whose checks are verified
+against each file's Hamiltonian.
 
 ## Extending
 
 A new primitive family is a `Primitive` subclass that defines `data_qubits` and `terms`
 (`Term(ancilla, data)`), plus `optimal_energy` / `max_energy` if brute force is too slow. Circuit
-builders, packing, validation, submission and analysis work from the terms, so a surface-code
-plaquette is `Term(a, (d1, d2, d3, d4))`. What a new family still needs is its own instance search
-in `layout.py`, the analogue of `select_chains`. On IQM the single-controller rule applies to it as well.
+builders, packing, validation, submission and analysis work from the terms, as `CodePatch` does with
+weighted many-body checks. A new code needs no new class at all: build its `CodeStructure` (see *QEC
+structures*). To place it on a fixed-coupling chip, a family needs its own instance search in
+`layout.py`, the analogue of `select_chains` or `surface_code_placements`. On IQM the single-controller rule applies to it as well.
 
 A new vendor is one `Backend` subclass: `coupling_graph`, `validate`, `build`, `estimate`, `submit`, `fetch`.

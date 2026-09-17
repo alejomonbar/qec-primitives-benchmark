@@ -109,16 +109,37 @@ def test_chains_use_exact_free_fermions_at_any_length():
     assert 0.9 < r < 1.0
 
 
-def test_non_chain_past_statevector_switches_to_mps_and_says_so():
+def test_non_chain_past_statevector_has_no_silent_reference(tmp_path, monkeypatch):
+    """Past 25 qubits a non-chain Hamiltonian gets a stored reference or NaN with a warning -
+    never a matrix-product-state run started behind the user's back. MPS stays available."""
+    monkeypatch.setenv("QECBENCH_REFERENCES", str(tmp_path / "refs.json"))
+    from qecbench import references
+
     n = MAX_STATEVECTOR_QUBITS + 1
     ring = {**{(i, i + 1): 1.0 for i in range(n - 1)}, (0, n - 1): 1.0}      # closed: not a free-fermion chain
-    with pytest.warns(UserWarning, match=f"{n} data qubits"):
-        e = ideal_energy(ring, n, 1)
+    with pytest.warns(UserWarning, match=f"no noiseless reference for {n} data qubits"):
+        assert np.isnan(ideal_energy(ring, n, 1))
+    with pytest.warns(UserWarning, match="matrix-product-state"):
+        e = ideal_energy(ring, n, 1, method="mps")
     assert -n < e < 0
+    references.store(ring, n, 1, 0.5, e, "mps", max_bond_dimension=None)
+    assert ideal_energy(ring, n, 1) == pytest.approx(e)                        # now read back, no warning
     chain = Chain(range(2 * n - 1))
     # the distribution itself is 2**n numbers, so it is refused rather than attempted
     with pytest.raises(ValueError, match=f"2\\*\\*{n}"):
         ideal_probabilities(chain.hamiltonian, n, 2)
+
+
+@pytest.mark.parametrize("n, ham", [
+    (6, {(0, 1, 3, 4): 1.0, (1, 2): 1.0, (3, 4, 5): 2.0, (0,): -0.5}),
+    (9, {(0, 1, 3, 4): 1.0, (4, 5, 7, 8): 1.0, (0, 3): 1.0, (5, 8): 1.0, (1, 2): 1.0, (6, 7): 1.0}),
+])
+def test_diagonal_evolution_matches_the_qiskit_statevector(n, ham):
+    from qecbench.lrqaoa import diagonal_statevector_energy
+
+    for depth in (1, 4):
+        exact = float(ideal_probabilities(ham, n, depth) @ energies(ham, n))
+        assert diagonal_statevector_energy(ham, n, depth) == pytest.approx(exact, abs=1e-10)
 
 
 def test_angles_ramp():

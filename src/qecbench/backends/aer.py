@@ -19,9 +19,11 @@ from .base import Backend, reverse_keys
 def run_aer(circuits, shots, noise_model=None, seed=None):
     """Run circuits on Aer; returns one ``{register: counts}`` per circuit.
 
-    Aer truncates idle qubits, so the method is chosen on the qubits actually used.  ``seed``
-    is offset per circuit - identical circuits must not share one random stream.
+    Aer truncates idle qubits, so the method is chosen on the qubits actually used.  Each
+    circuit gets its own seed, derived from ``(seed, i)``: identical circuits must not share a
+    random stream, and consecutive seeds would, since Aer seeds shot ``k`` with ``seed + k``.
     """
+    import numpy as np
     from qiskit_aer import AerSimulator
 
     out = []
@@ -29,7 +31,8 @@ def run_aer(circuits, shots, noise_model=None, seed=None):
         active = len({qc.find_bit(q).index for inst in qc.data for q in inst.qubits})
         sim = AerSimulator(method="matrix_product_state" if active > 20 else "automatic",
                            noise_model=noise_model)
-        run = sim.run(qc, shots=shots, seed_simulator=None if seed is None else seed + i)
+        circuit_seed = None if seed is None else int(np.random.SeedSequence([seed, i]).generate_state(1)[0] >> 1)
+        run = sim.run(qc, shots=shots, seed_simulator=circuit_seed)
         out.append(split_register_counts(run.result().get_counts(), qc))
     return out
 

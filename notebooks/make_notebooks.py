@@ -947,7 +947,7 @@ LOCAL_N_DATA     = [4, 6, 8]          # chain lengths for the local rehearsal (A
 DEPTHS           = [3, 5, 10]
 SHOTS            = 50
 DELTA            = 0.5
-DIRECT_REFERENCE = True
+KINDS            = ["mcm"]             # "mcm", "direct", or both
 PROJECT          = "Helios-Samples"
 COST_MARGIN      = 3                  # HQC on top of the prediction, per job
 """),
@@ -1644,7 +1644,7 @@ section says which runs it uses, where they are stored (`data/results/<backend>/
 how they were analysed. The PDFs go to `figures/paper_figures/`.
 
 All data is in this package's result format, whether it was taken with this package or converted from
-earlier campaigns by `scripts/import_legacy_chains.py`. For every result, $r$ and its shot-noise error
+earlier campaigns by `scripts/import_legacy_chains.py` and `scripts/import_legacy_codes.py`. For every result, $r$ and its shot-noise error
 are recomputed from the stored samples, the noiseless reference $r_{\rm ideal}$ is exact, and the
 random baseline is exact: $r_{\rm rand} = 1/2$, with shot-noise spread $\sigma_{\rm rand} = 1/(2\sqrt{(n-1)S})$
 for $S$ shots. The runs are named explicitly, so adding a campaign to `data/` never changes a published
@@ -1661,6 +1661,12 @@ figure by accident.
 | Fig. 5b | $\lambda_{\rm eff}$ of a 10-spin chain on IBM Boston and the Helios-1E emulator, direct and MCM | 6 |
 | Fig. 5c | $\lambda_{\rm eff}$ against $N_q$ for eight devices, direct and MCM | 6 |
 | Fig. 5d | mean MCM $\lambda_{\rm eff}$ of eight devices against their release date | 6 |
+| Fig. 6a-c | $r$ of MCM and direct LR-QAOA on colour-code, surface-code and qLDPC check Hamiltonians, Helios-1E and Helios-1 | 7 |
+| Fig. 7a | shots a noiseless device needs to separate LR-QAOA from random guessing, surface code $d = 3, 5$ | 8 |
+| Fig. 7b | the same for the BB qLDPC codes BB18, BB24, BB30 | 8 |
+| Fig. 8a | shots per device to rank two devices a factor of two apart in error rate, against depth | 9 |
+| Fig. 8b, 8c | MCM $r_{\rm ovl}$ of the surface code $d = 3, 5$ on H2-1, Helios-1, IBM Phoenix and the emulators | 9 |
+| Fig. 9 | LR-QAOA $r_{\rm ovl}$ against the decoded logical error rate of a surface-code memory on the same patch, per patch of an `ibm_phoenix` position scan | 10 |
 """),
         code(r"""
 import sys
@@ -2434,7 +2440,1342 @@ print("\nsources:")
 for r in rows:
     print(f"  {r['dev']:<16}{r['source']}")
 """),
+        md(r"""
+## 7. Fig. 6 - QEC structures on Helios: colour code, surface code, qLDPC
+
+LR-QAOA on the check Hamiltonian of a code, $H = \sum_c \prod_{i \in S_c} Z_i$, where each MCM term is one
+syndrome-extraction gadget, so one layer is one round of syndrome extraction (`benchmark_codes_quantinuum.ipynb`,
+section 0). For each code, labelled on the $x$ axis by its distance (for qLDPC codes, their name, e.g. BB18) and
+number of data qubits, the bars give
+$r$ at each depth: **direct** (wide, blue) behind **MCM** (narrow, red). The black line is the noiseless $r_{\rm ideal}$ where one exists.
+
+**Runs.** Converted from `Benchmarking-Mid-circuit-measurement/Data` by `scripts/import_legacy_codes.py`
+(`<stamp>_<backend>_<sc|cc|qldpc>_..._nq<n>_depth<p>.json`, one file per structure and depth) into
+`data/results/<backend>/<family>/<kind>/`. They are exactly the files the published panels read: for every size,
+kind and depth the newest file. Each converted result is a logical `CodePatch` of the generated structure
+(`qecbench.codes`), whose checks were verified to equal the file's Hamiltonian. The runs up to $d = 5$ (and BB18)
+are on the **Helios-1E emulator**, the larger ones on **Helios-1**. All of them used the serial programs of
+that repository, one check at a time with a fresh ancilla each, not the batched programs of this package.
+
+| panel | code sizes | Helios-1E runs | Helios-1 runs | shots |
+|---|---|---|---|---|
+| 6a colour code | $d = 3, 5$ (7, 19 data) / $d = 7, 9, 11$ (37, 61, 91) | `20260316_1139` MCM, `20260316_1020` direct | MCM `20260316_1424`, `20260330_1108`, `20260825_1231`; direct `20260316_1419`, `20260330_1108` | 100-500 / 50 ($d = 7$), 10 |
+| 6b surface code | $d = 3, 5$ (9, 25) / $d = 7, 9$ (49, 81) | MCM `20260306_1514`, `20260309_1203`, `20260310_1119`; direct `20260306_1621`, `20260310_0729` | `20260309_1631` MCM, `20260309_1642` direct | 420-500 / 10 |
+| 6c qLDPC | BB18 / BB30, BB48 | `20260629_0732` MCM, `20260629_1457` direct | `20260702_0853` MCM and direct (samples of two jobs merged) | 10-100 / 18-20 |
+
+**What differs from the published panels.** The bars are unchanged: every $r$ recomputed from the samples equals
+the stored one. The noiseless line is exact here up to 25 data qubits, where the original used sampled
+simulations (e.g. surface code $d = 3$, $p = 3$: exact 0.7737, published 0.7717). Above 25 there is no exact
+reference, and the published line is kept as a stored reference (`data/references/ideal_energies.json`,
+`scripts/import_legacy_codes.py --references`) for the two structures it was drawn for: the colour code
+$d = 7$ and BB30 (10 000-shot simulations). The surface code $d = 7$ had a simulation too, but the published
+panel left it out, and so does this one. The colour-code $d = 7$ references are matrix-product-state simulations run on an HPC
+system ($p = 10$ at bond dimension 256); earlier, smaller runs of the same problem in that repository's `Data/` are
+not used.
+
+Two provenance notes are kept in the converted records (`benchmark.kind_source`, `benchmark.backend_note`):
+the surface-code $d = 3$, $p = 15$ direct run is named without `MCM` or `normal` and is read as direct, as the
+published figure did; and one Helios-1E surface-code file (`20260309_120358`, $d = 5$, $p = 3$) records Helios-1
+inside, while its name, 500 shots and missing job id match the emulator runs, so it is filed as Helios-1E.
+"""),
+        code(r"""
+import warnings
+
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+
+from qecbench import codes
+
+WIDE, NARROW, STEP = 0.6, 0.4, 0.7          # direct bar, MCM bar, spacing of the depths within a group
+MCM_COLOUR, DIRECT_COLOUR = "tab:red", "tab:blue"
+
+
+def code_runs(structure, backend, stamps):
+    # {code name: {kind: {depth: summary}}} from the named run files of one backend
+    out = {}
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")      # "no noiseless reference" above 25 data qubits: NaN is intended
+        for kind in ("mcm", "direct"):
+            for patch, by_depth in runs(backend, stamps[kind], kind, structure).items():
+                out.setdefault(patch.code.name, {"patch": patch})[kind] = by_depth
+    return out
+
+
+def reference(patch, p):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        return ideal_r(patch, int(p))
+
+
+def code_bars(groups, positions, name, slots=None):
+    # one group of bars per code, labelled with its distance (qLDPC: its name) and data qubits; `slots` fixes the depth
+    # of each bar position (gaps allowed), otherwise the depths both kinds have fill the positions in order
+    fig, ax = plt.subplots(figsize=(14, 6))
+    rows, ticks, labels = [], [], []
+    for (code_name, data), base in zip(groups, positions):
+        mcm, direct = data["mcm"], data["direct"]
+        common = sorted(set(mcm) & set(direct))
+        placed = [(j, p) for j, p in enumerate(slots) if p in common] if slots else list(enumerate(common))
+        line = []
+        for j, p in placed:
+            x = base + j * STEP
+            ax.bar(x, direct[p]["r"], WIDE, color=DIRECT_COLOUR, alpha=0.6, edgecolor="black", linewidth=1.5)
+            ax.bar(x, mcm[p]["r"], NARROW, color=MCM_COLOUR, alpha=0.7, edgecolor="black", linewidth=1.5)
+            ideal = reference(data["patch"], p)
+            if np.isfinite(ideal):
+                line.append((x, ideal))
+            rows.append((code_name, p, mcm[p], direct[p], ideal))
+        if line:
+            ax.plot(*zip(*line), color="black", linestyle="--", linewidth=2, zorder=10, marker="o")
+        if placed:                           # group label under the middle bar: distance (or qLDPC name), data qubits
+            code = data["patch"].code
+            ticks.append(base + (placed[0][0] + placed[-1][0]) * STEP / 2)
+            head = code.name if code.family == "qldpc" else f"$d = {code.info['distance']}$"
+            labels.append(f"{head}\n{code.n_data} qubits")
+    ax.set_xticks(ticks, labels)
+    ax.tick_params(axis="x", length=0)
+    ax.set_ylim(0.5, 1.0)
+    ax.grid(axis="y", alpha=1)
+    if SHOW_LABELS:
+        ax.legend(handles=[Patch(facecolor=MCM_COLOUR, alpha=0.7, edgecolor="black", label="MCM"),
+                           Patch(facecolor=DIRECT_COLOUR, alpha=0.6, edgecolor="black", label="direct"),
+                           Line2D([0], [0], color="black", linestyle="--", marker="o", label="noiseless")],
+                  loc="upper right")
+        ax.set_ylabel("$r$")
+    fig.savefig(FIGURES / name, bbox_inches="tight", transparent=True)
+    plt.show()
+    print(f"{'code':>11} {'p':>3} {'shots':>9} {'r MCM':>7} {'r direct':>9} {'r_ideal':>8} {'n_sigma MCM':>12} {'direct':>7}")
+    for code_name, p, m, d, ideal in rows:
+        print(f"{code_name:>11} {p:>3} {m['shots']:>4}/{d['shots']:<4} {m['r']:>7.4f} {d['r']:>9.4f} {ideal:>8.4f} "
+              f"{m['n_sigmas']:>12.1f} {d['n_sigmas']:>7.1f}")
+
+
+def panel(structure, emulator, hardware, order):
+    data = {**code_runs(structure, "Helios-1E", emulator), **code_runs(structure, "Helios-1", hardware)}
+    return [(name, data[name]) for name in order]
+"""),
+        md(r"""
+### Fig. 6a - colour code, $d = 3, 5$ (Helios-1E) and $d = 7, 9, 11$ (Helios-1)
+"""),
+        code(r"""
+groups = panel("color_code",
+               emulator={"mcm": ["20260316_1139"], "direct": ["20260316_1020"]},
+               hardware={"mcm": ["20260316_1424", "20260330_1108", "20260825_1231"],
+                         "direct": ["20260316_1419", "20260330_1108"]},
+               order=["color_d3", "color_d5", "color_d7", "color_d9", "color_d11"])
+code_bars(groups, positions=[0, 5, 10.5, 14.75, 18], name="fig6a_color_code_quantinuum.pdf")
+"""),
+        md(r"""
+### Fig. 6b - surface code, $d = 3, 5$ (Helios-1E) and $d = 7, 9$ (Helios-1)
+"""),
+        code(r"""
+groups = panel("surface_code",
+               emulator={"mcm": ["20260306_1514", "20260309_1203", "20260310_1119"],
+                         "direct": ["20260306_1621", "20260310_0729"]},
+               hardware={"mcm": ["20260309_1631"], "direct": ["20260309_1642"]},
+               order=["surface_d3", "surface_d5", "surface_d7", "surface_d9"])
+code_bars(groups, positions=[0, 6, 10.5, 14.75], name="fig6b_surface_code_quantinuum.pdf")
+"""),
+        md(r"""
+### Fig. 6c - qLDPC codes, BB18 (Helios-1E) and BB30, BB48 (Helios-1)
+"""),
+        code(r"""
+groups = panel("qldpc",
+               emulator={"mcm": ["20260629_0732"], "direct": ["20260629_1457"]},
+               hardware={"mcm": ["20260702_0853"], "direct": ["20260702_0853"]},
+               order=["BB18", "BB30", "BB48"])
+code_bars(groups, positions=[0, 5, 10], name="fig6c_qldpc_quantinuum.pdf", slots=[3, 5, 10])
+"""),
+        md(r"""
+## 8. Fig. 7 - the shot budget: separating LR-QAOA from random guessing
+
+A result is the mean of $S$ single-shot values of $r$. Random guessing gives $r_{\rm rand} = 1/2$ with spread
+$\sigma_{\rm rand}(S) = \sqrt{\sum_c w_c^2 / S}\,/\,(E_{\max} - E_{\min})$. How often does the mean of $S$ shots of a
+*noiseless* device clear $r_{\rm rand} + 3\sigma_{\rm rand}(S)$? That is the least budget any device needs to tell its
+result apart from random guessing (`qecbench.shots`). The dashed line marks 95 %.
+
+* **Fig. 7a** - surface code $d = 3$ and $d = 5$ (9 and 25 data qubits) at $p = 3$.
+* **Fig. 7b** - BB qLDPC codes BB18, BB24 and BB30 (18, 24 and 30 data qubits) at $p = 3$.
+
+**Data and what differs from the published panels.** No device data. The random threshold is exact, and so is the
+noiseless single-shot distribution up to 25 data qubits (`lrqaoa.ideal_energy_distribution`: one probability per
+energy level; the 24- and 25-qubit ones are kept in `data/references/ideal_energies.json`). BB30 is past the exact
+limit, so its distribution is the energy histogram of the published 10 000-shot noiseless simulation, stored in the
+same file by `scripts/import_legacy_codes.py --references`. The published panels resampled 500-shot (surface code)
+and 10 000-shot (qLDPC) simulations and a 200 000-bitstring random pool instead. That moves the probabilities by a
+few hundredths at most and leaves the shots needed for 95 % unchanged or one grid step apart; the cells below print
+both.
+"""),
+        code(r"""
+from qecbench import CodePatch
+from qecbench.shots import ideal_r_distribution, separation_probability, shots_to_separate
+
+
+def separation_panel(patches, shots_grid, published, figsize, xticks, name, label, legend_loc="best"):
+    # P(mean of S noiseless shots > r_rand + 3 sigma_rand(S)) against S, one line per code
+    fig, ax = plt.subplots(figsize=figsize)
+    print(f"{'code':>11} {'data qubits':>12} {'noiseless r':>12}   S = {shots_grid}")
+    for k, patch in enumerate(patches):
+        values, probabilities = ideal_r_distribution(patch, depth=3)
+        separated = separation_probability(patch, values, probabilities, shots_grid, n_sigma=3, n_boot=20_000,
+                                           seed=260708)
+        ax.plot(shots_grid, separated, "-o", color=plt.get_cmap("Set1")(k), label=label(patch), markersize=5)
+        print(f"{patch.code.name:>11} {patch.n_data:>12} {values @ probabilities:>12.4f}   {np.round(separated, 3)}"
+              f"   -> 95% at S = {shots_to_separate(shots_grid, separated)}")
+        print(f"{'published':>11} {'':>12} {'':>12}   {np.array(published[patch.code.name])}"
+              f"   -> 95% at S = {shots_to_separate(shots_grid, published[patch.code.name])}")
+    ax.axhline(0.95, color="k", ls="--", lw=1.1, label="95%")
+    ax.legend(fontsize=10, loc=legend_loc)
+    ax.grid(True, which="both", ls=":", alpha=0.45)
+    ax.set_xticks(xticks, xticks)
+    if SHOW_LABELS:
+        ax.set(xlabel="shots $S$", ylabel=r"$P(\bar r > r_{\rm rand} + 3\sigma_{\rm rand})$")
+    fig.savefig(FIGURES / name, transparent=True, bbox_inches="tight")
+    plt.show()
+"""),
+        md(r"""
+### Fig. 7a - surface code, $d = 3, 5$
+"""),
+        code(r"""
+separation_panel([CodePatch(codes.surface_code(d)) for d in (3, 5)], shots_grid=[5, 10, 20, 30],
+                 published={"surface_d3": [0.725, 0.975, 1, 1], "surface_d5": [0.979, 1, 1, 1]},
+                 figsize=(2, 5), xticks=[5, 10, 20], name="fig7a_surface_code_shots_to_separate.pdf",
+                 label=lambda patch: f"$n={patch.n_data}$", legend_loc="lower right")
+"""),
+        md(r"""
+### Fig. 7b - BB qLDPC codes, BB18, BB24, BB30
+"""),
+        code(r"""
+separation_panel([CodePatch(codes.bivariate_bicycle(name)) for name in ("BB18", "BB24", "BB30")],
+                 shots_grid=[5, 10, 20, 30, 50, 75, 100, 125, 150, 200],
+                 published={"BB18": [0.119, 0.211, 0.352, 0.477, 0.728, 0.868, 0.934, 0.978, 0.988, 0.998],
+                            "BB24": [0.248, 0.504, 0.853, 0.956, 0.997, 1, 1, 1, 1, 1],
+                            "BB30": [0.372, 0.727, 0.96, 0.998, 1, 1, 1, 1, 1, 1]},
+                 figsize=(3, 5), xticks=[10, 50, 100, 150, 200], name="fig7b_qldpc_shots_to_separate.pdf",
+                 label=lambda patch: f"{patch.code.name} ($n={patch.n_data}$)")
+"""),
+        md(r"""
+## 9. Fig. 8 - ranking devices: the shots it takes, and the surface code across machines
+
+* **Fig. 8a** - how many shots per device LR-QAOA needs to rank two devices whose error rates differ by a factor of
+  two, at $3\sigma$: $S^* = 9\,(\sigma_A^2 + \sigma_B^2)/(\mu_B - \mu_A)^2$, with $\mu$ and $\sigma$ the mean and spread of
+  the single-shot $r$ (`shots.shots_to_rank`), against depth. Surface code $d = 3$ from noisy simulations (direct
+  circuit, two-qubit depolarizing $\lambda$ after every CNOT, 50 000 shots per device and depth) and colour code
+  $d = 5$ from a white-noise model, for $\lambda = 0.02/0.01$ and $0.002/0.001$. $S^*$ has a minimum in depth: too
+  shallow and the two devices barely differ, too deep and both are near random.
+* **Fig. 8b, 8c** - MCM $r_{\rm ovl}$ of the surface code $d = 3$ (9 data qubits) and $d = 5$ (25) against depth on
+  H2-1, Helios-1 and IBM Phoenix, with the H2-1E and Helios-1E emulators (dashed). Neither Quantinuum machine ran
+  $d = 3$ on hardware, and H2-1E never ran $d = 5$. IBM Phoenix is the best patch of the position scan
+  (`benchmark_codes_ibm.ipynb`): anchor $(r_0, c_0) = (7, 4)$ for $d = 3$ and $(2, 4)$ for $d = 5$; the trapped-ion
+  machines are all-to-all and have no patch to choose, so this favours Phoenix.
+
+**Data.**
+* 8a: `data/shot_budget/two_device_ranking.json` (`scripts/import_shot_budget.py`). For the surface code it holds
+  the means and spreads of the noisy simulations, which is all $S^*$ needs (the samples were not kept). For the
+  colour code it holds the model constant $c = \kappa_0(n)\,N_{\rm CX} = 17.77$ ($N_{\rm CX} = 66$ per layer) and the
+  depths; the model distribution $A\,P_{\rm ideal} + (1 - A)\,P_{\rm random}$, $A = 2^{-c p \lambda}$, is recomputed from
+  the exact noiseless and random distributions and reproduces the published curve. Here $\lambda$ is that model's
+  parameter, counted per CNOT, not the per-edge $\lambda$ of Fig. 4 and 5.
+* 8b, 8c: converted by `scripts/import_legacy_codes.py`, for each device and depth the run with the most shots
+  (the earliest when tied), as the published panels chose. The IBM files store logical labels; the conversion puts
+  them back on the physical patch (`--anchor`), which `layout.surface_code_placements` reproduces qubit for qubit
+  from the position scan's layout.
+
+| panel | device | run files (`data/results/<device>/surface_code/mcm/`) | shots |
+|---|---|---|---|
+| 8b | H2-1E | `20260820_0707` | 500 |
+| 8b | Helios-1E | `20260306_1514` ($p = 3, 5$), `20260306_1518` ($p = 10$) | 500 |
+| 8b | ibm_phoenix | `20260909_1631` | 1000 |
+| 8c | H2-1 | `20260820_0736` | 50 |
+| 8c | Helios-1 | `20260825_1229` | 50 |
+| 8c | Helios-1E | `20260309_1203` | 500 |
+| 8c | ibm_phoenix | `20260909_1619` | 1000 |
+
+**What differs from the published panels.** The values of $r$ are unchanged. $r_{\rm ovl}$ uses the exact
+$r_{\rm ideal}$ and $r_{\rm rand} = 1/2$ where the published panels used sampled simulations (e.g. $d = 3$, $p = 3$: 0.7737
+against 0.7717) and a bootstrapped $r_{\rm rand} \approx 0.497$, which moves $r_{\rm ovl}$ by up to about 0.03; the cells
+print both.
+"""),
+        code(r"""
+from qecbench.shots import (moments, random_r_distribution, shots_to_rank, white_noise_distribution)
+
+budget = json.loads((ROOT / "data" / "shot_budget" / "two_device_ranking.json").read_text())
+
+fig, ax = plt.subplots(figsize=(3, 5))
+print(f"{'curve':>28}  S* (3 sigma) by depth")
+for pair, colour, marker in (("0.02/0.01", "crimson", "o"), ("0.002/0.001", "steelblue", "s")):
+    data = budget["surface_d3"]["pairs"][pair]["moments"]
+    depths = sorted(int(p) for p in data)
+    s_star = [shots_to_rank(data[str(p)]["mean_worse"], data[str(p)]["std_worse"],
+                            data[str(p)]["mean_better"], data[str(p)]["std_better"], z=3) for p in depths]
+    ax.plot(depths, s_star, marker + "-", color=colour, ms=8, mec="k", label=rf"SC $d=3$ $\lambda$={pair}")
+    print(f"{'surface d=3 ' + pair:>28}  " + ", ".join(f"p={p}: {s:.0f}" for p, s in zip(depths, s_star)))
+
+model = budget["color_d5_model"]
+patch = CodePatch(codes.color_code(5), kind="direct")
+rand_values, rand_probabilities = random_r_distribution(patch)
+for pair, colour, marker in (("0.02/0.01", "seagreen", "D"), ("0.002/0.001", "darkorange", "v")):
+    spec = model["pairs"][pair]
+    s_star = []
+    for p in spec["depths"]:
+        values, ideal = ideal_r_distribution(patch, p)
+        worse, better = (moments(values, white_noise_distribution(ideal, rand_probabilities, 2.0 ** (-model["c"] * p * lam)))
+                         for lam in (spec["lambda_worse"], spec["lambda_better"]))
+        s_star.append(shots_to_rank(*worse, *better, z=3))
+    ax.plot(spec["depths"], s_star, marker + "-", color=colour, ms=8, mec="k", label=rf"CC $d=5$ $\lambda$={pair}")
+    print(f"{'colour d=5 (model) ' + pair:>28}  " + ", ".join(f"p={p}: {s:.0f}" for p, s in zip(spec["depths"], s_star)))
+
+ax.set_xscale("log")
+ax.set_yscale("log")
+ax.set_xticks([1, 10, 100], [1, 10, 100])
+ax.set_yticks([100, 1000, 10000], [100, 1000, 10000])
+ax.legend(fontsize=12, loc="upper center", bbox_to_anchor=(0.5, 1.35))
+ax.grid(True, which="both", ls=":", alpha=0.4)
+if SHOW_LABELS:
+    ax.set(xlabel="LR-QAOA depth $p$", ylabel=r"$S^\ast$ ($3\sigma$)")
+fig.savefig(FIGURES / "fig8a_two_device_ranking_shots.pdf", transparent=True, bbox_inches="tight")
+plt.show()
+"""),
+        code(r"""
+FIG8_DEPTHS = [3, 5, 10]
+FIG8_DEVICES = {                      # device: (label, Set1 colour, marker, emulator)
+    "H2-1": ("H2-1", 4, "o", False), "H2-1E": ("H2-1E", 4, "s", True),
+    "Helios-1": ("Helios-1", 3, "o", False), "Helios-1E": ("Helios-1E", 3, "s", True),
+    "ibm_phoenix": ("ibm_phoenix (best patch)", 1, "X", False),
+}
+
+
+def mcm_overlap_panel(code_name, device_runs, published, name):
+    # MCM r_ovl against depth per device; the table adds shot noise and the published values
+    fig, ax = plt.subplots(figsize=(2, 4))
+    print(f"{code_name}: r_ovl (1 = noiseless, 0 = random), with 1 sigma shot noise; published below each row")
+    print(f"{'device':>26}{'shots':>7}" + "".join(f"{'p=' + str(p):>16}" for p in FIG8_DEPTHS))
+    for device, stamps in device_runs.items():
+        label, colour, marker, emulator = FIG8_DEVICES[device]
+        (by_depth,) = [by for patch, by in runs(device, stamps, "mcm", "surface_code").items()
+                       if patch.code.name == code_name]
+        ps = [p for p in FIG8_DEPTHS if p in by_depth]
+        ovl = [by_depth[p]["r_ovl"] for p in ps]
+        err = [by_depth[p]["r_err"] / (by_depth[p]["r_ideal"] - by_depth[p]["r_rand"]) for p in ps]
+        ax.plot(ps, ovl, marker=marker, color=plt.get_cmap("Set1")(colour), linestyle="--" if emulator else "-",
+                markersize=8, markeredgecolor="black", label=label + (" (emu)" if emulator else ""))
+        shots = "/".join(str(v) for v in sorted({by_depth[p]["shots"] for p in ps}))
+        print(f"{label:>26}{shots:>7}" + "".join(f"  {o:.3f}+-{e:.3f}" for o, e in zip(ovl, err)))
+        print(f"{'published':>26}{'':>7}" + "".join(f"{v:>16.3f}" for v in published[device]))
+    ax.set_xticks(FIG8_DEPTHS)
+    ax.legend(fontsize=9, loc="upper center", bbox_to_anchor=(0.5, 1.32), ncol=1)
+    if SHOW_LABELS:
+        ax.set(xlabel="$p$", ylabel=r"$r_{\rm ovl}$")
+    fig.savefig(FIGURES / name, transparent=True, bbox_inches="tight")
+    plt.show()
+"""),
+        md(r"""
+### Fig. 8b - surface code $d = 3$ (9 data qubits), MCM
+"""),
+        code(r"""
+mcm_overlap_panel("surface_d3",
+                  {"H2-1E": ["20260820_0707"], "Helios-1E": ["20260306_1514", "20260306_1518"],
+                   "ibm_phoenix": ["20260909_1631"]},
+                  published={"H2-1E": [0.980, 0.947, 0.885], "Helios-1E": [1.002, 0.919, 0.905],
+                             "ibm_phoenix": [0.490, 0.372, 0.249]},
+                  name="fig8b_mcm_rovl_surface_d3.pdf")
+"""),
+        md(r"""
+### Fig. 8c - surface code $d = 5$ (25 data qubits), MCM
+"""),
+        code(r"""
+mcm_overlap_panel("surface_d5",
+                  {"H2-1": ["20260820_0736"], "Helios-1": ["20260825_1229"], "Helios-1E": ["20260309_1203"],
+                   "ibm_phoenix": ["20260909_1619"]},
+                  published={"H2-1": [0.759, 0.625, 0.611], "Helios-1": [1.030, 0.826, 0.736],
+                             "Helios-1E": [0.857, 0.757, 0.710], "ibm_phoenix": [0.210, 0.211, 0.153]},
+                  name="fig8c_mcm_rovl_surface_d5.pdf")
+"""),
+        md(r"""
+## 10. Fig. 9 - LR-QAOA against the logical error rate of a real memory, patch by patch
+
+The `ibm_phoenix` surface-code position scan of 14 September 2026 ran, on each of 11 $d = 3$ and 8 $d = 5$ patches of
+the chip, two experiments **on the same physical qubits**: the MCM LR-QAOA benchmark at depths $p = 1, 2, 3, 5, 7, 10$
+(1000 shots) and a surface-code **Z memory** at $R = p$ rounds (4000 shots), decoded by matching on the stim detector
+error model (`benchmark_qec_memory.ipynb`, `qecbench.memory`). One figure per distance: $x$ is $r_{\rm ovl}$ at depth $p$,
+$y$ the logical error rate after $R = p$ rounds (marker = $p = R$). The two patches with the best mean $r_{\rm ovl}$ are
+drawn as trajectories, joined in order of depth; the other patches are grey. A patch LR-QAOA ranks well should also
+keep a low logical error as both circuits deepen.
+
+**Data.** Re-harvested from the scan's IBM jobs (read-only) by `scripts/import_position_scan.py` into
+`data/results/ibm_phoenix/surface_code/mcm/20260914_0941_ibm_phoenix_surface_code_mcm.json` (LR-QAOA) and
+`.../surface_code/memory/20260914_0941_ibm_phoenix_surface_code_memory.json` (memory, every shot's raw syndrome and data
+bits, both bases). Each patch is rebuilt from its anchor; the placement reproduces the scan's layout qubit for qubit,
+and the scan's calibration snapshot of every patch is kept in the run header. The logical error rates are decoded
+again here from the raw shots and equal the published ones exactly (all 228 circuits). $r_{\rm ovl}$ uses the exact
+noiseless reference and $r_{\rm rand} = 1/2$ instead of the sampled ones, which moves it by up to about 0.02 and leaves
+the two highlighted patches unchanged; the cell prints both.
+"""),
+        code(r"""
+from matplotlib.lines import Line2D
+
+from qecbench import memory as mem
+
+SCAN = "20260914_0941"
+N_SHOW = 2
+FIG9_PUBLISHED = {   # published trajectories (r_ovl / logical error) of the highlighted patches
+    (3, (6, 3)): [(0.812, 0.0060), (0.543, 0.0293), (0.527, 0.0485), (0.455, 0.1103), (0.399, 0.1530), (0.342, 0.2110)],
+    (3, (7, 2)): [(0.740, 0.0063), (0.582, 0.0257), (0.447, 0.0510), (0.441, 0.0767), (0.434, 0.1240), (0.346, 0.1762)],
+    (5, (3, 5)): [(0.745, 0.0190), (0.378, 0.1725), (0.208, 0.2667), (0.191, 0.3837), (0.224, 0.4360), (0.138, 0.4675)],
+    (5, (1, 4)): [(0.723, 0.0112), (0.399, 0.0628), (0.255, 0.1232), (0.186, 0.2405), (0.176, 0.3255), (0.132, 0.4080)],
+}
+
+overlap = runs("ibm_phoenix", [SCAN], "mcm", "surface_code")
+logical = mem.load_results(RESULTS, "ibm_phoenix", files={f"{SCAN}_ibm_phoenix_surface_code_memory.json"}, bases=["Z"])
+
+
+def anchor(patch):
+    # data qubit (0, 0) sits at lattice site (r0, c0) of the 12 x 10 chip
+    return divmod(patch.data_qubits[0], 10)
+
+
+for d in (3, 5):
+    rows = {anchor(p): (by, logical[p]["Z"]) for p, by in overlap.items() if p.code.name == f"surface_d{d}"}
+    depths = sorted(set.intersection(*(set(by) & set(mem_by) for by, mem_by in rows.values())))
+    markers = dict(zip(depths, "os^Dpv"))
+    mean_ovl = {k: np.mean([by[p]["r_ovl"] for p in depths]) for k, (by, _) in rows.items()}
+    chosen = sorted(rows, key=lambda k: -mean_ovl[k])[:N_SHOW]
+
+    fig, ax = plt.subplots(figsize=(2.5, 4))
+    for k, (by, mem_by) in rows.items():
+        if k not in chosen:
+            for p in depths:
+                ax.plot(by[p]["r_ovl"], mem_by[p]["rate"], markers[p], ms=6, color="0.82", zorder=1)
+    for colour, k in zip(plt.cm.viridis(np.linspace(0.05, 0.6, len(chosen))), chosen):
+        by, mem_by = rows[k]
+        X = [by[p]["r_ovl"] for p in depths]
+        Y = [mem_by[p]["rate"] for p in depths]
+        E = [mem_by[p]["err"] for p in depths]
+        ax.plot(X, Y, "-", color=colour, lw=2, zorder=2)
+        for x, y, e, p in zip(X, Y, E, depths):
+            ax.errorbar(x, y, yerr=e, fmt=markers[p], ms=8, color=colour, capsize=3, markeredgecolor="black", zorder=3)
+    ax.set_yscale("log")
+    ax.legend(handles=[Line2D([], [], ls="", marker=markers[p], ms=7, color="0.45", markeredgecolor="black", label=f"{p}")
+                       for p in depths], title="p = R", fontsize=9, title_fontsize=9, loc="lower left", frameon=True)
+    if SHOW_LABELS:
+        ax.set(xlabel=r"$r_{\rm ovl}$ at depth $p$", ylabel="logical error rate at $R = p$")
+    fig.savefig(FIGURES / f"fig9_position_trajectories_surface_d{d}.pdf", transparent=True, bbox_inches="tight")
+    plt.show()
+
+    print(f"surface code d = {d}: {N_SHOW} of {len(rows)} patches, p = R = {depths}   (r_ovl / Z logical error)")
+    for k in chosen:
+        by, mem_by = rows[k]
+        print(f"   {str(k):>8} mean r_ovl {mean_ovl[k]:.3f} | "
+              + "  ".join(f"p{p}: {by[p]['r_ovl']:.3f}/{mem_by[p]['rate']:.4f}" for p in depths))
+        if (d, k) in FIG9_PUBLISHED:
+            print(f"   {'published':>8}                  | "
+                  + "  ".join(f"p{p}: {x:.3f}/{y:.4f}" for p, (x, y) in zip(depths, FIG9_PUBLISHED[(d, k)])))
+"""),
     ]
+
+# ======================================================================================
+# QEC structures: syndrome extraction as LR-QAOA (Helios, and surface-code positions on IBM)
+# ======================================================================================
+CODES_TASK_MD = r'''
+### From a code to a Hamiltonian
+
+A code measured in the $Z$ basis is a set of **checks**. Check $c$ has a support $S_c$ of data qubits, and
+the code becomes the Ising Hamiltonian
+
+$$H = \sum_c w_c \prod_{i \in S_c} Z_i .$$
+
+Its term for check $c$ is applied through an ancilla by exactly the syndrome-extraction gadget, with one
+phase rotation added: `CX` from every support qubit onto the ancilla copies the parity, `RZ(2 w γ)`
+imprints $e^{-i\gamma w_c Z\cdots Z}$, `H` and a **mid-circuit measurement** disentangle it, and when the
+outcome is 1 **feed-forward** applies `Z` to the support. So one LR-QAOA layer is one round of syndrome
+extraction, and depth $p$ is $p$ rounds. How much of the noiseless answer survives tells how a device
+copes with that code's pattern of checks (their weights, overlaps and parallelism) before any
+encoding or decoding. The **direct** reference applies the same term with no ancilla, as a `CX` ladder
+onto the last support qubit, `RZ(2 w γ)` and the ladder undone: $2(|S_c| - 1)$ `CX`.
+
+Nothing below depends on which code it is. A structure is only `n_data` and its weighted checks
+(`qecbench.codes`), so a surface code, a colour code, a qLDPC code or any Hamiltonian you load runs
+through the same scheduler, programs, backends and analysis:
+
+| structure | built by | data qubits | checks |
+|---|---|---|---|
+| surface code | `codes.surface_code(d)` | $d^2$ | $(d-1)^2$ of weight 4, $2(d-1)$ of weight 2 |
+| colour code (6.6.6) | `codes.color_code(d)` | $(3d^2+1)/4$ | weight 6 in the bulk, weight 4 on the boundary |
+| qLDPC (bivariate bicycle) | `codes.bivariate_bicycle("BB18")`, also `BB24`, `BB30`, `BB48`, `GB16`, `GB26` | 18, 24, ... | independent rows of $H_X$ and $H_Z$, duplicates merged into weight 2 |
+| anything else | `codes.from_hamiltonian(name, {(0, 1, 2): 1.0, ...})`, `codes.from_checks`, `codes.load(path)` | | |
+
+`codes.load` reads a structure saved with `CodeStructure.save`, the `hamiltonian` block of an earlier
+result file, or a text file with a `#n_qubits:<n>` header and one support per line (`[0, 6, 9, 11, 16]`,
+optionally followed by a weight).
+
+### What is measured
+
+* **Approximation ratio** $r = (E_{\max} - \langle E\rangle)/(E_{\max} - E_{\min})$ with its shot-noise error.
+  $E_{\min}$ is found exactly (integer programming): for the codes above every check can read $-1$ at once,
+  so $E_{\min} = -\sum_c w_c$ and $E_{\max} = +\sum_c w_c$.
+* **Random guessing** gives $r_{\rm rand} = 1/2$ exactly, with standard deviation
+  $\sqrt{\sum_c w_c^2 / S}\,/\,(E_{\max} - E_{\min})$ at $S$ shots. $n_\sigma = (r - r_{\rm rand})/\sigma$ says
+  whether a run carries any signal at all, with no simulation needed.
+* **Noiseless reference** $r_{\rm ideal}(p)$, exact up to 25 data qubits (a statevector; above 20 qubits it
+  takes seconds to minutes and is kept in `data/references/ideal_energies.json`). Above 25 there is no exact
+  reference: a stored estimate is used if there is one, otherwise $r_{\rm ideal}$ and $r_{\rm ovl}$ are NaN
+  and $n_\sigma$ is the measure.
+* **Normalised quality** $r_{\rm ovl} = (r - r_{\rm rand})/(r_{\rm ideal} - r_{\rm rand})$: 1 is noiseless,
+  0 is random.
+
+### Schedules: which checks run together
+
+Two checks that share a data qubit cannot be measured at the same time. `codes.schedule` colours the graph
+of those conflicts (DSATUR) and gives **batches** of checks with disjoint supports, which run in parallel:
+4 per round for the surface code, 3 for the colour code, 7 for BB18. Fewer batches means fewer
+**idle qubit-steps** (data qubits waiting while a batch they are not part of runs), the count reported per
+round below.
+'''
+
+
+def codes_quantinuum_notebook():
+    return [
+        md(r"""
+# QEC structures on Quantinuum Helios: syndrome extraction as LR-QAOA
+
+This notebook benchmarks **syndrome extraction for a whole code** - every check of a surface, colour or
+qLDPC code measured through an ancilla, mid-circuit, with feed-forward, round after round - on
+Quantinuum's **Helios-1**. The code is only an input: load any set of checks as a Hamiltonian and the
+same cells schedule it, write its Guppy program, price it with Nexus, submit it, collect the results and
+compare them with the noiseless answer.
+
+**Safe by default:** nothing is uploaded or sent until you set `SUBMIT = True`. Until then the notebook
+runs the very same programs on a local simulator (Aer) for small codes, so the whole pipeline can be
+checked for free. Those results are filed as `Helios-1_sim` and flagged `"simulated": true`.
+
+**Requirements**
+* `pip install -e ".[quantinuum]"` from the repository root (Guppy and `qnexus`), or keep the `sys.path`
+  line of the next cell;
+* for Helios, a Nexus account with access to the machine, logged in once with
+  `import qnexus as qnx; qnx.login()`.
+"""),
+        code(r"""
+import sys
+from math import ceil
+from pathlib import Path
+
+ROOT = Path.cwd().parent if Path.cwd().name == "notebooks" else Path.cwd()
+sys.path.insert(0, str(ROOT / "src"))          # not needed after `pip install -e .`
+DATA, FIGURES = ROOT / "data", ROOT / "figures"
+FIGURES.mkdir(parents=True, exist_ok=True)
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from qecbench import codes
+from qecbench.analysis import load_results
+from qecbench.backends import QuantinuumBackend, code_instances
+from qecbench.code_programs import guppy_source
+from qecbench.experiment import build_plan, harvest, print_plan, submit
+from qecbench.lrqaoa import ideal_r, random_baseline
+"""),
+        md("## 0. Background\n" + CODES_TASK_MD + r"""
+### Using all of Helios at once
+
+Helios is all-to-all connected and reuses qubits, so there is no layout to choose: a structure is run on
+**logical** labels, data qubits `0..n-1` (character $i$ of a result is data qubit $i$) and one ancilla label
+per check. The program decides how the gadgets meet the machine.
+
+The earlier programs (`benchmarking_quantinuum.ipynb` of the reference study) measured the checks **one at
+a time**: allocate an ancilla, entangle, measure, correct, then the next check. One round of the $d = 5$
+surface code was 24 measure-and-correct steps in a row, with one of Helios-1's 8 operation zones busy and
+every data qubit idling through the other 23.
+
+Here each **batch** allocates all its ancillas together, applies the `CX` in rounds (the $j$-th support qubit
+of every check at once), rotates them and reads the whole batch with **one** `measure_array`, then applies
+the corrections. Within a batch the gadgets are independent, so Helios can run up to 8 of them side by side,
+and a batch of $k$ checks takes about $\lceil k/8 \rceil$ steps. The $d = 5$ surface code needs 4 batches of at
+most 8, i.e. about 4 steps per round instead of 24. Ancillas are freed when measured, so a program holds
+`n_data + largest batch` qubits at once, which is also the size of a Helios-1E emulator request. A batch
+never exceeds the qubits left free (`98 - n_data`); only then is a class of disjoint checks split.
+
+The program is **generated as Guppy source**, one function per batch taking the layer's angle and a `main`
+that calls them layer by layer. Guppy cannot index a compile-time list with a runtime loop variable, and
+writing one function per batch keeps the program $p$ times smaller than spelling every layer out (the
+91-qubit colour code at $p = 10$ compiles in about 13 s). A gate-for-gate Qiskit copy of the same plan
+runs locally.
+"""),
+        md(r"""
+## 1. Configuration - the only cell you normally edit
+
+* `BACKEND_NAME` - `"Helios-1"` (the machine) or `"Helios-1E"` (Quantinuum's hosted emulator with the Helios
+  noise model, also billed in HQCs; its results are flagged as simulated).
+* `SUBMIT` - `False` runs `LOCAL_STRUCTURES` on Aer; `True` uploads, quotes and sends `STRUCTURES`.
+* `STRUCTURES` - `(family, size)` pairs: `("surface_code", d)`, `("color_code", d)`, `("qldpc", "BB18")`.
+  `STRUCTURE_FILES` - any other structure, from files `codes.load` reads (section 0). Both are used.
+* `DEPTHS`, `SHOTS`, `DELTA` - LR-QAOA depths, shots per program and ramp amplitude. Helios programs are
+  costly; the defaults follow the earlier Helios-1 code runs ($p = 3, 5, 10$ at 50 shots).
+* `KINDS` - which programs to run: `["mcm"]` (the syndrome-extraction gadgets), `["direct"]` (the same Hamiltonian
+  with no ancilla, as `CX` ladders) or `["mcm", "direct"]`. Each kind is its own set of programs, so running both
+  roughly doubles the cost; direct is the reference that separates the cost of measure-and-correct from that of
+  the gates, and can be run in the same submission or on its own.
+* `PROJECT` - the Nexus project jobs are filed under. `COST_MARGIN` - HQCs added to the Nexus prediction
+  for each job's `max_cost`, the most the job may spend.
+"""),
+        code(r"""
+BACKEND_NAME     = "Helios-1"          # or "Helios-1E" (hosted emulator)
+SUBMIT           = False               # True: upload, quote and send to Nexus
+STRUCTURES       = [("surface_code", 5), ("color_code", 7), ("qldpc", "BB18")]
+STRUCTURE_FILES  = []                  # e.g. [DATA / "codes" / "my_code.json"]
+LOCAL_STRUCTURES = [("surface_code", 3), ("color_code", 3)]
+DEPTHS           = [3, 5, 10]
+SHOTS            = 50
+DELTA            = 0.5
+KINDS            = ["mcm"]             # "mcm", "direct", or both
+PROJECT          = "Helios-Samples"
+COST_MARGIN      = 3                   # HQC on top of the prediction, per job
+"""),
+        md(r"""
+## 2. Structures and their schedules
+
+One row per structure: its checks, the batches of one round, the idle qubit-steps per round, and, for each
+kind in `KINDS`, the qubits a program holds at once and its gates per layer. *Helios steps* is $\sum_b \lceil k_b / 8 \rceil$ over
+the batches, against the *serial* steps (one per check) of measuring the checks one at a time.
+
+With `SUBMIT = False` the backend is `Helios-1_sim`, which runs each program on Aer, noiseless. Aer
+simulates a program with mid-circuit measurements shot by shot, so the local rehearsal is limited to
+programs of about 20 qubits.
+"""),
+        code(r"""
+backend = QuantinuumBackend(BACKEND_NAME, local=not SUBMIT, project=PROJECT, cost_margin=COST_MARGIN, seed=7)
+structures = [codes.build(family, size) for family, size in (STRUCTURES if SUBMIT else LOCAL_STRUCTURES)]
+structures += [codes.load(path) for path in STRUCTURE_FILES]
+kinds = tuple(dict.fromkeys(KINDS))
+assert kinds and set(kinds) <= {"mcm", "direct"}, f"KINDS must be 'mcm', 'direct' or both, got {KINDS}"
+schedules = {s.name: backend.code_schedule(s) for s in structures}
+
+print(f"backend {backend.name}, kinds {', '.join(kinds)}" + (f"  ({backend.noise_description})" if backend.simulated else ""))
+header = (f"\n{'structure':>14} {'data':>5} {'checks':>18} {'batches':>8} {'largest':>8} {'idle':>5} {'Helios':>7} "
+          f"{'serial':>7}")
+for kind in kinds:
+    header += f" | {kind}: {'qubits':>6} {'CX':>5}" + (f" {'MCM':>5}" if kind == "mcm" else "")
+print(header)
+for s in structures:
+    sched = schedules[s.name]
+    steps = sum(ceil(len(b) / backend.zones) for b in sched.batches)
+    weights = ", ".join(f"{c}xw{w}" for w, c in s.check_weights.items())
+    row = (f"{s.name:>14} {s.n_data:>5} {weights:>18} {sched.n_batches:>8} {sched.max_batch:>8} "
+           f"{sched.idle_qubit_steps():>5} {steps:>7} {s.n_checks:>7}")
+    for kind in kinds:
+        counts = s.counts(kind)
+        row += (f" | {'':>{len(kind) + 1}} {sched.peak_qubits(kind):>6} {counts['two_qubit_gates']:>5}"
+                + (f" {counts['mid_circuit_measurements']:>5}" if kind == "mcm" else ""))
+    print(row)
+
+too_big = [s.name for s in structures if max(schedules[s.name].peak_qubits(k) for k in kinds) > 22]
+if not SUBMIT and too_big:
+    raise ValueError(f"{too_big}: too large for the local rehearsal on Aer; use smaller LOCAL_STRUCTURES")
+instances = [inst for s in structures for inst in code_instances(s, kinds)]
+"""),
+        md(r"""
+The generated program (of the first kind in `KINDS`) of the smallest structure with more than one check per
+batch, at $p = 2$, as it is sent: one function per batch, then `main`. Every other structure and depth is written the same way.
+"""),
+        code(r"""
+example = min(structures, key=lambda s: (schedules[s.name].max_batch == 1, s.n_data))
+print(guppy_source(example, schedules[example.name], depth=2, delta=DELTA, kind=kinds[0]))
+"""),
+        md(r"""
+## 3. What to expect - before spending anything
+
+For each structure and depth: the noiseless $r_{\rm ideal}$, and the random-guessing mean with the $3\sigma$
+threshold at `SHOTS`. A run can only be told apart from random guessing if it lands above that
+threshold, so a noiseless $r_{\rm ideal}$ below it means the configured shots cannot resolve that point even on a
+perfect device. Above 25 data qubits $r_{\rm ideal}$ is NaN unless a reference is stored.
+"""),
+        code(r"""
+print(f"{'structure':>14} {'p':>4} {'r_ideal':>8} {'random + 3 sigma':>17}")
+for s in structures:
+    patch = code_instances(s, ("mcm",))[0]
+    r_rand, sigma = random_baseline(patch, SHOTS)
+    for p in DEPTHS:
+        print(f"{s.name:>14} {p:>4} {ideal_r(patch, p, DELTA):>8.3f} {r_rand + 3 * sigma:>17.3f}")
+"""),
+        md(r"""
+## 4. Plan and cost
+
+One program per structure, kind and depth. With `SUBMIT = True` the programs are compiled and uploaded to
+Nexus, which predicts their cost in HQCs. Uploading costs nothing and runs nothing. The prediction sets each
+job's `max_cost`, with `COST_MARGIN` on top. Up to 16 programs go into one job.
+"""),
+        code(r"""
+plan = build_plan(backend, instances, depths=DEPTHS, shots=SHOTS, delta=DELTA)
+if SUBMIT:
+    backend.quote(plan)
+print_plan(plan, backend)
+"""),
+        md(r"""
+## 5. Submit
+
+Writes a **manifest** (`data/manifests/<backend>/`) after every job, so the job ids survive an interrupted
+session. With `SUBMIT = False` this runs the local simulation instead and costs nothing.
+"""),
+        code(r"""
+manifest = submit(plan, backend, manifest_dir=DATA / "manifests")
+"""),
+        md(r"""
+## 6. Harvest
+
+Needs only the manifest, so it can run hours later in a new session. Unfinished jobs are reported and
+skipped; running the cell again adds what has finished since. Results go to
+`data/results/<backend>/<family>/<kind>/` (e.g. `Helios-1/surface_code/mcm/`), one file per run, and each
+result keeps the full structure it ran, so it can be analysed without this notebook.
+"""),
+        code(r"""
+manifests = sorted((DATA / "manifests" / backend.name).glob("*.json"), key=lambda p: p.name)
+assert manifests, "no manifest yet - run the submit cell first"
+manifest_path = manifests[-1]
+print("harvesting", manifest_path.name)
+saved = harvest(manifest_path, backend, data_dir=DATA / "results")
+"""),
+        md(r"""
+## 7. Results
+
+The table lists, per structure, kind and depth, $r$ with its shot-noise error, $r_{\rm ideal}$, $r_{\rm ovl}$ and
+$n_\sigma$ above random guessing. The figure has one panel per structure: $r$ against depth for each kind in `KINDS`, MCM (crosses)
+and direct (circles), the noiseless curve (black) where it exists, and the random-guessing band
+$1/2 \pm 3\sigma$ (grey).
+"""),
+        code(r"""
+runs = {kind: load_results(DATA / "results", backend.name, kind=kind, manifest_path=manifest_path) for kind in kinds}
+by_structure = {}
+for kind, res in runs.items():
+    for patch, by_depth in res.items():
+        by_structure.setdefault(patch.code.name, {})[kind] = (patch, by_depth)
+
+print(f"{'structure':>14} {'kind':>7} {'p':>4} {'r':>15} {'r_ideal':>8} {'r_ovl':>7} {'n_sigma':>8}")
+for name, per_kind in by_structure.items():
+    for kind, (patch, by_depth) in per_kind.items():
+        for p, s in sorted(by_depth.items()):
+            print(f"{name:>14} {kind:>7} {p:>4} {s['r']:>7.3f} ± {s['r_err']:.3f} {s['r_ideal']:>8.3f} "
+                  f"{s['r_ovl']:>7.3f} {s['n_sigmas']:>8.1f}")
+
+fig, axes = plt.subplots(1, len(by_structure), figsize=(4.6 * len(by_structure), 4), squeeze=False)
+for ax, (name, per_kind) in zip(axes[0], by_structure.items()):
+    patch = next(iter(per_kind.values()))[0]
+    grid = sorted({p for _, by in per_kind.values() for p in by})
+    ideal = [ideal_r(patch, p, DELTA) for p in grid]
+    if np.isfinite(ideal).all():
+        ax.plot(grid, ideal, "-", color="black", lw=1.2, label="noiseless")
+    sigma = random_baseline(patch, SHOTS)[1]
+    ax.axhspan(0.5 - 3 * sigma, 0.5 + 3 * sigma, color="gray", alpha=0.3, lw=0, label=r"random $\pm 3\sigma$")
+    for kind, (_, by_depth) in per_kind.items():
+        ps = sorted(by_depth)
+        ax.errorbar(ps, [by_depth[p]["r"] for p in ps], yerr=[by_depth[p]["r_err"] for p in ps],
+                    fmt="X--" if kind == "mcm" else "o-", ms=8, mec="black", capsize=3,
+                    color="#2f6f9f" if kind == "mcm" else "#b8560f", label=kind)
+    ax.set(title=f"{name} ({patch.code.n_data} data, {patch.code.n_checks} checks)", xlabel="LR-QAOA layers $p$",
+           ylabel="$r$", xticks=grid)
+    ax.legend(fontsize=9, frameon=False)
+fig.suptitle(backend.name)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{backend.name}_codes_r_vs_p.pdf", bbox_inches="tight")
+plt.show()
+if not SUBMIT:
+    print("(local, noiseless simulation: r should follow the noiseless curve within shot noise)")
+"""),
+    ]
+
+
+def codes_ibm_notebook():
+    return [
+        md(r"""
+# Surface-code positions on IBM Quantum: syndrome extraction as LR-QAOA
+
+This notebook runs the **syndrome extraction of a surface-code patch** - every check measured through its
+own ancilla, mid-circuit, with feed-forward, round after round - at many **positions on one chip**, and
+asks whether the LR-QAOA quality of a patch follows the calibrated error of the qubits it sits on. The
+position is the one knob that is free, physical and has nothing to do with the circuit, so it is a direct
+test of whether this benchmark ranks parts of a device the way their errors do.
+
+It follows the Helios notebook for codes (`benchmark_codes_quantinuum.ipynb`) with the same structures,
+references and analysis. The difference is the chip. IBM's square-lattice devices (Nighthawk, e.g.
+`ibm_phoenix`, $12 \times 10$) have fixed couplers, so a patch must be **placed**. The notebook enumerates every
+placement, scores each by its calibrated error, and runs a spread of them.
+
+**Safe by default:** nothing is sent to IBM until you set `SUBMIT = True`. Until then the chosen device's
+own calibration builds an Aer noise model and a few small placements run locally, flagged
+`"simulated": true` and filed as `<device>_sim`. With `BACKEND_NAME = "noisy_simulator"` a synthetic square
+lattice with uniform depolarizing noise needs no account at all.
+
+**Requirements**
+* `pip install -e ".[ibm]"` from the repository root (or keep the `sys.path` line of the next cell);
+* for a real device, an IBM Quantum account saved once with
+  `QiskitRuntimeService.save_account(channel="ibm_quantum_platform", token="...", instance="...", name="mcm-primitives")`.
+"""),
+        code(r"""
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path.cwd().parent if Path.cwd().name == "notebooks" else Path.cwd()
+sys.path.insert(0, str(ROOT / "src"))          # not needed after `pip install -e .`
+DATA, FIGURES = ROOT / "data", ROOT / "figures"
+FIGURES.mkdir(parents=True, exist_ok=True)
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import spearmanr
+
+from qecbench import codes
+from qecbench.analysis import load_results
+from qecbench.backends import IBMBackend, SimBackend
+from qecbench.circuits import build_dynamic
+from qecbench.experiment import build_plan, harvest, print_plan, submit
+from qecbench.layout import spread_selection, square_lattice_coordinates, surface_code_placements
+from qecbench.lrqaoa import ideal_r, random_baseline
+"""),
+        md("## 0. Background\n" + CODES_TASK_MD + r"""
+### Placing a surface-code patch on a square lattice
+
+The surface-code structure has a $d \times d$ grid of data qubits. On a square-lattice chip, data qubit $(i, j)$
+sits at lattice site $(i + j + r_0,\; i - j + c_0)$: data qubits become diagonal neighbours, and the data qubits
+of every check share a common lattice neighbour, which becomes that check's **ancilla**. Weight-4 checks
+take theirs first, each the free common neighbour nearest the patch centre. A placement exists for every
+anchor $(r_0, c_0)$ where all these sites are qubits and every (data, ancilla) pair is a coupler. On a
+$12 \times 10$ lattice that gives 48 placements for $d = 3$ (17 qubits) and 8 for $d = 5$ (49 qubits).
+
+The circuit is IBM's dynamic-circuit form of the gadget: `H` on the ancillas, the `CZ` of each check in rounds,
+`RX(2 w γ)`, the measurement, and a conditional block applying `Z` to the support and `X` to return the
+ancilla to $|0\rangle$. Circuits are transpiled with the physical qubits fixed, and a plan that would need any
+routing gate is refused. Only the MCM kind runs: in this embedding data qubits are never coupled to each
+other, so the direct circuit would need routing.
+
+### Scoring a position
+
+`IBMBackend.error_budget` adds, per layer, the `CZ` error of every coupler the patch uses, the mid-circuit
+readout error (`measure_2`) of every ancilla and two `sx` errors per qubit, from the calibration snapshot
+taken next to the run. Positions touching a coupler above `MAX_COUPLER_ERROR`, or one that is not
+calibrated, are left out. The scan then takes `N_POSITIONS` placements **spread log-evenly over the ranking**
+rather than the best ones, because a correlation needs contrast.
+"""),
+        md(r"""
+## 1. Configuration - the only cell you normally edit
+
+* `BACKEND_NAME` - a square-lattice IBM device, or `"noisy_simulator"` for a synthetic $11 \times 11$ lattice.
+* `DISTANCES`, `N_POSITIONS` - patch sizes and how many placements of each to run.
+* `MAX_COUPLER_ERROR`, `MAX_READOUT_ERROR` - placements touching anything worse are skipped.
+* `DEPTHS`, `SHOTS`, `DELTA` - the LR-QAOA sweep. The defaults follow the earlier `ibm_phoenix` position scan.
+* `LOCAL` - what runs when `SUBMIT = False`. Aer simulates dynamic circuits shot by shot on all of a
+  patch's qubits, so keep it to $d = 3$ and a few positions (about 15 s per circuit at 200 shots).
+* `MAX_CIRCUITS_PER_JOB` - jobs with too many feed-forward operations fail on IBM (error 6073).
+"""),
+        code(r"""
+BACKEND_NAME      = "ibm_phoenix"       # a square-lattice device, or "noisy_simulator"
+ACCOUNT           = "mcm-primitives"    # saved IBM account; None for the default one
+DISTANCES         = [3, 5]
+N_POSITIONS       = {3: 12, 5: 8}       # d = 3: a spread of the placements; d = 5: all 8
+MAX_COUPLER_ERROR = 0.30
+MAX_READOUT_ERROR = 0.30
+DEPTHS            = [1, 2, 3, 5, 7, 10]
+SHOTS             = 1000
+DELTA             = 0.5
+LOCAL             = dict(distances=[3], positions=3, depths=[1, 2, 3], shots=200)
+OPTIMIZATION_LEVEL   = 1
+DYNAMICAL_DECOUPLING = False
+MAX_CIRCUITS_PER_JOB = 8
+SUBMIT            = False               # True actually submits the jobs and consumes QPU time
+"""),
+        md(r"""
+## 2. Backend and calibration
+
+Connects to the device, checks that its couplers form a square lattice, and saves a timestamped calibration
+snapshot to `data/calibration/`. With `SUBMIT = False` that same calibration builds the local noise model.
+"""),
+        code(r"""
+if BACKEND_NAME == "noisy_simulator":
+    backend, cal = SimBackend(topology="grid", qubits=121, seed=1), None
+else:
+    backend = IBMBackend(BACKEND_NAME, account=ACCOUNT, optimization_level=OPTIMIZATION_LEVEL,
+                         dynamical_decoupling=DYNAMICAL_DECOUPLING, max_circuits_per_job=MAX_CIRCUITS_PER_JOB,
+                         local=not SUBMIT, seed=1)
+    print(f"mid-circuit measurement: {backend.supports_mcm()}")
+    cal = backend.calibration(save_dir=DATA / "calibration")
+G = backend.coupling_graph()
+coords = square_lattice_coordinates(G)
+assert coords is not None, f"{backend.name}: couplers do not form a square lattice"
+print(f"{backend.name}: {G.number_of_nodes()} qubits on a square lattice"
+      + (f"  ({backend.noise_description})" if backend.simulated else ""))
+distances, depths, shots = ((DISTANCES, DEPTHS, SHOTS) if SUBMIT else
+                            (LOCAL["distances"], LOCAL["depths"], LOCAL["shots"]))
+"""),
+        md(r"""
+## 3. Positions
+
+Every placement of each patch, the ones touching a bad coupler or readout left out, scored by the error
+budget, and the scanned spread. The maps show the scanned patches on the chip, their couplers coloured by
+the patch's budget (yellow is lowest, dark purple highest). Without a calibration (`noisy_simulator`) there is no budget: the spread
+is taken in placement order and each patch gets its own colour.
+"""),
+        code(r"""
+positions = {}
+for d in distances:
+    code = codes.surface_code(d)
+    placements = surface_code_placements(G, code)
+    if cal is not None:
+        flagged = {patch for patch, _ in backend.flag_instances(placements, cal, max_2q_error=MAX_COUPLER_ERROR,
+                                                                max_readout_error=MAX_READOUT_ERROR)}
+        usable = [patch for patch in placements if patch not in flagged]
+        scores = [backend.error_budget(patch, cal) for patch in usable]
+    else:
+        usable, scores = placements, list(range(len(placements)))
+    k = N_POSITIONS.get(d, len(usable)) if SUBMIT else LOCAL["positions"]
+    positions[d] = spread_selection(usable, scores, k)
+    print(f"d = {d}: {len(placements)} placements, {len(usable)} usable -> scanning {len(positions[d])}")
+    if cal is not None and usable:
+        print(f"   error budget per layer from {min(scores):.3f} to {max(scores):.3f} "
+              f"({max(scores) / min(scores):.1f}x)")
+    for patch, score in positions[d]:
+        print(f"   {patch}  budget {score:.3f}" if cal is not None else f"   {patch}")
+
+fig, axes = plt.subplots(1, len(distances), figsize=(5.5 * len(distances), 6), squeeze=False)
+for ax, d in zip(axes[0], distances):
+    for u, v in G.edges:
+        ax.plot([coords[u][1], coords[v][1]], [-coords[u][0], -coords[v][0]], color="0.9", lw=1, zorder=0)
+    budgets = [score for _, score in positions[d]]
+    norm = plt.Normalize(min(budgets), max(budgets) + 1e-12)
+    for k, (patch, score) in enumerate(positions[d]):
+        colour = plt.cm.viridis_r(norm(score)) if cal is not None else f"C{k}"
+        for u, v in patch.couplers:
+            ax.plot([coords[u][1], coords[v][1]], [-coords[u][0], -coords[v][0]], color=colour, lw=2.5,
+                    alpha=0.6, zorder=1)
+    xy = np.array([(coords[q][1], -coords[q][0]) for q in G.nodes])
+    ax.scatter(*xy.T, s=12, color="0.6", zorder=2)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    ax.set_title(f"d = {d}: {len(positions[d])} positions")
+plt.show()
+instances = [patch for d in distances for patch, _ in positions[d]]
+"""),
+        md(r"""
+## 4. Plan and cost
+
+One circuit per position and depth (`max_per_batch=1`): patches never share a circuit, so the position is
+the only thing that changes between them. `build_plan` transpiles every circuit with its qubits fixed and
+refuses any routing. The printout gives the QPU-time estimate (the feed-forward time per conditional is an
+unverified assumption; IBM's usage report is authoritative).
+"""),
+        code(r"""
+plan = build_plan(backend, instances, depths=depths, shots=shots, delta=DELTA, max_per_batch=1)
+print_plan(plan, backend)
+print("\nnoiseless r and random + 3 sigma at these shots:")
+for d in distances:
+    patch = positions[d][0][0]
+    r_rand, sigma = random_baseline(patch, shots)
+    print(f"   d = {d}: " + ", ".join(f"p={p}: {ideal_r(patch, p, DELTA):.3f}" for p in depths)
+          + f"   (random + 3 sigma = {r_rand + 3 * sigma:.3f})")
+"""),
+        md(r"""
+## 5. Inspect, then submit
+
+The logical circuit of the smallest patch at $p = 1$, then the submission. With `SUBMIT = False` the plan is
+simulated locally under the device's calibration: same circuits, same bookkeeping, no QPU time. A manifest is
+written after every job.
+"""),
+        code(r"""
+print(build_dynamic([instances[0]], 1, DELTA).draw(output="text", fold=140))
+"""),
+        code(r"""
+manifest_path = submit(plan, backend, manifest_dir=DATA / "manifests")
+"""),
+        md(r"""
+## 6. Harvest
+
+Needs only the manifest. Results go to `data/results/<backend>/surface_code/mcm/`, one file per run, each
+result keeping the placement (data qubits and ancillas) it ran on.
+"""),
+        code(r"""
+manifests = sorted((DATA / "manifests" / backend.name).glob("*.json"), key=lambda p: p.name)
+assert manifests, "no manifest yet - run the submit cell first"
+manifest_path = manifests[-1]
+print("harvesting", manifest_path.name)
+saved = harvest(manifest_path, backend, data_dir=DATA / "results")
+"""),
+        md(r"""
+## 7. Does the position show?
+
+Left: $r_{\rm ovl}$ against depth, one line per position, coloured by its error budget (yellow is lowest, dark purple highest), with
+the median over positions. Right: $r_{\rm ovl}$ at the deepest common depth against the error budget, with
+Spearman's rank correlation. If the benchmark ranks positions the way their calibrated errors do, the
+correlation is negative. The budget comes from the newest calibration snapshot of this device taken before
+the run, so the cell also works in a later session.
+"""),
+        code(r"""
+results = load_results(DATA / "results", backend.name, kind="mcm", manifest_path=manifest_path)
+created = json.loads(Path(manifest_path).read_text())["created"]
+snapshots = sorted((DATA / "calibration" / backend.name).glob("*_calibration.json"))
+before = [p for p in snapshots if json.loads(p.read_text())["fetched_at"] <= created]
+run_cal = json.loads(before[-1].read_text()) if before else cal
+budget = {patch: backend.error_budget(patch, run_cal) if run_cal else float("nan") for patch in results}
+
+by_d = {}
+for patch, by_depth in results.items():
+    by_d.setdefault(patch.code.name, []).append((patch, by_depth))
+fig, axes = plt.subplots(len(by_d), 2, figsize=(12, 4.3 * len(by_d)), squeeze=False)
+for (ax, bx), (name, rows) in zip(axes, sorted(by_d.items())):
+    finite = [budget[p] for p, _ in rows if np.isfinite(budget[p])]
+    norm = plt.Normalize(min(finite), max(finite) + 1e-12) if finite else None
+    ps = sorted(set.intersection(*(set(by) for _, by in rows)))
+    for patch, by_depth in rows:
+        colour = plt.cm.viridis_r(norm(budget[patch])) if norm else "C0"
+        ax.plot(ps, [by_depth[p]["r_ovl"] for p in ps], "o-", color=colour, alpha=0.8, ms=4)
+    ax.plot(ps, [np.median([by[p]["r_ovl"] for _, by in rows]) for p in ps], "s--", color="black", lw=2,
+            label="median over positions")
+    ax.axhline(0, color="0.5", lw=0.8)
+    ax.set(xlabel="LR-QAOA layers $p$", ylabel=r"$r_{\rm ovl}$", title=f"{backend.name}, {name}: {len(rows)} positions",
+           xticks=ps)
+    ax.legend(frameon=False)
+    deepest = ps[-1]
+    x = np.array([budget[p] for p, _ in rows])
+    y = np.array([by[deepest]["r_ovl"] for _, by in rows])
+    err = np.array([by[deepest]["r_err"] / (by[deepest]["r_ideal"] - by[deepest]["r_rand"]) for _, by in rows])
+    if not np.isfinite(x).all():
+        bx.text(0.5, 0.5, "no calibration, no error budget", ha="center", va="center", transform=bx.transAxes)
+        bx.set_axis_off()
+        continue
+    bx.errorbar(x, y, yerr=err, fmt="o", mec="black", capsize=3)
+    if len(rows) >= 3:
+        rho, pvalue = spearmanr(x, y)
+        bx.set_title(f"p = {deepest}: Spearman rho = {rho:+.2f} (P = {pvalue:.3f}, n = {len(rows)})")
+    bx.set(xlabel="error budget per layer", ylabel=rf"$r_{{\rm ovl}}$ at p = {deepest}")
+fig.tight_layout()
+fig.savefig(FIGURES / f"{backend.name}_surface_code_positions.pdf", bbox_inches="tight")
+plt.show()
+"""),
+    ]
+
+
+# ======================================================================================
+# QEC memory experiment (surface code) on IBM
+# ======================================================================================
+def qec_memory_notebook():
+    return [
+        md(r"""
+# Surface-code memory on IBM Quantum: the logical error rate of a patch
+
+This notebook runs a **quantum memory experiment** with the rotated surface code on a square-lattice IBM chip:
+prepare a logical qubit, keep it alive through $R$ rounds of syndrome extraction, read it out, and let a decoder
+say whether it survived. The **logical error rate** after $R$ rounds is how error correction is ultimately
+judged, which makes it the yardstick for the LR-QAOA benchmark of `benchmark_codes_ibm.ipynb`: both run on
+**the same data qubits, ancillas and couplers** of a patch, so a patch can be scored both ways and the scores
+compared.
+
+**Safe by default:** nothing is sent to IBM until you set `SUBMIT = True`. Until then the circuits run locally on
+Aer's stabilizer simulator, under a Pauli noise model built from the chosen device's calibration (or a uniform
+one with `BACKEND_NAME = "noisy_simulator"`, which needs no account). Those results are filed as `<device>_sim`
+and flagged `"simulated": true`.
+
+**Requirements**
+* `pip install -e ".[ibm,qec]"` from the repository root (Qiskit Runtime, `stim`, `pymatching`), or keep the
+  `sys.path` line of the next cell;
+* for a real device, an IBM Quantum account saved once with
+  `QiskitRuntimeService.save_account(channel="ibm_quantum_platform", token="...", instance="...", name="mcm-primitives")`.
+"""),
+        code(r"""
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path.cwd().parent if Path.cwd().name == "notebooks" else Path.cwd()
+sys.path.insert(0, str(ROOT / "src"))          # not needed after `pip install -e .`
+DATA, FIGURES = ROOT / "data", ROOT / "figures"
+FIGURES.mkdir(parents=True, exist_ok=True)
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from qecbench import codes
+from qecbench import memory as mem
+from qecbench.backends import IBMBackend, SimBackend
+from qecbench.layout import square_lattice_coordinates, surface_code_placements
+"""),
+        md(r"""
+## 0. Background
+
+### The rotated surface code
+
+$d^2$ data qubits on a $d \times d$ grid, and $d^2 - 1$ checks: $(d-1)^2$ weight-4 plaquettes and $2(d-1)$ weight-2
+checks on the boundary, half of them $X$-type ($X^{\otimes w}$) and half $Z$-type ($Z^{\otimes w}$), in a checkerboard. They
+are the same supports as the surface-code Hamiltonian of the LR-QAOA benchmark (`codes.surface_code(d)`); here each
+check also has a type (`memory.check_types`):
+
+* a plaquette is $X$ if the row + column of its top-left data qubit is even, otherwise $Z$;
+* a boundary check is $Z$ if its two data qubits share a column, otherwise $X$.
+
+Every $X$ check overlaps every $Z$ check on an even number of qubits, so all checks commute. The code stores one
+logical qubit, with logical $Z_L$ = $Z$ on row 0 of the grid and $X_L$ = $X$ on column 0. They anticommute, and the
+smallest error that flips either without being seen has weight $d$: the **distance**.
+
+### One round of syndrome extraction
+
+Every check has its own ancilla, which on the chip sits next to all of the check's data qubits (the same placement
+as the LR-QAOA benchmark, `layout.surface_code_placements`). One round is
+
+1. `H` on the $X$ ancillas;
+2. four layers of CNOTs, each ancilla touching one of its data qubits per layer: data $\to$ ancilla for $Z$ checks,
+   ancilla $\to$ data for $X$ checks;
+3. `H` on the $X$ ancillas, then a **mid-circuit measurement** of every ancilla and a reset.
+
+The outcome of a check, its **syndrome bit**, is the parity of the data under that check. The order of the four CNOT
+layers matters: $Z$ checks visit their data in "N" order and $X$ checks in the transposed "Z" order
+(`memory.Z_ORDER`, `X_ORDER`). With any other order the $X$ and $Z$ measurements disturb each other and the
+experiment loses distance. Stim confirms the distance below.
+
+Unlike the LR-QAOA gadget there is no feed-forward: the bits are only recorded, and the decoder uses them afterwards.
+
+### The memory experiment
+
+* **Z memory** (`basis = "Z"`): reset the data to $|0\rangle^{\otimes d^2}$, which is $|0\rangle_L$ with every $Z$ check
+  at $+1$; run $R$ rounds; measure the data in the $Z$ basis. The logical outcome is the parity of row 0. Bit flips
+  ($X$ errors) change it, and the $Z$ checks detect them.
+* **X memory** (`basis = "X"`): the same with `H` on the data at both ends, storing $|+\rangle_L$. Phase flips change
+  it, and the $X$ checks detect them.
+
+Hardware is asymmetric (relaxation drives $|1\rangle \to |0\rangle$, and readout is biased the same way), so a full
+characterisation runs both.
+
+### Detectors, decoding, logical error rate
+
+A single syndrome bit is not an error signal: most checks start random. What is deterministic in the absence of
+errors is a **detector**:
+
+* round 0: the checks of the stored basis (after the reset their outcome is known);
+* round $r > 0$: each check XOR the same check in round $r-1$;
+* at the end: each stored-basis check rebuilt from the data readout, XOR its last measurement.
+
+A detector that fires (reads 1) marks an error nearby in space and time. A decoder pairs up the fired detectors
+into the most likely set of errors and predicts whether they flipped the logical outcome. Here the decoder is
+**minimum-weight perfect matching** (`pymatching`) on the detector error model of the same experiment written in
+`stim` with circuit-level noise of strength `P_2Q_MODEL`. That strength only sets the matching weights, not the
+answer. A shot is a **logical error** when the prediction disagrees with the measured logical outcome:
+
+$$P_L(R) = \frac{\#\,\text{wrong}}{S}, \qquad \sigma = \sqrt{P_L(1-P_L)/S},$$
+
+and the **logical error per round** $\varepsilon_L$ follows from $P_L(R) = \tfrac{1}{2}\left[1 - A\,(1 - 2\varepsilon_L)^R\right]$, where
+$A \le 1$ absorbs the errors that do not grow with $R$ (state preparation and the final readout).
+
+### What is stored
+
+Every shot is kept as its raw bits, one register per round (`s0 .. s{R-1}`, bit $k$ = check $k$ of
+`codes.surface_code(d).checks`) and one for the data (`c`, bit $i$ = data qubit $i$), in
+`data/results/<device>/surface_code/memory/`. The logical error rate is decoded again when the results are loaded,
+so a better decoder or a different `P_2Q_MODEL` can be applied later without touching the device.
+"""),
+        md(r"""
+## 1. Configuration - the only cell you normally edit
+
+* `BACKEND_NAME` - a square-lattice IBM device (Nighthawk, e.g. `ibm_phoenix`), or `"noisy_simulator"` for a
+  synthetic $11 \times 11$ lattice with uniform depolarizing noise.
+* `DISTANCES` - code distances. `ANCHORS` - the patch anchors $(r_0, c_0)$ to run per distance (data qubit $(i, j)$
+  sits at site $(i + j + r_0,\ i - j + c_0)$, as in the position scan); `None` takes the `N_BEST` placements with the
+  lowest calibrated error budget.
+* `ROUNDS`, `BASES`, `SHOTS` - the memory sweep. Matching $R$ to the LR-QAOA depths ($R = p$) pairs every LR-QAOA point
+  with a memory point on the same patch.
+* `P_2Q_MODEL` - the circuit-level noise strength that sets the decoder's matching weights.
+* `LOCAL` - what runs when `SUBMIT = False`.
+"""),
+        code(r"""
+BACKEND_NAME = "ibm_phoenix"          # a square-lattice device, or "noisy_simulator"
+ACCOUNT      = "mcm-primitives"       # saved IBM account; None for the default one
+DISTANCES    = [3, 5]
+ANCHORS      = {3: None, 5: None}     # e.g. {3: [(7, 2)], 5: [(0, 5)]}; None = the N_BEST best-calibrated patches
+N_BEST       = 2
+ROUNDS       = [1, 2, 3, 5, 7, 10]
+BASES        = ["Z", "X"]
+SHOTS        = 4000
+P_2Q_MODEL   = 3e-3
+LOCAL        = dict(distances=[3, 5], n_best=1, rounds=[1, 3, 5, 10], shots=2000)
+SUBMIT       = False                  # True actually submits the jobs and consumes QPU time
+"""),
+        md(r"""
+## 2. Backend and calibration
+
+Connects to the device, checks that its couplers form a square lattice and saves a calibration snapshot. With
+`SUBMIT = False` the same calibration becomes a local noise model: depolarizing error on each CNOT from its
+coupler, on each `H` from the qubit's `sx` error, and readout error (the mid-circuit readout for ancillas). It leaves
+out idling and crosstalk, so it is optimistic; it is a Pauli model, so the stabilizer simulator runs it at any
+distance in seconds.
+"""),
+        code(r"""
+if BACKEND_NAME == "noisy_simulator":
+    backend, cal = SimBackend(topology="grid", qubits=121, seed=1), None
+    noise = mem.uniform_noise_model(**backend.noise_params)
+else:
+    backend = IBMBackend(BACKEND_NAME, account=ACCOUNT, local=not SUBMIT, seed=1)
+    cal = backend.calibration(save_dir=DATA / "calibration")
+    noise = lambda patch: mem.calibrated_noise_model(patch, cal)
+G = backend.coupling_graph()
+coords = square_lattice_coordinates(G)
+assert coords is not None, f"{backend.name}: couplers do not form a square lattice"
+distances, n_best, rounds, shots = ((DISTANCES, N_BEST, ROUNDS, SHOTS) if SUBMIT else
+                                    (LOCAL["distances"], LOCAL["n_best"], LOCAL["rounds"], LOCAL["shots"]))
+print(f"{backend.name}: {G.number_of_nodes()} qubits on a square lattice"
+      + ("" if not backend.simulated else f"  (local: {backend.noise_description})" if cal is None
+         else "  (local: Pauli model of each patch from this calibration)"))
+"""),
+        md(r"""
+## 3. The code, checked before anything runs
+
+For each distance: the number of $X$ and $Z$ checks, and the distance stim finds for the full memory circuit in both
+bases (it must equal $d$). Then a **round trip**: stim samples noisy shots of its own circuit, and the detectors
+rebuilt from their raw bits by `memory.detection_events`, the function applied to device data, must equal stim's
+own detectors shot for shot. The drawing shows the code: data qubits (black), $X$ checks (blue), $Z$ checks (red),
+and the logical $Z_L$ (row 0) and $X_L$ (column 0).
+"""),
+        code(r"""
+for d in distances:
+    code = codes.surface_code(d)
+    n_x, n_z = mem.verify_code(code)
+    dist = {(R, b): mem.code_distance(code, R, b) for R in (1, 3) for b in BASES}
+    assert all(v == d for v in dist.values()), dist
+    mismatches = 0
+    for basis in BASES:
+        circuit = mem.stim_circuit(code, 3, basis, p_2q=0.01)
+        raw = circuit.compile_sampler().sample(500)
+        dets, obs = circuit.compile_m2d_converter().convert(measurements=raw, separate_observables=True)
+        raw = raw.astype(np.uint8)
+        m = code.n_checks
+        ours, logical = mem.detection_events(raw[:, :3 * m].reshape(-1, 3, m), raw[:, 3 * m:], code, basis)
+        mismatches += int((ours != dets).any(axis=1).sum() + (logical != obs[:, 0]).sum())
+    print(f"d = {d}: {code.n_data} data qubits, {n_x} X + {n_z} Z checks, stim distance {sorted(set(dist.values()))}, "
+          f"detector round trip {mismatches} mismatches in {500 * len(BASES)} shots")
+
+fig, axes = plt.subplots(1, len(distances), figsize=(3.2 * len(distances), 3.4), squeeze=False)
+for ax, d in zip(axes[0], distances):
+    code = codes.surface_code(d)
+    xy = {n: (n % d, -(n // d)) for n in range(code.n_data)}
+    for check, kind in zip(code.checks, mem.check_types(code)):
+        pts = np.array([xy[n] for n in check], float)
+        centre = pts.mean(axis=0)
+        if len(check) == 2:                   # a boundary check bulges outward, off the grid
+            out = np.array([0.0 if pts[0, 0] != pts[1, 0] else (-0.5 if pts[0, 0] == 0 else 0.5),
+                            0.0 if pts[0, 1] != pts[1, 1] else (0.5 if pts[0, 1] == 0 else -0.5)])
+            pts = np.vstack([pts, centre + out])
+            centre = pts.mean(axis=0)
+        pts = pts[np.argsort(np.arctan2(*(pts - centre).T[::-1]))]
+        ax.fill(*pts.T, color="#377eb8" if kind == "X" else "#e41a1c", alpha=0.45, lw=1, ec="k")
+    for basis, colour in (("Z", "#e41a1c"), ("X", "#377eb8")):
+        line = np.array([xy[n] for n in mem.logical_support(code, basis)])
+        ax.plot(*line.T, "-", color=colour, lw=4, alpha=0.8, label=f"logical {basis}")
+    ax.scatter(*np.array(list(xy.values())).T, s=40, color="k", zorder=3)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    ax.set_title(f"d = {d}")
+axes[0][0].legend(fontsize=8, loc="lower left", bbox_to_anchor=(0, -0.25), ncols=2)
+plt.show()
+"""),
+        md(r"""
+The first round of the $d = 3$ circuit, before it is laid onto the chip: the `H` on the $X$ ancillas, four CNOT layers
+(barriers keep the $Z$ ancillas from starting early), the measurements into `s0`, and the resets. Qubits 0-8 are
+data, 9-16 the ancillas of the eight checks.
+"""),
+        code(r"""
+print(mem.memory_circuit(codes.surface_code(3), rounds=1, basis="Z").draw(output="text", fold=160))
+"""),
+        md(r"""
+## 4. Patches
+
+The patches to run: the given anchors, or the `N_BEST` placements with the lowest error budget per layer (CZ error of
+every coupler, mid-circuit readout of every ancilla, two `sx` per qubit; `IBMBackend.error_budget`). The map shows them
+on the chip.
+"""),
+        code(r"""
+patches = []
+for d in distances:
+    code = codes.surface_code(d)
+    anchors = ANCHORS.get(d) if SUBMIT else None
+    found = surface_code_placements(G, code, anchors=anchors)
+    if anchors is None:
+        score = (lambda patch: backend.error_budget(patch, cal)) if cal is not None else (lambda patch: 0.0)
+        found = sorted(found, key=score)[:n_best]
+    patches += found
+    for patch in found:
+        budget = f", error budget {backend.error_budget(patch, cal):.3f} per round" if cal is not None else ""
+        print(f"d = {d}: {patch}{budget}")
+
+fig, ax = plt.subplots(figsize=(5, 6))
+for u, v in G.edges:
+    ax.plot([coords[u][1], coords[v][1]], [-coords[u][0], -coords[v][0]], color="0.9", lw=1, zorder=0)
+for k, patch in enumerate(patches):
+    for u, v in patch.couplers:
+        ax.plot([coords[u][1], coords[v][1]], [-coords[u][0], -coords[v][0]], color=f"C{k}", lw=2.5, alpha=0.7)
+    ax.scatter([coords[q][1] for q in patch.data_qubits], [-coords[q][0] for q in patch.data_qubits], s=30,
+               color=f"C{k}", edgecolor="k", zorder=3, label=f"{patch.code.name} {min(patch.qubits)}..{max(patch.qubits)}")
+ax.scatter(*np.array([(c, -r) for r, c in coords.values()]).T, s=8, color="0.6", zorder=1)
+ax.set_aspect("equal")
+ax.axis("off")
+ax.legend(fontsize=8, loc="upper left", bbox_to_anchor=(1, 1))
+plt.show()
+"""),
+        md(r"""
+## 5. Plan, then submit
+
+One circuit per patch, basis and round count. On a device each circuit is transpiled onto its patch's own qubits and
+refused if any gate would need a coupler outside the patch. A memory circuit has no conditional gates, only
+measurements and resets, so the classical-control limit on feed-forward jobs does not apply and up to 100 circuits
+go into one job. A manifest is written after every job.
+"""),
+        code(r"""
+memory_plan = mem.plan(backend, patches, rounds=rounds, bases=BASES, shots=shots, p_2q_model=P_2Q_MODEL)
+mem.print_plan(memory_plan)
+"""),
+        code(r"""
+manifest_path = mem.submit(memory_plan, backend, manifest_dir=DATA / "manifests", noise_model=noise, seed=7)
+"""),
+        md(r"""
+## 6. Harvest
+
+Needs only the manifest. Unfinished jobs are reported and skipped. Every shot's raw bits are stored in
+`data/results/<device>/surface_code/memory/`, next to the decoded logical error rate.
+"""),
+        code(r"""
+manifests = sorted((DATA / "manifests" / backend.name).glob("*_surface_code_memory.json"), key=lambda p: p.name)
+assert manifests, "no manifest yet - run the submit cell first"
+manifest_path = manifests[-1]
+print("harvesting", manifest_path.name)
+saved = mem.harvest(manifest_path, backend, data_dir=DATA / "results")
+"""),
+        md(r"""
+## 7. Results
+
+Logical error rate against rounds for every patch and basis, decoded again from the stored shots, with the fit of
+$P_L(R) = \tfrac{1}{2}[1 - A(1 - 2\varepsilon_L)^R]$ (lines) and its logical error per round $\varepsilon_L$ in the table. A logical qubit that is protected keeps $\varepsilon_L$ below the error of
+a single physical qubit, and a larger distance lowers it further only below threshold.
+"""),
+        code(r"""
+results = mem.load_results(DATA / "results", backend.name, files={Path(saved).name})
+fig, axes = plt.subplots(1, len(BASES), figsize=(5.5 * len(BASES), 4.2), sharey=True, squeeze=False)
+print(f"{'patch':>34} {'basis':>6} " + "".join(f"{'R=' + str(R):>17}" for R in rounds) + f"{'eps_L per round':>22}")
+for k, (patch, by_basis) in enumerate(sorted(results.items())):
+    for ax, basis in zip(axes[0], BASES):
+        if basis not in by_basis:
+            continue
+        rs = sorted(by_basis[basis])
+        rate = np.array([by_basis[basis][R]["rate"] for R in rs])
+        err = np.array([by_basis[basis][R]["err"] for R in rs])
+        eps, eps_err, amplitude = mem.error_per_round(rs, rate)
+        grid = np.linspace(min(rs), max(rs), 100)
+        ax.errorbar(rs, rate, yerr=err, fmt="o", color=f"C{k}", mec="k", capsize=3, label=f"{patch.code.name}, {min(patch.qubits)}..")
+        ax.plot(grid, (1 - amplitude * (1 - 2 * eps) ** grid) / 2, "-", color=f"C{k}", lw=1.2)
+        print(f"{str(patch):>34} {basis:>6} " + "".join(f"  {r:.4f}+-{e:.4f}" for r, e in zip(rate, err))
+              + f"   {eps:.4f} +- {eps_err:.4f} (A = {amplitude:.3f})")
+for ax, basis in zip(axes[0], BASES):
+    ax.set(xlabel="rounds $R$", title=f"{basis} memory ({'|0>' if basis == 'Z' else '|+>'}$_L$)", yscale="log")
+    ax.grid(alpha=0.3)
+    ax.legend(fontsize=8)
+axes[0][0].set_ylabel("logical error rate")
+fig.suptitle(backend.name)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{backend.name}_surface_code_memory.pdf", bbox_inches="tight")
+plt.show()
+"""),
+    ]
+
 
 def write(name, cells):
     nb = nbf.v4.new_notebook(cells=cells)
@@ -2450,6 +3791,9 @@ if __name__ == "__main__":
         "benchmark_ibm.ipynb": ibm_notebook,
         "benchmark_iqm.ipynb": iqm_notebook,
         "benchmark_quantinuum.ipynb": quantinuum_notebook,
+        "benchmark_codes_quantinuum.ipynb": codes_quantinuum_notebook,
+        "benchmark_codes_ibm.ipynb": codes_ibm_notebook,
+        "benchmark_qec_memory.ipynb": qec_memory_notebook,
         "noise_study.ipynb": noise_study_notebook,
         "paper_figures.ipynb": paper_figures_notebook,
     }

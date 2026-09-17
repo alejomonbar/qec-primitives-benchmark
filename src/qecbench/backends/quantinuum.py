@@ -24,6 +24,12 @@ Circuits, one program per chain length and depth:
 Both end with ``RX(-2 beta)`` per layer and ``result("c", ...)`` holding the measured data bits.
 The programs need guppylang >= 1.1 (the ``quantinuum`` extra).
 
+Code structures (``qecbench.codes``) run as logical ``CodePatch`` instances (``code_instances``). Their
+programs come from ``qecbench.code_programs``: each layer measures the checks in batches of disjoint
+supports (``code_schedule``), a batch's ancillas allocated together and read by one ``measure_array``, so
+up to ``zones`` gadgets run side by side. A batch is capped by the qubits left free and by
+``max_parallel``.
+
 ``local=True`` runs the plan on Aer instead of Nexus, needing no account. It runs a Qiskit copy of
 each program, gate for gate and in the same order: for ``mcm`` the two classes with ancillas reset
 and reused, for ``direct`` ``CX RZ CX`` bond by bond.
@@ -49,9 +55,9 @@ from ..primitives import Chain, Direct
 from .aer import local_job_id, simulate_job
 from .base import Backend
 
-SYSTEMS = {                       # qubits available to one program
-    "Helios-1": {"qubits": 98, "emulator": False},
-    "Helios-1E": {"qubits": 98, "emulator": True},
+SYSTEMS = {                       # qubits available to one program; operation zones working at once
+    "Helios-1": {"qubits": 98, "zones": 8, "emulator": False},
+    "Helios-1E": {"qubits": 98, "zones": 8, "emulator": True},
 }
 
 
@@ -65,6 +71,13 @@ def chain_instances(n_data, kinds=("mcm", "direct")):
         if "direct" in kinds:
             out.append(Direct(range(n)))
     return out
+
+
+def code_instances(code, kinds=("mcm", "direct")):
+    """Logical ``CodePatch`` instances of a code structure (``qecbench.codes``) for Helios."""
+    from ..primitives import CodePatch
+
+    return [CodePatch(code, kind=kind) for kind in kinds]
 
 
 def peak_qubits(n: int, kind: str) -> int:
@@ -81,10 +94,12 @@ class HeliosProgram:
     kind: str
     depth: int
     name: str = field(default_factory=lambda: f"qecbench-{uuid4().hex[:8]}")
+    peak: int | None = None          # qubits held at once; the chain formula when not given
+    source: str | None = None        # the generated Guppy module, for code programs
 
     @property
     def peak_qubits(self):
-        return peak_qubits(self.n, self.kind)
+        return self.peak if self.peak is not None else peak_qubits(self.n, self.kind)
 
 
 # --------------------------------------------------------------------------------------
@@ -244,24 +259,28 @@ class QuantinuumBackend(Backend):
     max_circuits_per_job = 16
 
     def __init__(self, name="Helios-1", local=False, project="Helios-Samples", noise_model=None,
-                 seed=None, cost_margin=3.0):
+                 seed=None, cost_margin=3.0, max_parallel=None):
         """``name`` is ``Helios-1`` (hardware) or ``Helios-1E`` (Quantinuum's hosted emulator).
 
         ``local=True`` runs on Aer as ``<name>_sim`` (noiseless unless ``noise_model`` is given).
         ``project`` is the Nexus project jobs are filed under, and ``cost_margin`` the HQCs added
-        on top of the Nexus prediction for a job's ``max_cost``.
+        on top of the Nexus prediction for a job's ``max_cost``. ``max_parallel`` caps the checks
+        of a code measured together (``code_schedule``); by default a batch is a whole class of
+        disjoint checks, limited only by the free qubits.
         """
         if name not in SYSTEMS:
             raise ValueError(f"unknown Quantinuum system {name!r}; have {list(SYSTEMS)}")
         super().__init__(name + ("_sim" if local else ""))
         self.system_name = name
         self.qubits = SYSTEMS[name]["qubits"]
+        self.zones = SYSTEMS[name]["zones"]
         self.is_simulator = SYSTEMS[name]["emulator"]
         self.local = local
         self.project = project
         self.noise_model = noise_model
         self.seed = seed
         self.cost_margin = cost_margin
+        self.max_parallel = max_parallel
         self._submitted = 0
         self._uploads = {}           # program name -> HUGRRef
         self._quotes = {}            # program name -> (predicted HQC, confidence)
@@ -281,11 +300,31 @@ class QuantinuumBackend(Backend):
         return nx.complete_graph(2 * self.qubits)
 
     # -- circuits -------------------------------------------------------------------------
+    def code_schedule(self, code):
+        """Batches of disjoint checks, each at most ``max_parallel`` and the qubits left free."""
+        from ..codes import schedule
+
+        free = self.qubits - code.n_data
+        if free < 1:
+            raise ValueError(f"{code.name}: {code.n_data} data qubits leave no ancilla on {self.system_name}")
+        cap = free if self.max_parallel is None else min(self.max_parallel, free)
+        return schedule(code, max_parallel=cap)
+
     def validate(self, batch, kind="mcm"):
+        from ..primitives import CodePatch
+
         problems = []
         if len(batch) != 1:
-            problems.append(f"one chain per program on Helios; got {len(batch)} in one batch")
+            problems.append(f"one instance per program on Helios; got {len(batch)} in one batch")
         for inst in batch:
+            if isinstance(inst, CodePatch):
+                if inst.kind != kind:
+                    problems.append(f"{inst}: kind {inst.kind}, batch kind {kind}")
+                if not inst.logical:
+                    problems.append(f"{inst}: Helios code patches use logical labels (build them with code_instances)")
+                if inst.code.n_data > self.qubits:
+                    problems.append(f"{inst}: {inst.code.n_data} data qubits, {self.system_name} has {self.qubits}")
+                continue
             n = inst.n_data
             if inst.kind != kind:
                 problems.append(f"{inst}: kind {inst.kind}, batch kind {kind}")
@@ -300,13 +339,28 @@ class QuantinuumBackend(Backend):
         return problems
 
     def build(self, batch, depth, delta, kind="mcm"):
+        from ..primitives import CodePatch
+
         kind = batch_kind(batch, kind)
+        if isinstance(batch[0], CodePatch):
+            return self._build_code(batch[0], depth, delta, kind)
         n = batch[0].n_data
         if self.local:
             return (qiskit_mcm_parallel if kind == "mcm" else qiskit_direct)(n, depth, delta)
         make = guppy_mcm_parallel if kind == "mcm" else guppy_direct
         return HeliosProgram(make(n, depth, delta), n, kind, depth,
                              name=f"qecbench-chain{n}-{kind}-p{depth}-{uuid4().hex[:8]}")
+
+    def _build_code(self, patch, depth, delta, kind):
+        from .. import code_programs
+
+        sched = self.code_schedule(patch.code)
+        if self.local:
+            return code_programs.qiskit_program(patch.code, sched, depth, delta, kind)
+        source = code_programs.guppy_source(patch.code, sched, depth, delta, kind)
+        name = f"qecbench-{patch.code.name}-{kind}-p{depth}-{uuid4().hex[:8]}"
+        return HeliosProgram(code_programs.load_guppy_main(source, name.replace("-", "_")), patch.code.n_data,
+                             kind, depth, name=name, peak=sched.peak_qubits(kind), source=source)
 
     # -- Nexus ------------------------------------------------------------------------------
     def _qnx(self):

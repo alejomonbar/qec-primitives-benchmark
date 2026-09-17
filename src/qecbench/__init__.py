@@ -2,8 +2,9 @@
 
 Layers, bottom up::
 
-    primitives   what is benchmarked: Chain (measurement gadget) and Direct (the same Ising
-                 chain run directly, no ancilla); surface/colour code patches later
+    primitives   what is benchmarked: Chain (measurement gadget), Direct (the same Ising
+                 chain run directly, no ancilla), CodePatch (the checks of a QEC code)
+    codes        QEC structures as Hamiltonians (surface, colour, qLDPC, custom) and schedules
     lrqaoa       schedule, energies, exact noiseless and random references
     layout       where it goes on a chip: selection, packing, validation
     circuits     the gadget in two dialects (Qiskit dynamic, IQM natives)
@@ -13,7 +14,7 @@ Layers, bottom up::
     plotting     device maps, partitions, depth sweeps
 """
 
-from .primitives import Chain, Direct, Primitive, Term, from_dict
+from .primitives import Chain, CodePatch, Direct, Primitive, Term, from_dict
 
 __version__ = "0.1.0"
-__all__ = ["Chain", "Direct", "Primitive", "Term", "from_dict"]
+__all__ = ["Chain", "CodePatch", "Direct", "Primitive", "Term", "from_dict"]
