@@ -68,3 +68,33 @@ def test_local_memory_loop(tmp_path):
         (loaded_patch, by_basis), = mem.load_results(tmp_path / "r", backend.name, files={saved.split("/")[-1]}).items()
         assert loaded_patch == patch and set(by_basis) == {"Z", "X"}
         assert all(check(s["rate"]) and s["shots"] == 500 for by_R in by_basis.values() for s in by_R.values())
+
+
+def test_plot_surface_code_draws_every_check():
+    import matplotlib
+    matplotlib.use("Agg")
+    from matplotlib.patches import Polygon, Wedge
+
+    from qecbench.plotting import plot_surface_code
+
+    code = codes.surface_code(5)
+    ax, handles = plot_surface_code(code, bits="1" + "0" * 24)
+    assert sum(isinstance(p, Polygon) for p in ax.patches) == 16 and sum(isinstance(p, Wedge) for p in ax.patches) == 8
+    assert [h.get_label() for h in handles] == ["X check", "Z check", "logical Z", "logical X"]
+    white = [p for p in ax.patches if p.get_facecolor()[:3] == (1.0, 1.0, 1.0)]
+    assert len(white) == sum(1 for c in code.checks if 0 in c)        # the checks on data qubit 0 fire
+
+
+def test_plot_patch_on_chip_marks_every_qubit_of_the_patch():
+    import matplotlib
+    matplotlib.use("Agg")
+
+    from qecbench.layout import square_lattice_coordinates
+    from qecbench.plotting import plot_patch_on_chip
+
+    backend = SimBackend(topology="grid", qubits=121, seed=1)
+    G = backend.coupling_graph()
+    patch = surface_code_placements(G, codes.surface_code(3))[5]
+    ax = plot_patch_on_chip(G, square_lattice_coordinates(G), patch, title="p")
+    assert sorted(int(t.get_text()) for t in ax.texts) == sorted(patch.qubits)
+    assert ax.get_title() == "p"

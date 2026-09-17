@@ -214,3 +214,107 @@ def plot_depth_spread(results, value="r", ax=None, color="#2f6f9f", label="insta
     ax.set_xticks(depths)
     ax.legend(frameon=False)
     return ax
+
+
+CHECK_COLOURS = {"X": "#f6c48f", "Z": "#9ecae1"}        # check tiles: warm sand (X), light blue (Z)
+LOGICAL_COLOURS = {"X": "#d95f02", "Z": "#2171b5"}      # the same families, dark, for the logical operators
+
+
+def plot_surface_code(code, ax=None, check_types=None, logicals=True, bits=None, labels=False, node_size=None):
+    """The rotated surface code as in QEC papers: data qubits on a square lattice, checks as tiles.
+
+    Weight-4 checks are squares and weight-2 boundary checks half-discs outside the lattice, coloured by type
+    (``check_types``, default ``memory.check_types``; ``CHECK_COLOURS``). ``logicals`` draws logical ``Z`` (row 0)
+    and ``X`` (column 0) on top. ``bits`` (one character per data qubit) shades the ``1`` data qubits and empties
+    the tiles of checks with odd parity, i.e. the syndrome a ``Z`` measurement of those bits would give.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch, Polygon, Wedge
+
+    from . import memory
+
+    d = int(code.info.get("distance") or round(code.n_data ** 0.5))
+    types = check_types or memory.check_types(code)
+    if ax is None:
+        _, ax = plt.subplots(figsize=(0.9 * d + 1, 0.9 * d + 1))
+    xy = {n: (n % d, -(n // d)) for n in range(code.n_data)}
+    flip = (lambda check: sum(int(bits[q]) for q in check) % 2) if bits is not None else (lambda check: 0)
+    for check, kind in zip(code.checks, types):
+        face = "white" if flip(check) else CHECK_COLOURS[kind]
+        pts = np.array([xy[q] for q in check], float)
+        if len(check) == 4:
+            centre = pts.mean(axis=0)
+            pts = pts[np.argsort(np.arctan2(pts[:, 1] - centre[1], pts[:, 0] - centre[0]))]
+            ax.add_patch(Polygon(pts, closed=True, facecolor=face, edgecolor="black", linewidth=1.6, zorder=1))
+            continue
+        centre = pts.mean(axis=0)
+        if pts[0, 0] == pts[1, 0]:                             # vertical pair: left or right boundary
+            theta = (90, 270) if pts[0, 0] == 0 else (-90, 90)
+        else:                                                  # horizontal pair: top or bottom boundary
+            theta = (0, 180) if pts[0, 1] == 0 else (180, 360)
+        ax.add_patch(Wedge(centre, 0.5, *theta, facecolor=face, edgecolor="black", linewidth=1.4, zorder=1))
+    for n in range(code.n_data):                               # lattice edges
+        r, c = divmod(n, d)
+        for rr, cc in ((r, c + 1), (r + 1, c)):
+            if rr < d and cc < d:
+                m = rr * d + cc
+                ax.plot([xy[n][0], xy[m][0]], [xy[n][1], xy[m][1]], color="black", lw=1.6, zorder=2)
+    handles = [Patch(facecolor=CHECK_COLOURS[k], edgecolor="black", label=f"{k} check") for k in ("X", "Z")]
+    if logicals:
+        for basis in ("Z", "X"):
+            line = np.array([xy[q] for q in memory.logical_support(code, basis)])
+            ax.plot(*line.T, color=LOGICAL_COLOURS[basis], lw=5, alpha=0.9, solid_capstyle="round", zorder=3)
+            handles.append(Line2D([], [], color=LOGICAL_COLOURS[basis], lw=4, label=f"logical {basis}"))
+    size = node_size or max(60, 2400 / d ** 2)
+    fill = ["#7f7f7f" if bits is not None and bits[n] == "1" else "white" for n in range(code.n_data)]
+    ax.scatter(*np.array([xy[n] for n in range(code.n_data)]).T, s=size, c=fill, edgecolors="black", linewidths=1.3,
+               zorder=4)
+    if labels:
+        for n, (x, y) in xy.items():
+            ax.text(x, y, str(n), ha="center", va="center", fontsize=7, zorder=5)
+    ax.set_xlim(-0.8, d - 0.2)
+    ax.set_ylim(-(d - 1) - 0.8, 0.8)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    return ax, handles
+
+
+def plot_patch_on_chip(G, coords, patch, ax=None, title=None, check_types=None, zoom=True):
+    """A ``CodePatch`` of a surface code on its square-lattice chip.
+
+    The chip's couplers are faint; the patch's couplers are drawn in the colour of their check (``CHECK_COLOURS``),
+    its ancillas filled with that colour and its data qubits white, with the physical qubit numbers. ``coords`` is
+    ``layout.square_lattice_coordinates(G)``. ``zoom`` frames the patch with a margin of two sites.
+    """
+    import matplotlib.pyplot as plt
+
+    from . import memory
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(4, 4))
+    types = check_types or memory.check_types(patch.code)
+    at = lambda q: (coords[q][1], -coords[q][0])
+    kind_of = dict(zip(patch.ancillas, types))
+    for u, v in G.edges:
+        ax.plot(*zip(at(u), at(v)), color="0.88", lw=1, zorder=0)
+    ax.scatter(*np.array([at(q) for q in G.nodes]).T, s=10, color="0.75", zorder=1)
+    for u, v in patch.couplers:
+        anc = u if u in kind_of else v
+        ax.plot(*zip(at(u), at(v)), color=LOGICAL_COLOURS[kind_of[anc]], lw=2.2, alpha=0.8, zorder=2)
+    size = 170 if patch.code.n_data <= 9 else 110
+    ax.scatter(*np.array([at(q) for q in patch.data_qubits]).T, s=size, color="white", edgecolor="black", zorder=3)
+    for kind in ("X", "Z"):
+        pts = [at(a) for a in patch.ancillas if kind_of[a] == kind]
+        ax.scatter(*np.array(pts).T, s=size, color=CHECK_COLOURS[kind], edgecolor="black", zorder=3)
+    for q in patch.qubits:
+        ax.text(*at(q), str(q), ha="center", va="center", fontsize=5.5 if size < 150 else 6.5, zorder=4)
+    if zoom:
+        xs, ys = zip(*(at(q) for q in patch.qubits))
+        ax.set_xlim(min(xs) - 2, max(xs) + 2)
+        ax.set_ylim(min(ys) - 2, max(ys) + 2)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    if title:
+        ax.set_title(title, fontsize=10)
+    return ax

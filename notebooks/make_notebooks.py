@@ -3493,6 +3493,7 @@ from qecbench import codes
 from qecbench import memory as mem
 from qecbench.backends import IBMBackend, SimBackend
 from qecbench.layout import square_lattice_coordinates, surface_code_placements
+from qecbench.plotting import CHECK_COLOURS, plot_patch_on_chip, plot_surface_code
 """),
         md(r"""
 ## 0. Background
@@ -3624,8 +3625,9 @@ print(f"{backend.name}: {G.number_of_nodes()} qubits on a square lattice"
 For each distance: the number of $X$ and $Z$ checks, and the distance stim finds for the full memory circuit in both
 bases (it must equal $d$). Then a **round trip**: stim samples noisy shots of its own circuit, and the detectors
 rebuilt from their raw bits by `memory.detection_events`, the function applied to device data, must equal stim's
-own detectors shot for shot. The drawing shows the code: data qubits (black), $X$ checks (blue), $Z$ checks (red),
-and the logical $Z_L$ (row 0) and $X_L$ (column 0).
+own detectors shot for shot. The drawing shows the code as in QEC papers: data qubits (circles, numbered for $d = 3$)
+on a square lattice, $X$ checks (sand) and $Z$ checks (blue) as tiles - squares in the bulk, half-discs on the boundary -
+and the logical $Z_L$ (row 0, dark blue) and $X_L$ (column 0, orange).
 """),
         code(r"""
 for d in distances:
@@ -3645,28 +3647,12 @@ for d in distances:
     print(f"d = {d}: {code.n_data} data qubits, {n_x} X + {n_z} Z checks, stim distance {sorted(set(dist.values()))}, "
           f"detector round trip {mismatches} mismatches in {500 * len(BASES)} shots")
 
-fig, axes = plt.subplots(1, len(distances), figsize=(3.2 * len(distances), 3.4), squeeze=False)
+fig, axes = plt.subplots(1, len(distances), figsize=(3.8 * len(distances), 4.4), squeeze=False)
 for ax, d in zip(axes[0], distances):
-    code = codes.surface_code(d)
-    xy = {n: (n % d, -(n // d)) for n in range(code.n_data)}
-    for check, kind in zip(code.checks, mem.check_types(code)):
-        pts = np.array([xy[n] for n in check], float)
-        centre = pts.mean(axis=0)
-        if len(check) == 2:                   # a boundary check bulges outward, off the grid
-            out = np.array([0.0 if pts[0, 0] != pts[1, 0] else (-0.5 if pts[0, 0] == 0 else 0.5),
-                            0.0 if pts[0, 1] != pts[1, 1] else (0.5 if pts[0, 1] == 0 else -0.5)])
-            pts = np.vstack([pts, centre + out])
-            centre = pts.mean(axis=0)
-        pts = pts[np.argsort(np.arctan2(*(pts - centre).T[::-1]))]
-        ax.fill(*pts.T, color="#377eb8" if kind == "X" else "#e41a1c", alpha=0.45, lw=1, ec="k")
-    for basis, colour in (("Z", "#e41a1c"), ("X", "#377eb8")):
-        line = np.array([xy[n] for n in mem.logical_support(code, basis)])
-        ax.plot(*line.T, "-", color=colour, lw=4, alpha=0.8, label=f"logical {basis}")
-    ax.scatter(*np.array(list(xy.values())).T, s=40, color="k", zorder=3)
-    ax.set_aspect("equal")
-    ax.axis("off")
-    ax.set_title(f"d = {d}")
-axes[0][0].legend(fontsize=8, loc="lower left", bbox_to_anchor=(0, -0.25), ncols=2)
+    ax, handles = plot_surface_code(codes.surface_code(d), ax=ax, labels=d <= 3)
+    ax.set_title(f"d = {d}", pad=14)
+fig.legend(handles=handles, loc="lower center", ncols=4, fontsize=9, frameon=False)
+fig.tight_layout(rect=(0, 0.08, 1, 1))
 plt.show()
 """),
         md(r"""
@@ -3681,8 +3667,9 @@ print(mem.memory_circuit(codes.surface_code(3), rounds=1, basis="Z").draw(output
 ## 4. Patches
 
 The patches to run: the given anchors, or the `N_BEST` placements with the lowest error budget per layer (CZ error of
-every coupler, mid-circuit readout of every ancilla, two `sx` per qubit; `IBMBackend.error_budget`). The map shows them
-on the chip.
+every coupler, mid-circuit readout of every ancilla, two `sx` per qubit; `IBMBackend.error_budget`). Each patch gets its own
+map, framed on its part of the chip: physical qubit numbers, data qubits in white, the ancillas of $X$ and $Z$ checks in
+the colours of the code drawing, and the couplers each check uses.
 """),
         code(r"""
 patches = []
@@ -3698,18 +3685,21 @@ for d in distances:
         budget = f", error budget {backend.error_budget(patch, cal):.3f} per round" if cal is not None else ""
         print(f"d = {d}: {patch}{budget}")
 
-fig, ax = plt.subplots(figsize=(5, 6))
-for u, v in G.edges:
-    ax.plot([coords[u][1], coords[v][1]], [-coords[u][0], -coords[v][0]], color="0.9", lw=1, zorder=0)
-for k, patch in enumerate(patches):
-    for u, v in patch.couplers:
-        ax.plot([coords[u][1], coords[v][1]], [-coords[u][0], -coords[v][0]], color=f"C{k}", lw=2.5, alpha=0.7)
-    ax.scatter([coords[q][1] for q in patch.data_qubits], [-coords[q][0] for q in patch.data_qubits], s=30,
-               color=f"C{k}", edgecolor="k", zorder=3, label=f"{patch.code.name} {min(patch.qubits)}..{max(patch.qubits)}")
-ax.scatter(*np.array([(c, -r) for r, c in coords.values()]).T, s=8, color="0.6", zorder=1)
-ax.set_aspect("equal")
-ax.axis("off")
-ax.legend(fontsize=8, loc="upper left", bbox_to_anchor=(1, 1))
+from matplotlib.patches import Patch
+
+ncols = min(len(patches), 4)
+nrows = -(-len(patches) // ncols)
+fig, axes = plt.subplots(nrows, ncols, figsize=(3.4 * ncols, 3.6 * nrows), squeeze=False)
+for ax, patch in zip(axes.flat, patches):
+    budget = f"\nerror budget {backend.error_budget(patch, cal):.3f}" if cal is not None else ""
+    plot_patch_on_chip(G, coords, patch, ax=ax, title=f"{patch.code.name}, anchor {coords[patch.data_qubits[0]]}{budget}")
+for ax in list(axes.flat)[len(patches):]:
+    ax.axis("off")
+fig.legend(handles=[Patch(facecolor="white", edgecolor="black", label="data qubit"),
+                    Patch(facecolor=CHECK_COLOURS["X"], edgecolor="black", label="X ancilla"),
+                    Patch(facecolor=CHECK_COLOURS["Z"], edgecolor="black", label="Z ancilla")],
+           loc="lower center", ncols=3, fontsize=9, frameon=False)
+fig.tight_layout(rect=(0, 0.06, 1, 1))
 plt.show()
 """),
         md(r"""
