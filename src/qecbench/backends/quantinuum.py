@@ -259,14 +259,15 @@ class QuantinuumBackend(Backend):
     max_circuits_per_job = 16
 
     def __init__(self, name="Helios-1", local=False, project="Helios-Samples", noise_model=None,
-                 seed=None, cost_margin=3.0, max_parallel=None):
+                 seed=None, cost_margin=3.0, max_parallel=None, quote_timeout=300.0):
         """``name`` is ``Helios-1`` (hardware) or ``Helios-1E`` (Quantinuum's hosted emulator).
 
         ``local=True`` runs on Aer as ``<name>_sim`` (noiseless unless ``noise_model`` is given).
         ``project`` is the Nexus project jobs are filed under, and ``cost_margin`` the HQCs added
-        on top of the Nexus prediction for a job's ``max_cost``. ``max_parallel`` caps the checks
+        on top of the Nexus prediction for each program's ``max_cost``. ``max_parallel`` caps the checks
         of a code measured together (``code_schedule``); by default a batch is a whole class of
-        disjoint checks, limited only by the free qubits.
+        disjoint checks, limited only by the free qubits. ``quote_timeout`` is how long, in seconds, to
+        wait for a Nexus cost estimate before giving up (``None`` waits for ever).
         """
         if name not in SYSTEMS:
             raise ValueError(f"unknown Quantinuum system {name!r}; have {list(SYSTEMS)}")
@@ -281,6 +282,7 @@ class QuantinuumBackend(Backend):
         self.seed = seed
         self.cost_margin = cost_margin
         self.max_parallel = max_parallel
+        self.quote_timeout = quote_timeout
         self._submitted = 0
         self._uploads = {}           # program name -> HUGRRef
         self._quotes = {}            # program name -> (predicted HQC, confidence)
@@ -379,26 +381,72 @@ class QuantinuumBackend(Backend):
                 self._uploads[prog.name] = qnx.hugr.upload(prog.definition.compile(), name=prog.name)
         return [self._uploads[prog.name] for prog in programs]
 
-    def quote(self, plan):
-        """Upload the plan's programs and ask Nexus for their predicted HQC cost.
+    def quote(self, plan, wait=False):
+        """Ask Nexus for the plan's predicted HQC cost, without blocking on it by default.
 
-        Uploading costs nothing; the prediction is stored in ``plan["estimate"]`` (so
-        ``print_plan`` shows it) and reused for each job's ``max_cost`` at submission.
+        The estimate is itself a job, on the cost-estimation system ``Helios-1SC``. The first call uploads
+        the programs (free) and starts that job; its id is kept in ``plan["estimate"]["job_id"]``. Every
+        call then looks at that same job: finished, the prediction is stored in ``plan["estimate"]`` (so
+        ``print_plan`` shows it) and reused for each program's ``max_cost`` at submission, and returned;
+        still queued or running, it says so and returns ``None`` - call again later, no new job is started.
+        ``wait=True`` waits up to ``quote_timeout`` seconds instead.
         """
         if self.local:
             raise ValueError("a local backend has no Nexus quote")
-        programs = plan["circuits"]
-        refs = self._upload(programs)
-        predicted = self._qnx().hugr.cost_confidence(programs=refs, n_shots=[plan["shots"]] * len(refs),
-                                                     system_name="Helios-1")
-        for prog, (cost, confidence) in zip(programs, predicted):
+        qnx, programs = self._qnx(), plan["circuits"]
+        estimate = plan.get("estimate") or {}
+        if estimate.get("total") is not None:
+            return estimate
+        job_id = estimate.get("job_id")
+        if job_id is None:
+            job_id = self._start_quote(self._upload(programs), plan["shots"])
+            plan["estimate"] = estimate = {"unit": "HQC", "total": None, "usd": None, "job_id": job_id}
+            print(f"cost estimate requested from Nexus: job {job_id} (on Helios-1SC)")
+        ref = qnx.jobs.get(id=job_id)
+        if wait:
+            try:
+                qnx.jobs.wait_for(ref, timeout=self.quote_timeout)
+            except TimeoutError:
+                pass
+        status = qnx.jobs.status(ref)
+        state = str(getattr(status.status, "value", status.status))
+        if state in ("ERROR", "CANCELLED", "TERMINATED", "DEPLETED"):
+            plan["estimate"] = None                  # the next call starts a fresh estimate
+            raise RuntimeError(f"the cost estimate {job_id} ended {state}: "
+                               f"{getattr(status, 'error_detail', None) or getattr(status, 'message', '')}")
+        if state != "COMPLETED":
+            print(f"cost estimate {job_id}: {state} - run this again later; nothing has been sent to "
+                  f"{self.system_name}")
+            return None
+        for prog, (cost, confidence) in zip(programs, qnx.jobs.cost_confidence(ref)):
             self._quotes[prog.name] = (float(cost), float(confidence))
         per_circuit = [self._quotes[p.name][0] for p in programs]
-        plan["estimate"] = {"unit": "HQC", "per_circuit": per_circuit, "total": float(sum(per_circuit)),
-                            "usd": None,
-                            "notes": ["predicted by Nexus (qnx.hugr.cost_confidence) for the uploaded programs",
-                                      f"each job's max_cost = ceil(predicted) + {self.cost_margin:g} HQC"]}
-        return plan["estimate"]
+        estimate.update({"per_circuit": per_circuit, "total": float(sum(per_circuit)),
+                         "notes": [f"predicted by Nexus (cost-estimation job {job_id}) for the uploaded programs",
+                                   f"each program's max_cost = ceil(predicted) + {self.cost_margin:g} HQC; "
+                                   f"a job asks its allowance for the sum over its programs"]})
+        return estimate
+
+    def _start_quote(self, refs, shots):
+        """Start a cost-estimation job for ``refs`` and return its id at once (what ``hugr.cost_confidence`` runs
+        before it blocks on the result)."""
+        qnx = self._qnx()
+        job = qnx.start_execute_job(programs=refs, n_shots=[shots] * len(refs),
+                                    backend_config=qnx.models.HeliosConfig(system_name="Helios-1SC"),
+                                    name=f"qecbench-cost-estimate-{uuid4().hex[:8]}")
+        return str(job.id)
+
+    def _cost_confidence(self, refs, shots):
+        """Nexus's ``(HQC, confidence)`` for each program, waiting at most ``quote_timeout`` seconds."""
+        try:
+            return self._qnx().hugr.cost_confidence(programs=refs, n_shots=[shots] * len(refs),
+                                                    system_name="Helios-1", timeout=self.quote_timeout)
+        except TimeoutError:
+            raise RuntimeError(
+                f"Nexus returned no cost estimate within {self.quote_timeout:g} s: the estimation job is still "
+                f"queued on Helios-1SC (see 'Circuit cost confidence estimation job' in the Nexus portal). "
+                f"Nothing was sent to {self.system_name}. Quote the plan first with quote(plan) and submit "
+                f"once it is priced.") from None
 
     def estimate(self, plan):
         return None             # only Nexus can price a Helios program; see quote()
@@ -413,18 +461,19 @@ class QuantinuumBackend(Backend):
         refs = self._upload(circuits)
         missing = [p for p in circuits if p.name not in self._quotes]
         if missing:
-            predicted = qnx.hugr.cost_confidence(programs=[self._uploads[p.name] for p in missing],
-                                                 n_shots=[shots] * len(missing), system_name="Helios-1")
+            predicted = self._cost_confidence([self._uploads[p.name] for p in missing], shots)
             for prog, (cost, confidence) in zip(missing, predicted):
                 self._quotes[prog.name] = (float(cost), float(confidence))
-        max_cost = float(ceil(sum(self._quotes[p.name][0] for p in circuits)) + self.cost_margin)
-        options = {"system_name": self.system_name, "max_cost": max_cost}
+        # Nexus gives every program in the job its own max_cost, so the allowance a job asks for is
+        # the sum over its programs: one budget per program, never the job's total for each of them.
+        max_cost = [float(ceil(self._quotes[p.name][0]) + self.cost_margin) for p in circuits]
+        options = {"system_name": self.system_name}
         if self.is_simulator:
             options["emulator_config"] = qnx.models.HeliosEmulatorConfig(
                 n_qubits=max(p.peak_qubits for p in circuits))
         job = qnx.start_execute_job(
             programs=refs, n_shots=[shots] * len(refs), backend_config=qnx.models.HeliosConfig(**options),
-            name=f"qecbench-{self.system_name}-{len(refs)}programs-{uuid4().hex[:8]}")
+            max_cost=max_cost, name=f"qecbench-{self.system_name}-{len(refs)}programs-{uuid4().hex[:8]}")
         return {"job_id": str(job.id), "programs": [p.name for p in circuits], "max_cost": max_cost}
 
     def fetch(self, record, tasks):

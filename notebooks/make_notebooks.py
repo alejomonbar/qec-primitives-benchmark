@@ -277,7 +277,8 @@ noiseless references and $r_{\\rm ovl}$, plus the job id and circuit it came fro
 '''
 
 HARVEST = '''
-manifests = sorted((DATA / "manifests").rglob(f"*_{backend.name}_*.json"), key=lambda p: p.name)
+manifests = sorted((p for p in (DATA / "manifests").rglob(f"*_{backend.name}_*.json")
+                    if not p.name.endswith("_memory.json")), key=lambda p: p.name)   # memory runs: their own notebook
 assert manifests, "no manifest yet - run the submit cell of section 5 first"
 manifest_path = manifests[-1]
 print("harvesting", manifest_path.name)
@@ -937,7 +938,8 @@ next class is allocated. It is also the size of a Helios-1E emulator request.
   $p = 3, 5, 10$ at 50 shots.
 * `DIRECT_REFERENCE` - also run the direct circuit at every length and depth. It roughly doubles the cost.
 * `PROJECT` - the Nexus project jobs are filed under. `COST_MARGIN` - HQCs added to the Nexus prediction
-  for each job's `max_cost`, the most the job may spend.
+  for each program's `max_cost`, the most that program may spend. Nexus gives every program in a job its
+  own budget, so a job of $n$ programs asks its allowance for the sum of the $n$ budgets, not for one of them.
 """),
         code(r"""
 BACKEND_NAME     = "Helios-1"         # or "Helios-1E" (hosted emulator)
@@ -949,7 +951,7 @@ SHOTS            = 50
 DELTA            = 0.5
 KINDS            = ["mcm"]             # "mcm", "direct", or both
 PROJECT          = "Helios-Samples"
-COST_MARGIN      = 3                  # HQC on top of the prediction, per job
+COST_MARGIN      = 3                  # HQC on top of the prediction, per program
 """),
         md(r"""
 ## 2. Backend and chains
@@ -974,14 +976,27 @@ for inst in instances:
 ## 3. Plan and cost
 
 One program per chain length, kind and depth. With `SUBMIT = True` the programs are compiled and
-uploaded to Nexus, which predicts their cost in HQCs. Uploading costs nothing and runs nothing. The
-prediction sets each job's `max_cost`, with `COST_MARGIN` on top. Up to 16 programs go into one job.
+uploaded to Nexus, which is asked to predict their cost in HQCs. Uploading costs nothing and runs nothing. Each
+program's own prediction sets its `max_cost`, with `COST_MARGIN` on top. Up to 16 programs go into one job,
+and the allowance the job needs is the sum of their budgets, so a job that needs more HQCs than are left
+is refused as a whole (`Job cost exceeds allowed cost`); splitting the depths into separate submissions
+lets the affordable ones run.
 """),
         code(r"""
 plan = build_plan(backend, instances, depths=DEPTHS, shots=SHOTS, delta=DELTA)
 if SUBMIT:
-    backend.quote(plan)
+    backend.quote(plan)            # starts the Nexus estimate and returns at once
 print_plan(plan, backend)
+"""),
+        md(r"""
+The estimate is a job of its own on Nexus's cost-estimation system (`Helios-1SC`), usually done in a few
+minutes but sometimes held in its queue for longer. This cell reads that same job back: run it again until
+the cost table appears. It never starts a second estimate, and submission below refuses to go ahead until the
+plan is priced.
+"""),
+        code(r"""
+if SUBMIT and backend.quote(plan):
+    print_plan(plan, backend)
 """),
         md(r"""
 ## 4. Submit
@@ -1000,7 +1015,8 @@ skipped; running the cell again adds what has finished since. Results go to
 `data/results/<backend>/chain/<kind>/`, one file per run.
 """),
         code(r"""
-manifests = sorted((DATA / "manifests" / backend.name).glob("*.json"), key=lambda p: p.name)
+manifests = sorted((p for p in (DATA / "manifests" / backend.name).glob("*.json")
+                    if not p.name.endswith("_memory.json")), key=lambda p: p.name)   # memory runs: their own notebook
 assert manifests, "no manifest yet - run the submit cell first"
 manifest_path = manifests[-1]
 print("harvesting", manifest_path.name)
@@ -1652,6 +1668,7 @@ figure by accident.
 
 | figure | what it shows | section |
 |---|---|---|
+| Fig. 2c | the chip with the ground the scan covers, and two placements of the surface code $d = 3$ drawn out | 11 |
 | Fig. 3c | distribution of $r$ over every data-ancilla-data triplet, per device, at $p = 3$ | 1 |
 | Fig. 3d | median $r$ (bars: inter-quartile range) over the triplets, against depth | 2 |
 | Fig. 3e | $r$ against depth for each device's best triplet, with Helios-1E | 3 |
@@ -1661,11 +1678,11 @@ figure by accident.
 | Fig. 5b | $\lambda_{\rm eff}$ of a 10-spin chain on IBM Boston and the Helios-1E emulator, direct and MCM | 6 |
 | Fig. 5c | $\lambda_{\rm eff}$ against $N_q$ for eight devices, direct and MCM | 6 |
 | Fig. 5d | mean MCM $\lambda_{\rm eff}$ of eight devices against their release date | 6 |
-| Fig. 6a-c | $r$ of MCM and direct LR-QAOA on colour-code, surface-code and qLDPC check Hamiltonians, Helios-1E and Helios-1 | 7 |
+| Fig. 6 | $r$ at each structure's best depth against its number of data qubits, for every code family and QPU that ran one | 7 |
 | Fig. 7a | shots a noiseless device needs to separate LR-QAOA from random guessing, surface code $d = 3, 5$ | 8 |
 | Fig. 7b | the same for the BB qLDPC codes BB18, BB24, BB30 | 8 |
 | Fig. 8a | shots per device to rank two devices a factor of two apart in error rate, against depth | 9 |
-| Fig. 8b, 8c | MCM $r_{\rm ovl}$ of the surface code $d = 3, 5$ on H2-1, Helios-1, IBM Phoenix and the emulators | 9 |
+| Fig. 8b, 8c | MCM $r$ of the surface code $d = 3, 5$ on H2-1, Helios-1, IBM Phoenix and the emulators, with the noiseless curve and the random limit | 9 |
 | Fig. 9 | LR-QAOA $r_{\rm ovl}$ against the decoded logical error rate of a surface-code memory on the same patch, per patch of an `ibm_phoenix` position scan | 10 |
 """),
         code(r"""
@@ -2440,150 +2457,117 @@ for r in rows:
     print(f"  {r['dev']:<16}{r['source']}")
 """),
         md(r"""
-## 7. Fig. 6 - QEC structures on Helios: colour code, surface code, qLDPC
+## 7. Fig. 6 - QEC structures across QPUs: how far the signal survives with size
 
 LR-QAOA on the check Hamiltonian of a code, $H = \sum_c \prod_{i \in S_c} Z_i$, where each MCM term is one
-syndrome-extraction gadget, so one layer is one round of syndrome extraction (`benchmark_codes_quantinuum.ipynb`,
-section 0). For each code, labelled on the $x$ axis by its distance (for qLDPC codes, their name, e.g. BB18) and
-number of data qubits, the bars give
-$r$ at each depth: **direct** (wide, blue) behind **MCM** (narrow, red). The black line is the noiseless $r_{\rm ideal}$ where one exists.
+syndrome-extraction gadget, so one layer is one round of syndrome extraction
+(`benchmark_codes_quantinuum.ipynb`, section 0). One figure for every structure that was run: the approximation
+ratio $r$ each code reaches at its **best depth**, against the number of data qubits.
 
-**Runs.** Converted from earlier result files by `scripts/import_legacy_codes.py`
-(`<stamp>_<backend>_<sc|cc|qldpc>_..._nq<n>_depth<p>.json`, one file per structure and depth) into
-`data/results/<backend>/<family>/<kind>/`. They are exactly the files the published panels read: for every size,
-kind and depth the newest file. Each converted result is a logical `CodePatch` of the generated structure
-(`qecbench.codes`), whose checks were verified to equal the file's Hamiltonian. The runs up to $d = 5$ (and BB18)
-are on the **Helios-1E emulator**, the larger ones on **Helios-1**. All of them used the serial programs of
-the earlier campaigns, one check at a time with a fresh ancilla each, not the batched programs of this package.
+* **colour** is the machine (Helios-1 red, H2-1 blue, IBM Phoenix green); an **emulator** shares its machine's
+  colour but is drawn hollow, so a noise model is never mistaken for a measurement;
+* **marker** is the code family: circle for the surface code, square for the colour code, triangle for qLDPC;
+* the **faint points** are the other depths measured at the same size, so the vertical spread behind each
+  highlighted point is its depth dependence, and the label gives the depth at which the best $r$ was measured.
+  Where a size was run more than once, the newest run wins at each depth, so a faint point can come from an
+  earlier state of the machine;
+* **error bars** are one standard deviation of shot noise (10-50 shots on the trapped-ion runs, 500-1000 on
+  Phoenix, so they differ a lot between points);
+* the grey line at $r = 0.5$ is the random-sampling limit, identical for every code here.
 
-| panel | code sizes | Helios-1E runs | Helios-1 runs | shots |
-|---|---|---|---|---|
-| 6a colour code | $d = 3, 5$ (7, 19 data) / $d = 7, 9, 11$ (37, 61, 91) | `20260316_1139` MCM, `20260316_1020` direct | MCM `20260316_1424`, `20260330_1108`, `20260825_1231`; direct `20260316_1419`, `20260330_1108` | 100-500 / 50 ($d = 7$), 10 |
-| 6b surface code | $d = 3, 5$ (9, 25) / $d = 7, 9$ (49, 81) | MCM `20260306_1514`, `20260309_1203`, `20260310_1119`; direct `20260306_1621`, `20260310_0729` | `20260309_1631` MCM, `20260309_1642` direct | 420-500 / 10 |
-| 6c qLDPC | BB18 / BB30, BB48 | `20260629_0732` MCM, `20260629_1457` direct | `20260702_0853` MCM and direct (samples of two jobs merged) | 10-100 / 18-20 |
+This is $r$ and not $r_{\rm ovl}$: a noiseless reference exists only for the small structures (surface $d = 3, 5$,
+colour $d = 3, 5$, BB18, BB30), so normalising would drop every large Helios-1 point, which is where the
+question - how far does the structure survive? - is actually decided.
 
-**What differs from the published panels.** The bars are unchanged: every $r$ recomputed from the samples equals
-the stored one. The noiseless line is exact here up to 25 data qubits, where the original used sampled
-simulations (e.g. surface code $d = 3$, $p = 3$: exact 0.7737, published 0.7717). Above 25 there is no exact
-reference, and the published line is kept as a stored reference (`data/references/ideal_energies.json`,
-`scripts/import_legacy_codes.py --references`) for the two structures it was drawn for: the colour code
-$d = 7$ and BB30 (10 000-shot simulations). The surface code $d = 7$ had a simulation too, but the published
-panel left it out, and so does this one. The colour-code $d = 7$ references are matrix-product-state simulations run on an HPC
-system ($p = 10$ at bond dimension 256); earlier, smaller runs of the same problem are
-not used.
+**Coverage is what the hardware ran, not a choice.** Phoenix has the surface code only, H2-1 the surface code at
+$d = 5$ and the colour code at $d = 7$, and the qLDPC family exists on Helios-1 alone. The direct (CNOT-ladder) implementation was run for most of
+these structures and stays in `data/results/<backend>/<family>/direct/`; it is left out here because the object
+is the code's own measurement pattern, not the ancilla-free circuit, which no syndrome extraction would use.
 
-Two provenance notes are kept in the converted records (`benchmark.kind_source`, `benchmark.backend_note`):
-the surface-code $d = 3$, $p = 15$ direct run is named without `MCM` or `normal` and is read as direct, as the
-published figure did; and one Helios-1E surface-code file (`20260309_120358`, $d = 5$, $p = 3$) records Helios-1
-inside, while its name, 500 shots and missing job id match the emulator runs, so it is filed as Helios-1E.
+**Runs.** Converted from earlier result files by `scripts/import_legacy_codes.py` into
+`data/results/<backend>/<family>/<kind>/`; the run files are named in the cell.
 """),
         code(r"""
 import warnings
 
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
 
 from qecbench import codes
 
-WIDE, NARROW, STEP = 0.6, 0.4, 0.7          # direct bar, MCM bar, spacing of the depths within a group
-MCM_COLOUR, DIRECT_COLOUR = "tab:red", "tab:blue"
+FIG6_RUNS = {   # device: {family: run stamps}
+    "Helios-1": {"color_code": ["20260316_1424", "20260825_1231", "20260924_101609"],
+                 "surface_code": ["20260309_1631", "20260825_1229", "20260918_100200", "20260922_091417"],
+                 "qldpc": ["20260702_0853"]},
+    "Helios-1E": {"color_code": ["20260316_1139"], "qldpc": ["20260629_0732"],
+                  "surface_code": ["20260306_1514", "20260306_1518", "20260309_1203", "20260310_1119"]},
+    "H2-1": {"color_code": ["20260820_1140"], "surface_code": ["20260820_0736"]},
+    "H2-1E": {"surface_code": ["20260820_0707"]},
+    "ibm_phoenix": {"surface_code": ["20260909_1619", "20260909_1631"]},
+}
+FIG6_DEVICES = {"Helios-1": ("Helios-1", "#e41a1c", False), "Helios-1E": ("Helios-1E", "#e41a1c", True),
+                "H2-1": ("H2-1", "#377eb8", False), "H2-1E": ("H2-1E", "#377eb8", True),
+                "ibm_phoenix": ("ibm_phoenix", "#4daf4a", False)}
+FIG6_FAMILIES = {"surface_code": ("surface", "s"), "color_code": ("colour", "^"), "qldpc": ("qLDPC", "8")}
 
+best, every = {}, {}
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")        # r_ideal is NaN above 25 data qubits; this figure uses r
+    for device, families in FIG6_RUNS.items():
+        for family, stamps in families.items():
+            for patch, by_depth in runs(device, stamps, "mcm", family).items():
+                key = (device, family, patch.n_data)
+                every[key] = {p: s for p, s in sorted(by_depth.items())}
+                top = max(by_depth, key=lambda p: by_depth[p]["r"])
+                best[key] = {**by_depth[top], "depth": top, "code": patch.code.name}
 
-def code_runs(structure, backend, stamps):
-    # {code name: {kind: {depth: summary}}} from the named run files of one backend
-    out = {}
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")      # "no noiseless reference" above 25 data qubits: NaN is intended
-        for kind in ("mcm", "direct"):
-            for patch, by_depth in runs(backend, stamps[kind], kind, structure).items():
-                out.setdefault(patch.code.name, {"patch": patch})[kind] = by_depth
-    return out
+fig, ax = plt.subplots(figsize=(7.2, 4.6))
+ax.axhline(0.5, color="grey", ls=":", lw=1.4, zorder=0)
+for (device, family, n_data), by_depth in sorted(every.items()):
+    colour, emulator = FIG6_DEVICES[device][1], FIG6_DEVICES[device][2]
+    others = [s["r"] for p, s in by_depth.items() if p != best[(device, family, n_data)]["depth"]]
+    ax.plot([n_data] * len(others), others, FIG6_FAMILIES[family][1], ms=8, color=colour,
+            alpha=0.18 if emulator else 0.28, mec="none", zorder=1)
+for (device, family, n_data), v in sorted(best.items()):
+    label, colour, emulator = FIG6_DEVICES[device]
+    ax.errorbar(n_data, v["r"], yerr=v["r_err"], fmt=FIG6_FAMILIES[family][1], ms=9, color=colour, capsize=3,
+                markerfacecolor="white" if emulator else colour, markeredgewidth=1.6 if emulator else 1.0,
+                markeredgecolor=colour if emulator else "black", zorder=3)
+LABEL_GAP, LABEL_REACH = 0.022, 8      # one line of the p labels, in r; how far a label runs, in N_q
+for n_data in sorted({n for *_, n in best}):
+    # the labels of one size, top to bottom, each at least a line below the one above it
+    y = np.inf
+    for r, device, family in sorted(((v["r"], dev, fam) for (dev, fam, n), v in best.items() if n == n_data),
+                                    reverse=True):
+        y = min(r, y - LABEL_GAP)
+        # to the right, unless a point of a larger code sits in the label's way
+        blocked = any(n_data < n <= n_data + LABEL_REACH and abs(v["r"] - y) < 1.5 * LABEL_GAP
+                      for (_, _, n), v in best.items())
+        ax.annotate(f"p={best[(device, family, n_data)]['depth']}", (n_data, r),
+                    xytext=(n_data - 1.6 if blocked else n_data + 1.6, y), textcoords="data", va="center",
+                    ha="right" if blocked else "left", fontsize=7.5, color=FIG6_DEVICES[device][1])
+ax.set_xlim(0, 1.09 * max(n for *_, n in best))      # room for the labels of the widest code
+for device, (label, colour, emulator) in FIG6_DEVICES.items():      # join each device-family series
+    for family in FIG6_FAMILIES:
+        pts = sorted((n, v["r"]) for (dev, fam, n), v in best.items() if dev == device and fam == family)
+        if len(pts) > 1:
+            ax.plot(*zip(*pts), "--" if emulator else "-", color=colour, lw=1.2, alpha=0.6, zorder=2)
+ax.set_ylim(0.45, 0.96)
+ax.legend(handles=[Line2D([], [], ls="", marker="o", color=c, ms=9, label=lab,
+                          markerfacecolor="white" if emu else c, markeredgecolor=c if emu else "black",
+                          markeredgewidth=1.6 if emu else 1.0) for lab, c, emu in FIG6_DEVICES.values()]
+                 + [Line2D([], [], ls="", marker=mk, color="0.35", mec="black", ms=9, label=lab)
+                    for lab, mk in FIG6_FAMILIES.values()],
+          fontsize=10, loc="upper right", frameon=True, ncol=2)
+if SHOW_LABELS:
+    ax.set(xlabel="data qubits $N_q$", ylabel="$r$ at the best depth")
+fig.savefig(FIGURES / "fig6_code_r_vs_nq_best_depth.pdf", transparent=True, bbox_inches="tight")
+plt.show()
 
-
-def reference(patch, p):
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return ideal_r(patch, int(p))
-
-
-def code_bars(groups, positions, name, slots=None):
-    # one group of bars per code, labelled with its distance (qLDPC: its name) and data qubits; `slots` fixes the depth
-    # of each bar position (gaps allowed), otherwise the depths both kinds have fill the positions in order
-    fig, ax = plt.subplots(figsize=(14, 6))
-    rows, ticks, labels = [], [], []
-    for (code_name, data), base in zip(groups, positions):
-        mcm, direct = data["mcm"], data["direct"]
-        common = sorted(set(mcm) & set(direct))
-        placed = [(j, p) for j, p in enumerate(slots) if p in common] if slots else list(enumerate(common))
-        line = []
-        for j, p in placed:
-            x = base + j * STEP
-            ax.bar(x, direct[p]["r"], WIDE, color=DIRECT_COLOUR, alpha=0.6, edgecolor="black", linewidth=1.5)
-            ax.bar(x, mcm[p]["r"], NARROW, color=MCM_COLOUR, alpha=0.7, edgecolor="black", linewidth=1.5)
-            ideal = reference(data["patch"], p)
-            if np.isfinite(ideal):
-                line.append((x, ideal))
-            rows.append((code_name, p, mcm[p], direct[p], ideal))
-        if line:
-            ax.plot(*zip(*line), color="black", linestyle="--", linewidth=2, zorder=10, marker="o")
-        if placed:                           # group label under the middle bar: distance (or qLDPC name), data qubits
-            code = data["patch"].code
-            ticks.append(base + (placed[0][0] + placed[-1][0]) * STEP / 2)
-            head = code.name if code.family == "qldpc" else f"$d = {code.info['distance']}$"
-            labels.append(f"{head}\n{code.n_data} qubits")
-    ax.set_xticks(ticks, labels)
-    ax.tick_params(axis="x", length=0)
-    ax.set_ylim(0.5, 1.0)
-    ax.grid(axis="y", alpha=1)
-    if SHOW_LABELS:
-        ax.legend(handles=[Patch(facecolor=MCM_COLOUR, alpha=0.7, edgecolor="black", label="MCM"),
-                           Patch(facecolor=DIRECT_COLOUR, alpha=0.6, edgecolor="black", label="direct"),
-                           Line2D([0], [0], color="black", linestyle="--", marker="o", label="noiseless")],
-                  loc="upper right")
-        ax.set_ylabel("$r$")
-    fig.savefig(FIGURES / name, bbox_inches="tight", transparent=True)
-    plt.show()
-    print(f"{'code':>11} {'p':>3} {'shots':>9} {'r MCM':>7} {'r direct':>9} {'r_ideal':>8} {'n_sigma MCM':>12} {'direct':>7}")
-    for code_name, p, m, d, ideal in rows:
-        print(f"{code_name:>11} {p:>3} {m['shots']:>4}/{d['shots']:<4} {m['r']:>7.4f} {d['r']:>9.4f} {ideal:>8.4f} "
-              f"{m['n_sigmas']:>12.1f} {d['n_sigmas']:>7.1f}")
-
-
-def panel(structure, emulator, hardware, order):
-    data = {**code_runs(structure, "Helios-1E", emulator), **code_runs(structure, "Helios-1", hardware)}
-    return [(name, data[name]) for name in order]
-"""),
-        md(r"""
-### Fig. 6a - colour code, $d = 3, 5$ (Helios-1E) and $d = 7, 9, 11$ (Helios-1)
-"""),
-        code(r"""
-groups = panel("color_code",
-               emulator={"mcm": ["20260316_1139"], "direct": ["20260316_1020"]},
-               hardware={"mcm": ["20260316_1424", "20260330_1108", "20260825_1231"],
-                         "direct": ["20260316_1419", "20260330_1108"]},
-               order=["color_d3", "color_d5", "color_d7", "color_d9", "color_d11"])
-code_bars(groups, positions=[0, 5, 10.5, 14.75, 18], name="fig6a_color_code_quantinuum.pdf")
-"""),
-        md(r"""
-### Fig. 6b - surface code, $d = 3, 5$ (Helios-1E) and $d = 7, 9$ (Helios-1)
-"""),
-        code(r"""
-groups = panel("surface_code",
-               emulator={"mcm": ["20260306_1514", "20260309_1203", "20260310_1119"],
-                         "direct": ["20260306_1621", "20260310_0729"]},
-               hardware={"mcm": ["20260309_1631"], "direct": ["20260309_1642"]},
-               order=["surface_d3", "surface_d5", "surface_d7", "surface_d9"])
-code_bars(groups, positions=[0, 6, 10.5, 14.75], name="fig6b_surface_code_quantinuum.pdf")
-"""),
-        md(r"""
-### Fig. 6c - qLDPC codes, BB18 (Helios-1E) and BB30, BB48 (Helios-1)
-"""),
-        code(r"""
-groups = panel("qldpc",
-               emulator={"mcm": ["20260629_0732"], "direct": ["20260629_1457"]},
-               hardware={"mcm": ["20260702_0853"], "direct": ["20260702_0853"]},
-               order=["BB18", "BB30", "BB48"])
-code_bars(groups, positions=[0, 5, 10], name="fig6c_qldpc_quantinuum.pdf", slots=[3, 5, 10])
+print(f"{'code':>11} {'device':>12} {'N_q':>4} {'best r':>9} {'+-':>7} {'p':>4} {'shots':>6}   every depth (MCM)")
+for (device, family, n_data), v in sorted(best.items(), key=lambda kv: (kv[0][1], kv[0][2], kv[0][0])):
+    depths = "  ".join(f"p{p}:{s['r']:.3f}" for p, s in every[(device, family, n_data)].items())
+    print(f"{v['code']:>11} {device:>12} {n_data:>4} {v['r']:>9.3f} {v['r_err']:>7.3f} {v['depth']:>4} "
+          f"{v['shots']:>6}   {depths}")
 """),
         md(r"""
 ## 8. Fig. 7 - the shot budget: separating LR-QAOA from random guessing
@@ -2662,8 +2646,11 @@ separation_panel([CodePatch(codes.bivariate_bicycle(name)) for name in ("BB18", 
   circuit, two-qubit depolarizing $\lambda$ after every CNOT, 50 000 shots per device and depth) and colour code
   $d = 5$ from a white-noise model, for $\lambda = 0.02/0.01$ and $0.002/0.001$. $S^*$ has a minimum in depth: too
   shallow and the two devices barely differ, too deep and both are near random.
-* **Fig. 8b, 8c** - MCM $r_{\rm ovl}$ of the surface code $d = 3$ (9 data qubits) and $d = 5$ (25) against depth on
-  H2-1, Helios-1 and IBM Phoenix, with the H2-1E and Helios-1E emulators (dashed). Neither Quantinuum machine ran
+* **Fig. 8b, 8c** - MCM approximation ratio $r$ of the surface code $d = 3$ (9 data qubits) and $d = 5$ (25) against
+  depth on H2-1, Helios-1 and IBM Phoenix, with the H2-1E and Helios-1E emulators (dashed), the exact noiseless
+  curve (black) and the random-guessing limit $r = 0.5$ (dotted). Plotting $r$ rather than $r_{\rm ovl}$ keeps the
+  panel meaningful for codes too large to simulate: the device curve and the random limit need no reference, and the
+  noiseless curve is drawn where one exists. Neither Quantinuum machine ran
   $d = 3$ on hardware, and H2-1E never ran $d = 5$. IBM Phoenix is the best patch of the position scan
   (`benchmark_codes_ibm.ipynb`): anchor $(r_0, c_0) = (7, 4)$ for $d = 3$ and $(2, 4)$ for $d = 5$; the trapped-ion
   machines are all-to-all and have no patch to choose, so this favours Phoenix.
@@ -2690,10 +2677,9 @@ separation_panel([CodePatch(codes.bivariate_bicycle(name)) for name in ("BB18", 
 | 8c | Helios-1E | `20260309_1203` | 500 |
 | 8c | ibm_phoenix | `20260909_1619` | 1000 |
 
-**What differs from the published panels.** The values of $r$ are unchanged. $r_{\rm ovl}$ uses the exact
-$r_{\rm ideal}$ and $r_{\rm rand} = 1/2$ where the published panels used sampled simulations (e.g. $d = 3$, $p = 3$: 0.7737
-against 0.7717) and a bootstrapped $r_{\rm rand} \approx 0.497$, which moves $r_{\rm ovl}$ by up to about 0.03; the cells
-print both.
+**What differs from the published panels.** The values of $r$ are unchanged. The panels now show $r$ itself; the noiseless
+curve is exact (e.g. $d = 3$, $p = 3$: 0.7737, where the published panels used a sampled simulation giving 0.7717).
+The tables print the published $r_{\rm ovl}$ of each run underneath for comparison.
 """),
         code(r"""
 from qecbench.shots import (moments, random_r_distribution, shots_to_rank, white_noise_distribution)
@@ -2736,7 +2722,18 @@ fig.savefig(FIGURES / "fig8a_two_device_ranking_shots.pdf", transparent=True, bb
 plt.show()
 """),
         code(r"""
+import warnings
+
 FIG8_DEPTHS = [3, 5, 10]
+
+
+def reference(patch, p):
+    # exact noiseless r where one exists (<= 25 data qubits, or a stored reference), else NaN
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        return ideal_r(patch, int(p))
+
+
 FIG8_DEVICES = {                      # device: (label, Set1 colour, marker, emulator)
     "H2-1": ("H2-1", 4, "o", False), "H2-1E": ("H2-1E", 4, "s", True),
     "Helios-1": ("Helios-1", 3, "o", False), "Helios-1E": ("Helios-1E", 3, "s", True),
@@ -2744,27 +2741,35 @@ FIG8_DEVICES = {                      # device: (label, Set1 colour, marker, emu
 }
 
 
-def mcm_overlap_panel(code_name, device_runs, published, name):
-    # MCM r_ovl against depth per device; the table adds shot noise and the published values
+def mcm_r_panel(code_name, device_runs, published, name):
+    # MCM approximation ratio against depth per device, with the noiseless curve and the random limit
     fig, ax = plt.subplots(figsize=(2, 4))
-    print(f"{code_name}: r_ovl (1 = noiseless, 0 = random), with 1 sigma shot noise; published below each row")
-    print(f"{'device':>26}{'shots':>7}" + "".join(f"{'p=' + str(p):>16}" for p in FIG8_DEPTHS))
+    patch = None
+    print(f"{code_name}: r with 1 sigma shot noise, and n_sigma above random; published r_ovl below each row")
+    print(f"{'device':>26}{'shots':>7}" + "".join(f"{'p=' + str(p):>18}" for p in FIG8_DEPTHS))
     for device, stamps in device_runs.items():
         label, colour, marker, emulator = FIG8_DEVICES[device]
-        (by_depth,) = [by for patch, by in runs(device, stamps, "mcm", "surface_code").items()
-                       if patch.code.name == code_name]
+        (patch, by_depth), = [(inst, by) for inst, by in runs(device, stamps, "mcm", "surface_code").items()
+                              if inst.code.name == code_name]
         ps = [p for p in FIG8_DEPTHS if p in by_depth]
-        ovl = [by_depth[p]["r_ovl"] for p in ps]
-        err = [by_depth[p]["r_err"] / (by_depth[p]["r_ideal"] - by_depth[p]["r_rand"]) for p in ps]
-        ax.plot(ps, ovl, marker=marker, color=plt.get_cmap("Set1")(colour), linestyle="--" if emulator else "-",
-                markersize=8, markeredgecolor="black", label=label + (" (emu)" if emulator else ""))
+        r = [by_depth[p]["r"] for p in ps]
+        err = [by_depth[p]["r_err"] for p in ps]
+        ax.errorbar(ps, r, yerr=err, marker=marker, color=plt.get_cmap("Set1")(colour),
+                    linestyle="--" if emulator else "-", markersize=8, markeredgecolor="black", capsize=3,
+                    label=label + (" (emu)" if emulator else ""))
         shots = "/".join(str(v) for v in sorted({by_depth[p]["shots"] for p in ps}))
-        print(f"{label:>26}{shots:>7}" + "".join(f"  {o:.3f}+-{e:.3f}" for o, e in zip(ovl, err)))
-        print(f"{'published':>26}{'':>7}" + "".join(f"{v:>16.3f}" for v in published[device]))
+        print(f"{label:>26}{shots:>7}"
+              + "".join(f"  {v:.3f}+-{e:.3f} ({by_depth[p]['n_sigmas']:.0f}s)" for p, v, e in zip(ps, r, err)))
+        print(f"{'published r_ovl':>26}{'':>7}" + "".join(f"{v:>18.3f}" for v in published[device]))
+    noiseless = [reference(patch, p) for p in FIG8_DEPTHS]        # exact up to 25 data qubits, else NaN
+    if np.isfinite(noiseless).all():
+        ax.plot(FIG8_DEPTHS, noiseless, "k--o", lw=1.5, markersize=5, label="noiseless")
+        print(f"{'noiseless':>26}{'':>7}" + "".join(f"{v:>18.3f}" for v in noiseless))
+    ax.axhline(0.5, color="0.5", ls=":", lw=1.2, label="random")
     ax.set_xticks(FIG8_DEPTHS)
-    ax.legend(fontsize=9, loc="upper center", bbox_to_anchor=(0.5, 1.32), ncol=1)
+    ax.legend(fontsize=9, loc="upper center", bbox_to_anchor=(0.5, 1.42), ncol=1)
     if SHOW_LABELS:
-        ax.set(xlabel="$p$", ylabel=r"$r_{\rm ovl}$")
+        ax.set(xlabel="$p$", ylabel="$r$")
     fig.savefig(FIGURES / name, transparent=True, bbox_inches="tight")
     plt.show()
 """),
@@ -2772,7 +2777,7 @@ def mcm_overlap_panel(code_name, device_runs, published, name):
 ### Fig. 8b - surface code $d = 3$ (9 data qubits), MCM
 """),
         code(r"""
-mcm_overlap_panel("surface_d3",
+mcm_r_panel("surface_d3",
                   {"H2-1E": ["20260820_0707"], "Helios-1E": ["20260306_1514", "20260306_1518"],
                    "ibm_phoenix": ["20260909_1631"]},
                   published={"H2-1E": [0.980, 0.947, 0.885], "Helios-1E": [1.002, 0.919, 0.905],
@@ -2783,7 +2788,7 @@ mcm_overlap_panel("surface_d3",
 ### Fig. 8c - surface code $d = 5$ (25 data qubits), MCM
 """),
         code(r"""
-mcm_overlap_panel("surface_d5",
+mcm_r_panel("surface_d5",
                   {"H2-1": ["20260820_0736"], "Helios-1": ["20260825_1229"], "Helios-1E": ["20260309_1203"],
                    "ibm_phoenix": ["20260909_1619"]},
                   published={"H2-1": [0.759, 0.625, 0.611], "Helios-1": [1.030, 0.826, 0.736],
@@ -2791,84 +2796,577 @@ mcm_overlap_panel("surface_d5",
                   name="fig8c_mcm_rovl_surface_d5.pdf")
 """),
         md(r"""
-## 10. Fig. 9 - LR-QAOA against the logical error rate of a real memory, patch by patch
+## 10. Fig. 9 - both frames of the benchmark against both memories, in one campaign
 
-The `ibm_phoenix` surface-code position scan of 14 September 2026 ran, on each of 11 $d = 3$ and 8 $d = 5$ patches of
-the chip, two experiments **on the same physical qubits**: the MCM LR-QAOA benchmark at depths $p = 1, 2, 3, 5, 7, 10$
-(1000 shots) and a surface-code **Z memory** at $R = p$ rounds (4000 shots), decoded by matching on the stim detector
-error model (`benchmark_qec_memory.ipynb`, `qecbench.memory`). One figure per distance: $x$ is $r_{\rm ovl}$ at depth $p$,
-$y$ the logical error rate after $R = p$ rounds (marker = $p = R$). The two patches with the best mean $r_{\rm ovl}$ are
-drawn as trajectories, joined in order of depth; the other patches are grey. A patch LR-QAOA ranks well should also
-keep a low logical error as both circuits deepen.
+A **campaign** is one session in which the same surface-code patches of `ibm_phoenix` were measured four ways on
+the same physical qubits: the LR-QAOA benchmark in the **Z frame** (the checks as $Z\cdots Z$ terms, kind `mcm`) and
+in the **X frame** (the same algorithm conjugated by $H$ on every data qubit, kind `mcm_x`), and the surface-code
+memory holding $|0\rangle_L$ and $|+\rangle_L$ ($R$ rounds, both bases). One LR-QAOA layer is one syndrome-extraction
+round, so each patch gives a paired point at every $p = R$.
 
-**Data.** Re-harvested from the scan's IBM jobs (read-only) by `scripts/import_position_scan.py` into
-`data/results/ibm_phoenix/surface_code/mcm/20260914_0941_ibm_phoenix_surface_code_mcm.json` (LR-QAOA) and
-`.../surface_code/memory/20260914_0941_ibm_phoenix_surface_code_memory.json` (memory, every shot's raw syndrome and data
-bits, both bases). Each patch is rebuilt from its anchor; the placement reproduces the scan's layout qubit for qubit,
-and the scan's calibration snapshot of every patch is kept in the run header. The logical error rates are decoded
-again here from the raw shots and equal the published ones exactly (all 228 circuits). $r_{\rm ovl}$ uses the exact
-noiseless reference and $r_{\rm rand} = 1/2$ instead of the sampled ones, which moves it by up to about 0.02 and leaves
-the two highlighted patches unchanged; the cell prints both.
+* **Fig. 9a** - the two frames against each other, every patch at every depth, for **every session that ran both
+  frames**: colour is the depth, marker is the session. Noiselessly they are the same algorithm, so every point
+  would sit on the diagonal; the distance below it is the extra error the X frame sees, the phase-type noise the
+  data pick up while the ancillas are read. That the markers fall on top of one another is the statement that this
+  gap is a property of the chip, not of the day.
+* **Fig. 9b** - the single patch that held $|+\rangle_L$ longest, followed from the first depth to the last in
+  **every session of Fig. 9a**, one marker and colour per session: $r_{\rm ovl}(p)$ against $P_L^X(R = p)$, the X
+  frame solid and the Z frame of the same patch faint and dashed. One patch across the campaigns means the panel
+  reads as the chip drifting under a fixed placement, and the curve the benchmark traces into a logical error rate
+  is the same curve on every day.
+
+Only sessions that ran **both** frames are shown, so that every point of both panels rests on the same four
+measurements; the campaigns that ran the Z frame alone are left out.
+
+Both panels are one column wide, as the paper sets them.
+
+The cell prints Spearman $\rho$ for each frame against each memory, and writes the table of section 10b.
 """),
         code(r"""
+import json
+import re
+from datetime import datetime
+
 from matplotlib.lines import Line2D
-
+from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
 from qecbench import memory as mem
+from qecbench.analysis import load_results
+from scipy.stats import rankdata, spearmanr
 
-SCAN = "20260914_0941"
-N_SHOW = 2
-FIG9_PUBLISHED = {   # published trajectories (r_ovl / logical error) of the highlighted patches
-    (3, (6, 3)): [(0.812, 0.0060), (0.543, 0.0293), (0.527, 0.0485), (0.455, 0.1103), (0.399, 0.1530), (0.342, 0.2110)],
-    (3, (7, 2)): [(0.740, 0.0063), (0.582, 0.0257), (0.447, 0.0510), (0.441, 0.0767), (0.434, 0.1240), (0.346, 0.1762)],
-    (5, (3, 5)): [(0.745, 0.0190), (0.378, 0.1725), (0.208, 0.2667), (0.191, 0.3837), (0.224, 0.4360), (0.138, 0.4675)],
-    (5, (1, 4)): [(0.723, 0.0112), (0.399, 0.0628), (0.255, 0.1232), (0.186, 0.2405), (0.176, 0.3255), (0.132, 0.4080)],
-}
-
-overlap = runs("ibm_phoenix", [SCAN], "mcm", "surface_code")
-logical = mem.load_results(RESULTS, "ibm_phoenix", files={f"{SCAN}_ibm_phoenix_surface_code_memory.json"}, bases=["Z"])
+CAMPAIGN = None          # None: the newest session that ran both frames and the memory; else "20260924"
+DISTANCE = 3
+N_BEST, N_WORST = 3, 3
+SURFACE = RESULTS / "ibm_phoenix" / "surface_code"
+TILE_FRAME = {"Z": "#2f6f9f", "X": "#b8560f"}
 
 
-def anchor(patch):
-    # data qubit (0, 0) sits at lattice site (r0, c0) of the 12 x 10 chip
-    return divmod(patch.data_qubits[0], 10)
+WINDOW_HOURS = 3          # a benchmark run and a memory run are the same sitting only this close in time
 
 
-for d in (3, 5):
-    rows = {anchor(p): (by, logical[p]["Z"]) for p, by in overlap.items() if p.code.name == f"surface_d{d}"}
-    depths = sorted(set.intersection(*(set(by) & set(mem_by) for by, mem_by in rows.values())))
-    markers = dict(zip(depths, "os^Dpv"))
-    mean_ovl = {k: np.mean([by[p]["r_ovl"] for p in depths]) for k, (by, _) in rows.items()}
-    chosen = sorted(rows, key=lambda k: -mean_ovl[k])[:N_SHOW]
+def when(path):
+    return datetime.strptime(re.match(r"\d{8}_\d{4}", path.name).group(0), "%Y%m%d_%H%M")
 
-    fig, ax = plt.subplots(figsize=(2.5, 4))
-    for k, (by, mem_by) in rows.items():
-        if k not in chosen:
-            for p in depths:
-                ax.plot(by[p]["r_ovl"], mem_by[p]["rate"], markers[p], ms=6, color="0.82", zorder=1)
-    for colour, k in zip(plt.cm.viridis(np.linspace(0.05, 0.6, len(chosen))), chosen):
-        by, mem_by = rows[k]
-        X = [by[p]["r_ovl"] for p in depths]
-        Y = [mem_by[p]["rate"] for p in depths]
-        E = [mem_by[p]["err"] for p in depths]
-        ax.plot(X, Y, "-", color=colour, lw=2, zorder=2)
-        for x, y, e, p in zip(X, Y, E, depths):
-            ax.errorbar(x, y, yerr=e, fmt=markers[p], ms=8, color=colour, capsize=3, markeredgecolor="black", zorder=3)
-    ax.set_yscale("log")
-    ax.legend(handles=[Line2D([], [], ls="", marker=markers[p], ms=7, color="0.45", markeredgecolor="black", label=f"{p}")
-                       for p in depths], title="p = R", fontsize=9, title_fontsize=9, loc="lower left", frameon=True)
-    if SHOW_LABELS:
-        ax.set(xlabel=r"$r_{\rm ovl}$ at depth $p$", ylabel="logical error rate at $R = p$")
-    fig.savefig(FIGURES / f"fig9_position_trajectories_surface_d{d}.pdf", transparent=True, bbox_inches="tight")
-    plt.show()
 
-    print(f"surface code d = {d}: {N_SHOW} of {len(rows)} patches, p = R = {depths}   (r_ovl / Z logical error)")
-    for k in chosen:
-        by, mem_by = rows[k]
-        print(f"   {str(k):>8} mean r_ovl {mean_ovl[k]:.3f} | "
-              + "  ".join(f"p{p}: {by[p]['r_ovl']:.3f}/{mem_by[p]['rate']:.4f}" for p in depths))
-        if (d, k) in FIG9_PUBLISHED:
-            print(f"   {'published':>8}                  | "
-                  + "  ".join(f"p{p}: {x:.3f}/{y:.4f}" for p, (x, y) in zip(depths, FIG9_PUBLISHED[(d, k)])))
+def anchors_of(path):
+    # the placements a file covers, read straight from it: cheap, and enough to tell two scans apart
+    return {(r["benchmark"]["instance"]["code"]["name"], min(r["parameters"]["data_qubits"]))
+            for r in json.loads(path.read_text())["results"]}
+
+
+def sittings():
+    # {stamp: {kind: file}}, one entry per benchmark run, matched one-to-one with its memory run.
+    # Nearness in time alone mismatches runs: a day can hold two benchmark runs and three memory
+    # runs, and the file closest in time may be the one that scanned different placements. Pairs are
+    # ranked by how many placements they share and then by how close they sit in time, and each run
+    # is used at most once, so one sitting can never stand in for two.
+    files = {k: sorted((SURFACE / k).glob("*.json")) for k in ("mcm", "mcm_x", "memory")}
+    covers = {f: anchors_of(f) for group in files.values() for f in group}
+    x_frame = {when(f): f for f in files["mcm_x"]}
+    pairs = []
+    for b in files["mcm"]:
+        for m in files["memory"]:
+            gap = abs((when(b) - when(m)).total_seconds())
+            shared = len({a for _, a in covers[b]} & {a for _, a in covers[m]})
+            if gap <= WINDOW_HOURS * 3600 and shared:
+                pairs.append((-shared, gap, b, m))
+    used_b, used_m, out = set(), set(), {}
+    for _, _, b, m in sorted(pairs, key=lambda t: (t[0], t[1], t[2].name, t[3].name)):
+        if b in used_b or m in used_m:
+            continue
+        used_b.add(b)
+        used_m.add(m)
+        got = {"mcm": b, "memory": m}
+        if when(b) in x_frame:
+            got["mcm_x"] = x_frame[when(b)]
+        out[when(b).strftime("%Y%m%d_%H%M")] = got
+    return dict(sorted(out.items()))
+
+
+def campaigns():
+    # the sittings that ran the benchmark in both frames as well as the memory
+    return {k: got for k, got in sittings().items() if len(got) == 3}
+
+
+def one_per_day(every):
+    # the last complete sitting of each day: a table column per day, narrow enough for two columns
+    return {max(k for k in every if k[:8] == day): every[max(k for k in every if k[:8] == day)]
+            for day in sorted({k[:8] for k in every})}
+
+
+def session_label(stamp, every):
+    # the day, and the hour too when that day holds more than one sitting
+    same_day = [k for k in every if k[:8] == stamp[:8]]
+    return f"{stamp[4:6]}-{stamp[6:8]}" + (f" {stamp[9:11]}h" if len(same_day) > 1 else "")
+
+
+def campaign_data(day, files):
+    frames = {"Z": load_results(RESULTS, "ibm_phoenix", kind="mcm", files={files["mcm"].name})}
+    if "mcm_x" in files:
+        frames["X"] = load_results(RESULTS, "ibm_phoenix", kind="mcm_x", files={files["mcm_x"].name})
+    logical = mem.load_results(RESULTS, "ibm_phoenix", files={files["memory"].name})
+    patches = sorted((q for q in frames["Z"] if q in logical and all(q in f for f in frames.values())
+                      and q.code.info.get("distance") == DISTANCE), key=lambda q: min(q.data_qubits))
+    depths = sorted(set.intersection(*(set(frames["Z"][q]) & set(logical[q]["Z"]) for q in patches)))
+    return frames, logical, patches, depths
+
+
+sessions = campaigns()
+day = CAMPAIGN or max(sessions)
+frames, logical, patches, depths = campaign_data(day, sessions[day])
+print(f"{day}: {len(patches)} surface_d{DISTANCE} patches, depths {depths}, "
+      f"{', '.join(k + ' ' + v.name for k, v in sessions[day].items())}")
+
+by_session = {st: campaign_data(st, f) for st, f in sittings().items() if "mcm_x" in f}
+by_session = {st: got for st, got in by_session.items() if len(got[2]) >= 4}   # too few shared patches says nothing
+MARKERS = ["o", "s", "^", "D", "v", "P", "X", "*"]
+MIN_DEPTH = 2                                      # p = R = 1 is a single round, where the memory barely errs
+deep_of = lambda ds: [p for p in ds if p >= MIN_DEPTH]
+label_of = lambda st: session_label(st, by_session)
+for st, (fr, _, qs, ds) in sorted(by_session.items()):
+    print(f"   {label_of(st)}: {len(qs)} patches, depths {ds}, frames {'+'.join(sorted(fr))}")
+
+two_frame = dict(sorted(by_session.items()))
+fig_a, ax = plt.subplots(figsize=(3.4, 3.2))       # Fig. 9a, one column wide
+cmap = plt.get_cmap("viridis")
+ps_a = sorted({p for _, _, _, ds in two_frame.values() for p in deep_of(ds)})
+colour_of = lambda p: cmap(ps_a.index(p) / max(len(ps_a) - 1, 1))
+for j, (st, (fr, _, qs, ds)) in enumerate(two_frame.items()):
+    for p in deep_of(ds):
+        ax.scatter([fr["Z"][q][p]["r_ovl"] for q in qs], [fr["X"][q][p]["r_ovl"] for q in qs],
+                   color=colour_of(p), marker=MARKERS[j], s=13, lw=0, zorder=3)
+lim = [0, 1.05 * max(fr[f][q][p]["r_ovl"] for fr, _, qs, ds in two_frame.values() for f in "ZX"
+                     for q in qs for p in deep_of(ds))]
+ax.plot(lim, lim, "--", color="0.5", lw=1)
+ax.set(xlim=lim, ylim=lim)
+ax.set_aspect("equal")
+ax.grid(alpha=0.3)
+key = lambda marker, colour, text: Line2D([], [], ls="", marker=marker, ms=4, color=colour, label=text)
+depth_keys = ax.legend(handles=[key("o", colour_of(p), f"{p}") for p in ps_a], title="$p$", fontsize=7,
+                       title_fontsize=7, loc="upper left", frameon=False, ncol=2, handletextpad=0.2)
+ax.add_artist(depth_keys)
+ax.legend(handles=[key(MARKERS[j], "0.35", label_of(st)) for j, st in enumerate(two_frame)], fontsize=6,
+          loc="lower right", frameon=False, handletextpad=0.2, labelspacing=0.3)
+if SHOW_LABELS:
+    ax.set(xlabel=r"$r_{\rm ovl}$, Z frame", ylabel=r"$r_{\rm ovl}$, X frame")
+fig_a.tight_layout()
+fig_a.savefig(FIGURES / "fig9a_frames_against_each_other.pdf", transparent=True, bbox_inches="tight")
+plt.show()
+
+# Fig. 9b: the patch that held |+>_L longest in the reference campaign, followed through every campaign
+rank = {q: np.mean([sorted(patches, key=lambda o: logical[o]["X"][p]["rate"]).index(q) + 1
+                    for p in deep_of(depths)]) for q in patches}
+star = min(patches, key=lambda q: rank[q])
+shown = [st for st, (_, _, qs, _) in sorted(by_session.items()) if star in qs]
+fig_b, ax = plt.subplots(figsize=(3.4, 3.2))       # Fig. 9b, one column wide
+colours = plt.get_cmap("viridis")(np.linspace(0, 0.82, len(shown)))
+for j, st in enumerate(shown):
+    fr, lg, _, ds = by_session[st]
+    ds = deep_of(ds)
+    pl = [lg[star]["X"][p]["rate"] for p in ds]
+    ax.plot([fr["X"][star][p]["r_ovl"] for p in ds], pl, "-", marker=MARKERS[j], color=colours[j], lw=1.6,
+            ms=5, zorder=3, label=label_of(st))
+    ax.plot([fr["Z"][star][p]["r_ovl"] for p in ds], pl, "--", color=colours[j], lw=0.9, alpha=0.55, zorder=2)
+    if st == shown[-1]:                            # depths marked once, on the newest campaign
+        for p, xv, yv in zip(ds, [fr["X"][star][p]["r_ovl"] for p in ds], pl):
+            ax.annotate(f"{p}", (xv, yv), textcoords="offset points", xytext=(6, 1), fontsize=7, color="0.25",
+                        ha="left", va="center")
+ax.set(yscale="log")
+ax.margins(x=0.10)                                 # room for the depth labels at either end
+ax.yaxis.set_major_locator(LogLocator(base=10, subs=(1.0, 2.0, 5.0), numticks=12))
+ax.yaxis.set_minor_locator(LogLocator(base=10, subs=np.arange(2, 10) * 0.1, numticks=12))
+ax.yaxis.set_minor_formatter(NullFormatter())
+ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
+ax.grid(alpha=0.3)
+ax.legend(title=f"patch @{min(star.data_qubits)}", fontsize=6, title_fontsize=7, frameon=False, loc="lower left",
+          ncol=2, handletextpad=0.3, labelspacing=0.3, columnspacing=1.0)
+if SHOW_LABELS:
+    ax.set(xlabel=r"$r_{\rm ovl}(p)$", ylabel=r"$P_L^X(R = p)$")
+fig_b.tight_layout()
+fig_b.savefig(FIGURES / "fig9b_best_patches.pdf", transparent=True, bbox_inches="tight")
+plt.show()
+
+
+def pooled(values, basis, ps, patches_, logical_):
+    # rho over the depths p = R >= 2, ranking the patches within each depth (larger value = worse patch)
+    xs, ys = [], []
+    for p in ps:
+        xs += list(rankdata([values(q, p) for q in patches_]))
+        ys += list(rankdata([logical_[q][basis][p]["rate"] for q in patches_]))
+    return spearmanr(xs, ys)[0]
+
+
+deep = [p for p in depths if p >= 2]
+print(f"\n{day}: rho against the memory, over p = R >= 2")
+for basis in ("Z", "X"):
+    for frame in ("Z", "X"):
+        rho = pooled(lambda q, p, f=frame: -frames[f][q][p]["r_ovl"], basis, deep, patches, logical)
+        print(f"   P_L^{basis} vs r_ovl^{frame}: {rho:+.2f}")
+"""),
+        md(r"""
+### 10b. Table - every predictor against both memories, campaign by campaign
+
+The same comparison for every measurement that could stand in for the memory experiment, over all sessions that ran
+it: the benchmark in each frame, and what the device's own calibration says about each patch (its couplers' CZ error,
+its `sx` error, the mid-circuit readout of its ancillas, the final readout of its data, and the **round budget**, the
+unweighted sum over one syndrome round of all the CZ and readout errors). Each entry is Spearman $\rho$ between the
+predictor and the measured logical error rate, pooled over $p = R \ge 2$ with the patches ranked within each depth;
+every predictor is oriented so that larger means worse, so **positive means it ranks the patches the way that memory
+does**. The last column pair pools the sessions as well, so that a predictor that is never the best of any single
+session but is steady across them can still show. Note that only the sessions that ran both frames are here, and
+they are the late ones: over the whole run of campaigns, including the three that ran the $Z$ frame alone, the round
+budget is the calibration quantity that tracks $P_L^Z$ best (section 6 of `memory_vs_benchmark.ipynb`), while within
+these three sessions the CZ errors have gone stale and the readout and `sx` errors carry more of the ordering. The
+cell writes `figures/paper_figures/table_predictors.tex`.
+"""),
+        code(r"""
+def snapshot_for(path):
+    # the newest calibration snapshot taken before that run started
+    created = json.loads(path.read_text())["run"]["created"]
+    taken = [(json.loads(s.read_text())["fetched_at"], s)
+             for s in sorted((ROOT / "data" / "calibration" / "ibm_phoenix").glob("*_calibration.json"))]
+    before = [s for t, s in taken if t <= created]
+    return json.loads(before[-1].read_text()) if before else None
+
+
+def calibration(patch, cal):
+    one, two = cal["one_qubit"], cal["two_qubit"]
+    q = lambda phys: one.get(str(phys)) or {}
+    cz = [(two.get(f"{u}-{v}") or two.get(f"{v}-{u}") or {}).get("error", np.nan) for u, v in patch.couplers]
+    anc = [q(a).get("mcm_readout_error", np.nan) for a in patch.ancillas]
+    data = [q(d).get("readout_error", np.nan) for d in patch.data_qubits]
+    sx = [q(x).get("sx_error", np.nan) for x in patch.qubits]
+    return {"CZ error": np.nanmean(cz), "worst CZ": np.nanmax(cz), "sx error": np.nanmean(sx),
+            "ancilla readout": np.nanmean(anc), "data readout": np.nanmean(data),
+            "round budget": np.nansum(cz) + np.nansum(anc) + np.nansum(data)}
+
+
+ROWS = [r"$-r_{\rm ovl}^{Z}$", r"$-r_{\rm ovl}^{X}$", "CZ error", "worst CZ", "sx error", "ancilla readout",
+        "data readout", "round budget"]
+table, pool = {}, {}                               # pool: the rank pairs behind the last column of the table
+campaign_files = one_per_day(campaigns())      # the figures use every sitting; the table, one a day
+for day_, files_ in campaign_files.items():
+    frames_, logical_, patches_, depths_ = campaign_data(day_, files_)
+    cal = snapshot_for(files_["memory"])
+    cals = {q: calibration(q, cal) for q in patches_} if cal else {}
+    deep_ = [p for p in depths_ if p >= 2]
+    for basis in ("Z", "X"):
+        column = {}
+
+        def add(name, values, basis=basis, deep_=deep_, patches_=patches_, logical_=logical_, column=column):
+            column[name] = pooled(values, basis, deep_, patches_, logical_)
+            xs, ys = pool.setdefault((name, basis), ([], []))
+            for p in deep_:                            # pooled over sessions too, ranked within (session, depth)
+                xs += list(rankdata([values(q, p) for q in patches_]))
+                ys += list(rankdata([logical_[q][basis][p]["rate"] for q in patches_]))
+
+        for frame in ("Z", "X"):
+            add(rf"$-r_{{\rm ovl}}^{{{frame}}}$", lambda q, p, f=frame: -frames_[f][q][p]["r_ovl"])
+        for name in ROWS[2:]:
+            if cals:
+                add(name, lambda q, p, n=name: cals[q][n])
+            else:
+                column[name] = np.nan
+        table[(day_, basis)] = column
+for basis in ("Z", "X"):
+    table[("pooled", basis)] = {name: (spearmanr(*pool[(name, basis)])[0] if (name, basis) in pool else np.nan)
+                                for name in ROWS}
+days = sorted({d for d, _ in table} - {"pooled"})
+columns = [(d, basis) for d in days for basis in ("Z", "X")] + [("pooled", b) for b in ("Z", "X")]
+best_in = {c: max(ROWS, key=lambda n: table[c].get(n, -np.inf) if np.isfinite(table[c].get(n, np.nan)) else -np.inf)
+           for c in columns}
+head = " & ".join([rf"\multicolumn{{2}}{{c}}{{{session_label(d, campaign_files)}}}" for d in days]
+                  + [r"\multicolumn{2}{c}{all}"])
+lines = [r"\begin{table}[t]", r"\centering", r"\small",
+         r"\caption{Spearman $\rho$ between each predictor and the measured logical error rate of the surface-code "
+         r"memory on \texttt{ibm_phoenix}, for the $d = 3$ patches of each session, pooled over the matched depths "
+         r"$p = R \ge 2$ with the patches ranked within each depth. Columns are sessions, split by the logical state "
+         r"the memory held ($Z$: $|0\rangle_L$, $X$: $|+\rangle_L$); the last pair pools all of them, ranking the "
+         r"patches within each session and depth. Rows are the LR-QAOA benchmark in each frame and "
+         r"the calibration of the same patches, the round budget being the unweighted sum over one syndrome round of "
+         r"every CZ error, every ancilla mid-circuit readout error and every data readout error. Every predictor is "
+         r"oriented so that larger means worse, so a positive $\rho$ means it ranks the patches the way that memory "
+         r"does. The best predictor of each column is in bold.}",
+         r"\label{tab:predictors}",
+         r"\begin{tabular}{l" + "cc" * len(days) + r"@{\quad}cc}", r"\toprule",
+         r"predictor & " + head + r" \\",
+         " & " + " & ".join(["$Z$ & $X$"] * (len(days) + 1)) + r" \\", r"\midrule"]
+def entry(v):
+    # no plus signs; a real minus sign rather than a hyphen
+    return "--" if not np.isfinite(v) else (f"$-${abs(v):.2f}" if v < 0 else f"{v:.2f}")
+
+
+for name in ROWS:
+    cells = []
+    for c in columns:
+        v = table[c].get(name, np.nan)
+        cell = entry(v)
+        cells.append(rf"\textbf{{{cell}}}" if name == best_in[c] and np.isfinite(v) else cell)
+    lines.append(f"{name} & " + " & ".join(cells) + r" \\")
+lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+(FIGURES / "table_predictors.tex").write_text("\n".join(lines) + "\n")
+print("\n".join(lines))
+print(f"\nwritten to {FIGURES / 'table_predictors.tex'}")
+"""),
+        md(r"""
+### 10c. Fig. 9c - how few shots the benchmark needs
+
+The benchmark is worth running only if it is much cheaper than the experiment it stands in for, so: how far can its
+shots be cut before it stops ranking the patches the way the memory does? The shots actually taken (1000 per
+circuit) are resampled down to a budget $S$, $r_{\rm ovl}$ is recomputed from the resampled counts, and the ranking
+question is asked again; the memory keeps all 4000 of its shots throughout. Two protocols are compared at equal
+total cost: the **full sweep** over $p \in \{2, 3, 5, 7, 10\}$ scored against $P_L^X(R = p)$, and **one depth
+only**, $p = 3$, scored against the memory at every $R$ - a single depth predicts every round count, so matching
+$p$ to $R$ buys nothing.
+
+The grey line is what the memory experiment itself costs on the same patches. Resampling reuses the 1000 shots
+already taken, so each point carries their noise as well as the budget's: the curves slightly understate a real
+short run, and the measured value (the star) sits above the resampled one at the same $S$.
+
+Cached in `data/shot_budget/benchmark_shot_budget.json`; delete that file or set `RECOMPUTE_SHOTS = True` to
+recompute.
+"""),
+        code(r"""
+RECOMPUTE_SHOTS = False
+SHOT_GRID = [50, 100, 200, 300, 500, 700, 1000]
+TRIALS = 200
+CACHE_SHOTS = ROOT / "data" / "shot_budget" / "benchmark_shot_budget.json"
+N_CIRCUITS = 19                                    # placements submitted per depth in one session
+MEMORY_SHOTS = 912_000                             # both bases, six round counts, 38 circuits x 4000 shots
+
+if CACHE_SHOTS.exists() and not RECOMPUTE_SHOTS:
+    curves = json.loads(CACHE_SHOTS.read_text())
+    print(f"read {CACHE_SHOTS.relative_to(ROOT)}")
+else:
+    from qecbench.analysis import bitstring_energies, instance_from_record, random_baseline
+    from qecbench.lrqaoa import ideal_r
+
+    def shot_cells(depth_filter):
+        # per session and depth: the observed energy distribution of each patch, and its P_L^X at every R
+        out = {}
+        for st, files_ in sittings().items():
+            if "mcm_x" not in files_:
+                continue
+            logical_ = mem.load_results(RESULTS, "ibm_phoenix", files={files_["memory"].name})
+            for record in json.loads(files_["mcm_x"].read_text())["results"]:
+                q = instance_from_record(record)
+                p_ = record["parameters"]["depth"]
+                if q is None or q.code.info.get("distance") != DISTANCE or q not in logical_ or not depth_filter(p_):
+                    continue
+                counts = record["samples"]
+                w = np.array(list(counts.values()), float)
+                out.setdefault((st, p_), []).append(
+                    (bitstring_energies(counts, q.hamiltonian), w / w.sum(), q.optimal_energy(), q.max_energy(),
+                     random_baseline(q, 1000)[0], ideal_r(q, p_),
+                     {R: logical_[q]["X"][R]["rate"] for R in logical_[q]["X"]}))
+        return out
+
+    rng = np.random.default_rng(7)
+
+    def resampled(cell, shots):
+        got = []
+        for energies, weights, e_opt, e_max, r_rand, r_ideal, _ in cell:
+            k = rng.multinomial(shots, weights) if shots else weights
+            r = ((energies * k).sum() / k.sum() - e_max) / (e_opt - e_max)
+            got.append((r - r_rand) / (r_ideal - r_rand))
+        return -np.array(got)                      # oriented so that larger means worse, as the table has it
+
+    def curve(cells_, against, shots):
+        # mean rho over the session-depth cells, for one resampling trial
+        got = []
+        for (st, p_), cell in cells_.items():
+            score = resampled(cell, shots)
+            got += [spearmanr(score, [c[6][R] for c in cell])[0] for R in against(p_)]
+        return float(np.mean(got))
+
+    depths_all = [2, 3, 5, 7, 10]
+    protocols = {"full sweep, p = R": (shot_cells(lambda p_: p_ in depths_all), lambda p_: [p_], len(depths_all)),
+                 "p = 3 only, every R": (shot_cells(lambda p_: p_ == 3), lambda p_: depths_all, 1)}
+    curves = {}
+    for name, (cells_, against, n_depths) in protocols.items():
+        rows_ = []
+        for shots in SHOT_GRID:
+            trials = [curve(cells_, against, shots) for _ in range(TRIALS)]
+            rows_.append({"shots": shots, "total": N_CIRCUITS * n_depths * shots,
+                          "rho": float(np.median(trials)), "lo": float(np.percentile(trials, 10)),
+                          "hi": float(np.percentile(trials, 90))})
+        curves[name] = {"points": rows_, "measured": curve(cells_, against, None),
+                        "measured_total": N_CIRCUITS * n_depths * 1000}
+        print(f"{name:>22}: measured rho {curves[name]['measured']:.2f} at "
+              f"{curves[name]['measured_total'] / 1000:.0f}k shots")
+    CACHE_SHOTS.parent.mkdir(parents=True, exist_ok=True)
+    CACHE_SHOTS.write_text(json.dumps(curves, indent=1))
+    print(f"written to {CACHE_SHOTS.relative_to(ROOT)}")
+
+fig_c, ax = plt.subplots(figsize=(3.4, 3.2))       # Fig. 9c, one column wide
+shot_colour = {"full sweep, p = R": plt.get_cmap("viridis")(0.15),
+               "p = 3 only, every R": plt.get_cmap("viridis")(0.65)}
+for name, got in curves.items():
+    xs = [row["total"] for row in got["points"]]
+    ax.fill_between(xs, [row["lo"] for row in got["points"]], [row["hi"] for row in got["points"]],
+                    color=shot_colour[name], alpha=0.18, lw=0)
+    ax.plot(xs, [row["rho"] for row in got["points"]], "-o", color=shot_colour[name], lw=1.6, ms=4, label=name)
+    ax.plot(got["measured_total"], got["measured"], "*", color=shot_colour[name], ms=11, mec="0.25", mew=0.6,
+            zorder=4)
+ax.axvline(MEMORY_SHOTS, color="0.5", ls="--", lw=1)
+ax.annotate("the memory\nexperiment", (MEMORY_SHOTS, 0.97), xytext=(-4, 0), textcoords="offset points",
+            fontsize=6.5, color="0.4", ha="right", va="top")
+ax.set(xscale="log", ylim=(0.4, 1.0))
+ax.grid(alpha=0.3)
+ax.legend(fontsize=6.5, frameon=False, loc="lower right", handletextpad=0.4, labelspacing=0.3)
+if SHOW_LABELS:
+    ax.set(xlabel="shots in the benchmark", ylabel=r"Spearman $\rho$ against $P_L^X$")
+fig_c.tight_layout()
+fig_c.savefig(FIGURES / "fig9c_shot_budget.pdf", transparent=True, bbox_inches="tight")
+plt.show()
+
+for name, got in curves.items():
+    cheapest = next(row for row in got["points"] if row["rho"] >= 0.9 * got["measured"])
+    print(f"{name:>22}: {cheapest['rho']:.2f} at {cheapest['total'] / 1000:.1f}k shots "
+          f"({MEMORY_SHOTS / cheapest['total']:.0f}x cheaper than the memory), "
+          f"90% of the {got['measured']:.2f} the full {got['measured_total'] / 1000:.0f}k shots give")
+"""),
+        md(r"""
+## 11. Fig. 2c - where the patches sit on the chip
+
+The whole of `ibm_phoenix` with two placements of the $d = 3$ rotated surface code marked, and each drawn on its
+own: data qubits white, ancillas shaded, every check a tile (weight-4) or a lobe (weight-2 boundary check)
+coloured by its type, and the black edges the CZ couplers its gadget uses. The numbers are physical qubits, so
+the panels are the same code on different hardware. A lobe joins the two data qubits of its check and bulges
+through the ancilla; a tile spans the four data qubits around its own.
+
+The placements come from `layout.surface_code_placements` from their anchors, and the chip from the couplers
+listed in the newest calibration snapshot in `data/calibration/` - no account needed.
+"""),
+        code(r"""
+import json
+
+import networkx as nx
+from matplotlib.patches import Circle, Patch, Polygon, Wedge
+
+from qecbench import codes
+from qecbench import memory as mem
+from qecbench.layout import square_lattice_coordinates, surface_code_placements
+
+PATCH_ANCHORS = [(7, 2), (3, 7)]                 # the placements to mark and draw
+SCAN_ANCHORS = {3: [(7, 2), (7, 3), (6, 3), (0, 3), (0, 4), (7, 5), (6, 4), (2, 5), (3, 7), (7, 7), (3, 2)],
+                5: [(0, 5), (0, 4), (3, 5), (1, 5), (1, 4), (2, 4), (3, 4), (2, 5)]}   # every scanned placement
+TILE = {"X": "#b3a6d6", "Z": "#9ecae1"}          # X checks purple, Z checks blue
+DATA_FILL, ANCILLA_FILL = "white", "#f7e3b0"
+
+snapshot = sorted((ROOT / "data" / "calibration" / "ibm_phoenix").glob("*_calibration.json"))[-1]
+cal = json.loads(snapshot.read_text())
+chip = nx.Graph()
+chip.add_nodes_from(int(q) for q in cal["one_qubit"])
+chip.add_edges_from(tuple(int(q) for q in key.split("-")) for key in cal["two_qubit"])
+coords = square_lattice_coordinates(chip)
+xy = {q: np.array([c, -r], float) for q, (r, c) in coords.items()}     # x = column, y = -row
+code = codes.surface_code(3)
+patches = [surface_code_placements(chip, code, anchors=[a])[0] for a in PATCH_ANCHORS]
+print(f"chip from {snapshot.name}: {chip.number_of_nodes()} qubits, "
+      + ", ".join(f"patch {a} on {sorted(p.qubits)[0]}..{sorted(p.qubits)[-1]}" for a, p in zip(PATCH_ANCHORS, patches)))
+
+ARC_POINTS = 180                                 # a lobe is a half-disc: enough points that it reads as one
+
+
+def footprint(patch):
+    # every check of a placement as a polygon with its type: the same shapes the drawn patches have
+    polys = []
+    for k, (check, kind) in enumerate(zip(patch.code.checks, mem.check_types(patch.code))):
+        pts = np.array([xy[patch.data_qubits[i]] for i in check], float)
+        anc = xy[patch.ancillas[k]]
+        if len(check) == 4:
+            polys.append((pts[np.argsort(np.arctan2(pts[:, 1] - anc[1], pts[:, 0] - anc[0]))], kind))
+        else:                                    # the lobe, sampled finely so its edge is a smooth half-circle
+            mid, r = pts.mean(axis=0), float(np.linalg.norm(pts[0] - pts[1]) / 2)
+            angle = np.arctan2(*(anc - mid)[::-1])
+            arc = angle + np.linspace(-np.pi / 2, np.pi / 2, ARC_POINTS)
+            polys.append((mid + r * np.stack([np.cos(arc), np.sin(arc)], axis=1), kind))
+    return polys
+
+
+def covered(placements, kind=None, step=0.01):
+    # where the checks of these placements lie, as a mask on a fine grid: one region however much they overlap
+    from matplotlib.path import Path as MplPath
+
+    polys = [poly for patch in placements for poly, k in footprint(patch) if kind in (None, k)]
+    lo = np.min([q.min(axis=0) for q in polys], axis=0) - 2 * step
+    hi = np.max([q.max(axis=0) for q in polys], axis=0) + 2 * step
+    gx, gy = np.arange(lo[0], hi[0] + step, step), np.arange(lo[1], hi[1] + step, step)
+    inside = np.zeros((len(gy), len(gx)), bool)
+    for poly in polys:                           # only the grid under each polygon, so a fine grid stays cheap
+        i0, i1 = np.searchsorted(gx, [poly[:, 0].min() - step, poly[:, 0].max() + step])
+        j0, j1 = np.searchsorted(gy, [poly[:, 1].min() - step, poly[:, 1].max() + step])
+        X, Y = np.meshgrid(gx[i0:i1], gy[j0:j1])
+        hit = MplPath(poly).contains_points(np.column_stack([X.ravel(), Y.ravel()])).reshape(X.shape)
+        inside[j0:j1, i0:i1] |= hit
+    return gx, gy, inside
+
+
+# the code as it sits on the chip: a tile or a lobe per check, the couplers its gadget uses, its qubits.
+# faint=True draws only the outline of the placement, for the positions that are located but not detailed
+def draw_patch(patch, ax, labels=True, radius=0.30, label_size=7.5, lw=1.4):
+    types = mem.check_types(patch.code)
+    alpha, edge = 1.0, "black"
+    for k, (check, kind) in enumerate(zip(patch.code.checks, types)):
+        pts = np.array([xy[patch.data_qubits[i]] for i in check], float)
+        anc = xy[patch.ancillas[k]]
+        if len(check) == 4:                      # a tile through the four data qubits around the ancilla
+            order = np.argsort(np.arctan2(pts[:, 1] - anc[1], pts[:, 0] - anc[0]))
+            ax.add_patch(Polygon(pts[order], closed=True, facecolor=TILE[kind], edgecolor=edge,
+                                 linewidth=lw, alpha=alpha, zorder=1))
+        else:                                    # a lobe: flat side on the two data qubits, bulging through the ancilla
+            mid = pts.mean(axis=0)
+            angle = np.degrees(np.arctan2(*(anc - mid)[::-1]))
+            ax.add_patch(Wedge(mid, float(np.linalg.norm(pts[0] - pts[1]) / 2), angle - 90, angle + 90,
+                               facecolor=TILE[kind], edgecolor=edge, linewidth=lw, alpha=alpha, zorder=1))
+    for u, v in patch.couplers:
+        ax.plot(*zip(xy[u], xy[v]), color="black", lw=2.0, zorder=2)
+    for q in patch.qubits:
+        ax.add_patch(Circle(xy[q], radius, facecolor=ANCILLA_FILL if q in patch.ancillas else DATA_FILL,
+                            edgecolor="black", linewidth=1.5, zorder=3))
+        if labels:
+            ax.text(*xy[q], str(q), ha="center", va="center", fontsize=label_size, zorder=4)
+
+fig = plt.figure(figsize=(13.5, 6.4))
+grid = fig.add_gridspec(2, 2, width_ratios=[1.35, 1], hspace=0.12, wspace=0.05)
+chip_ax = fig.add_subplot(grid[:, 0])
+for u, v in chip.edges:                          # the chip
+    chip_ax.plot(*zip(xy[u], xy[v]), color="0.82", lw=1.1, zorder=0)
+chip_ax.scatter(*np.array([xy[q] for q in chip]).T, s=26, color="0.75", zorder=1)
+scanned = [surface_code_placements(chip, codes.surface_code(d), anchors=[a])[0]
+           for d, anchors in SCAN_ANCHORS.items() for a in anchors]
+for kind in ("X", "Z"):                          # the ground the scan covers, in the colours of the checks
+    gx, gy, mask = covered(scanned, kind)
+    chip_ax.contourf(gx, gy, mask.astype(float), levels=[0.5, 1.5], colors=[TILE[kind]], alpha=0.28, zorder=0.4)
+gx, gy, mask = covered(scanned)
+chip_ax.contour(gx, gy, mask.astype(float), levels=[0.5], colors=["0.45"], linewidths=1.0, zorder=0.5)
+TAGS = ["i", "ii"]                               # the paper keeps (a), (b), (c) for its own panels
+for tag, patch in zip(TAGS, patches):
+    draw_patch(patch, chip_ax, labels=False, radius=0.22, lw=1.1)
+    top = max(patch.qubits, key=lambda q: xy[q][1])
+    chip_ax.annotate(f"({tag})", xy[top] + np.array([0, 0.75]), ha="center", va="bottom", fontsize=15,
+                     fontweight="bold")
+chip_ax.set_title(f"ibm_phoenix, {chip.number_of_nodes()} qubits", fontsize=13, loc="left")
+chip_ax.text(0.0, -0.02, "shaded, in the colours of the checks: the ground covered by the scanned placements, "
+                         + ", ".join(f"{len(a)} at $d = {d}$" for d, a in SCAN_ANCHORS.items()),
+             transform=chip_ax.transAxes, fontsize=9.5, va="top")
+
+for tag, patch, anchor, cell in zip(TAGS, patches, PATCH_ANCHORS, (grid[0, 1], grid[1, 1])):
+    ax = fig.add_subplot(cell)
+    draw_patch(patch, ax)
+    pts = np.array([xy[q] for q in patch.qubits])
+    ax.set(xlim=(pts[:, 0].min() - 1.5, pts[:, 0].max() + 1.5), ylim=(pts[:, 1].min() - 1.0, pts[:, 1].max() + 1.0))
+    ax.set_title(f"({tag}) anchor {anchor}", fontsize=13, loc="left")
+    if tag == TAGS[0]:
+        ax.legend(handles=[Patch(facecolor=TILE[k], edgecolor="black", label=f"{k} check") for k in ("X", "Z")]
+                          + [Patch(facecolor=DATA_FILL, edgecolor="black", label="data qubit"),
+                             Patch(facecolor=ANCILLA_FILL, edgecolor="black", label="ancilla")],
+                  loc="center left", bbox_to_anchor=(1.0, 0.5), fontsize=10, frameon=False)
+for ax in fig.axes:
+    ax.set_aspect("equal")
+    ax.axis("off")
+fig.savefig(FIGURES / "fig2c_surface_d3_patches_on_chip.pdf", transparent=True, bbox_inches="tight")
+plt.show()
 """),
     ]
 
@@ -3004,9 +3502,13 @@ runs locally.
 
 * `BACKEND_NAME` - `"Helios-1"` (the machine) or `"Helios-1E"` (Quantinuum's hosted emulator with the Helios
   noise model, also billed in HQCs; its results are flagged as simulated).
-* `SUBMIT` - `False` runs `LOCAL_STRUCTURES` on Aer; `True` uploads, quotes and sends `STRUCTURES`.
-* `STRUCTURES` - `(family, size)` pairs: `("surface_code", d)`, `("color_code", d)`, `("qldpc", "BB18")`.
-  `STRUCTURE_FILES` - any other structure, from files `codes.load` reads (section 0). Both are used.
+* `SUBMIT` - `False` rehearses on Aer; `True` uploads, quotes and sends `STRUCTURES`. Aer runs programs of up
+  to about 22 qubits, so in the rehearsal a structure too large for it is replaced by the smallest code of its
+  family (`codes.SMALLEST`: surface and colour $d = 3$, BB18); a structure from a file has no family to fall
+  back on and is left out.
+* `STRUCTURES` - the code structures to run, built by `qecbench.codes`: `codes.surface_code(d)`,
+  `codes.color_code(d)`, `codes.bivariate_bicycle("BB18")`, or any other structure from a file with
+  `codes.load(path)` (the formats it reads are in section 0).
 * `DEPTHS`, `SHOTS`, `DELTA` - LR-QAOA depths, shots per program and ramp amplitude. Helios programs are
   costly; the defaults follow the earlier Helios-1 code runs ($p = 3, 5, 10$ at 50 shots).
 * `KINDS` - which programs to run: `["mcm"]` (the syndrome-extraction gadgets), `["direct"]` (the same Hamiltonian
@@ -3014,20 +3516,20 @@ runs locally.
   roughly doubles the cost; direct is the reference that separates the cost of measure-and-correct from that of
   the gates, and can be run in the same submission or on its own.
 * `PROJECT` - the Nexus project jobs are filed under. `COST_MARGIN` - HQCs added to the Nexus prediction
-  for each job's `max_cost`, the most the job may spend.
+  for each program's `max_cost`, the most that program may spend. Nexus gives every program in a job its
+  own budget, so a job of $n$ programs asks its allowance for the sum of the $n$ budgets, not for one of them.
 """),
         code(r"""
 BACKEND_NAME     = "Helios-1"          # or "Helios-1E" (hosted emulator)
 SUBMIT           = False               # True: upload, quote and send to Nexus
-STRUCTURES       = [("surface_code", 5), ("color_code", 7), ("qldpc", "BB18")]
-STRUCTURE_FILES  = []                  # e.g. [DATA / "codes" / "my_code.json"]
-LOCAL_STRUCTURES = [("surface_code", 3), ("color_code", 3)]
+STRUCTURES       = [codes.surface_code(5), codes.color_code(7), codes.bivariate_bicycle("BB18")]
+                   # any other: codes.load(DATA / "codes" / "my_code.json")
 DEPTHS           = [3, 5, 10]
 SHOTS            = 50
 DELTA            = 0.5
 KINDS            = ["mcm"]             # "mcm", "direct", or both
 PROJECT          = "Helios-Samples"
-COST_MARGIN      = 3                   # HQC on top of the prediction, per job
+COST_MARGIN      = 3                   # HQC on top of the prediction, per program
 """),
         md(r"""
 ## 2. Structures and their schedules
@@ -3042,10 +3544,21 @@ programs of about 20 qubits.
 """),
         code(r"""
 backend = QuantinuumBackend(BACKEND_NAME, local=not SUBMIT, project=PROJECT, cost_margin=COST_MARGIN, seed=7)
-structures = [codes.build(family, size) for family, size in (STRUCTURES if SUBMIT else LOCAL_STRUCTURES)]
-structures += [codes.load(path) for path in STRUCTURE_FILES]
 kinds = tuple(dict.fromkeys(KINDS))
 assert kinds and set(kinds) <= {"mcm", "direct"}, f"KINDS must be 'mcm', 'direct' or both, got {KINDS}"
+structures = list(STRUCTURES)
+if not SUBMIT:          # the rehearsal: each structure if Aer can run it, else the smallest code of its family
+    AER_QUBITS = 22
+    fits = lambda s: max(backend.code_schedule(s).peak_qubits(k) for k in kinds) <= AER_QUBITS
+    rehearsal = {}
+    for s in structures:
+        stand_in = s if fits(s) else (codes.build(s.family, codes.SMALLEST[s.family]) if s.family in codes.SMALLEST else None)
+        if stand_in is not s:
+            print(f"rehearsal: {s.name} is too large for Aer, "
+                  + (f"running {stand_in.name} instead" if stand_in else "left out (no smaller code of its family)"))
+        if stand_in is not None:
+            rehearsal.setdefault(stand_in.name, stand_in)
+    structures = list(rehearsal.values())
 schedules = {s.name: backend.code_schedule(s) for s in structures}
 
 print(f"backend {backend.name}, kinds {', '.join(kinds)}" + (f"  ({backend.noise_description})" if backend.simulated else ""))
@@ -3066,9 +3579,6 @@ for s in structures:
                 + (f" {counts['mid_circuit_measurements']:>5}" if kind == "mcm" else ""))
     print(row)
 
-too_big = [s.name for s in structures if max(schedules[s.name].peak_qubits(k) for k in kinds) > 22]
-if not SUBMIT and too_big:
-    raise ValueError(f"{too_big}: too large for the local rehearsal on Aer; use smaller LOCAL_STRUCTURES")
 instances = [inst for s in structures for inst in code_instances(s, kinds)]
 """),
         md(r"""
@@ -3099,14 +3609,27 @@ for s in structures:
 ## 4. Plan and cost
 
 One program per structure, kind and depth. With `SUBMIT = True` the programs are compiled and uploaded to
-Nexus, which predicts their cost in HQCs. Uploading costs nothing and runs nothing. The prediction sets each
-job's `max_cost`, with `COST_MARGIN` on top. Up to 16 programs go into one job.
+Nexus, which is asked to predict their cost in HQCs. Uploading costs nothing and runs nothing. Each program's own
+prediction sets its `max_cost`, with `COST_MARGIN` on top. Up to 16 programs go into one job, and the
+allowance the job needs is the sum of their budgets, so a job that needs more HQCs than are left is refused
+as a whole (`Job cost exceeds allowed cost`); splitting the depths into separate submissions lets the
+affordable ones run.
 """),
         code(r"""
 plan = build_plan(backend, instances, depths=DEPTHS, shots=SHOTS, delta=DELTA)
 if SUBMIT:
-    backend.quote(plan)
+    backend.quote(plan)            # starts the Nexus estimate and returns at once
 print_plan(plan, backend)
+"""),
+        md(r"""
+The estimate is a job of its own on Nexus's cost-estimation system (`Helios-1SC`), usually done in a few
+minutes but sometimes held in its queue for longer. This cell reads that same job back: run it again until
+the cost table appears. It never starts a second estimate, and submission below refuses to go ahead until the
+plan is priced.
+"""),
+        code(r"""
+if SUBMIT and backend.quote(plan):
+    print_plan(plan, backend)
 """),
         md(r"""
 ## 5. Submit
@@ -3126,7 +3649,8 @@ skipped; running the cell again adds what has finished since. Results go to
 result keeps the full structure it ran, so it can be analysed without this notebook.
 """),
         code(r"""
-manifests = sorted((DATA / "manifests" / backend.name).glob("*.json"), key=lambda p: p.name)
+manifests = sorted((p for p in (DATA / "manifests" / backend.name).glob("*.json")
+                    if not p.name.endswith("_memory.json")), key=lambda p: p.name)   # memory runs: their own notebook
 assert manifests, "no manifest yet - run the submit cell first"
 manifest_path = manifests[-1]
 print("harvesting", manifest_path.name)
@@ -3224,7 +3748,7 @@ from scipy.stats import spearmanr
 from qecbench import codes
 from qecbench.analysis import load_results
 from qecbench.backends import IBMBackend, SimBackend
-from qecbench.circuits import build_dynamic
+from qecbench.circuits import build_dynamic, result_kind
 from qecbench.experiment import build_plan, harvest, print_plan, submit
 from qecbench.layout import spread_selection, square_lattice_coordinates, surface_code_placements
 from qecbench.lrqaoa import ideal_r, random_baseline
@@ -3257,18 +3781,32 @@ rather than the best ones, because a correlation needs contrast.
 ## 1. Configuration - the only cell you normally edit
 
 * `BACKEND_NAME` - a square-lattice IBM device, or `"noisy_simulator"` for a synthetic $11 \times 11$ lattice.
-* `DISTANCES`, `N_POSITIONS` - patch sizes and how many placements of each to run.
+* `DISTANCES`, `N_POSITIONS` - patch sizes and how many placements of each to run. `ANCHORS` defaults to
+  `SCAN_ANCHORS`, the patches of the 2026-09-14 scan, which is also the default patch set of
+  `benchmark_qec_memory.ipynb`: both arms then measure the same qubits and can be compared patch by patch, which is
+  the whole point of running them on the same day. Set `ANCHORS = None` to rescan and spread the placements over the
+  error budget instead - useful for surveying the chip, but the run no longer lines up with the memory arm, and
+  `N_POSITIONS` applies only in that case.
 * `MAX_COUPLER_ERROR`, `MAX_READOUT_ERROR` - placements touching anything worse are skipped.
 * `DEPTHS`, `SHOTS`, `DELTA` - the LR-QAOA sweep. The defaults follow the earlier `ibm_phoenix` position scan.
 * `LOCAL` - what runs when `SUBMIT = False`. Aer simulates dynamic circuits shot by shot on all of a
   patch's qubits, so keep it to $d = 3$ and a few positions (about 15 s per circuit at 200 shots).
 * `MAX_CIRCUITS_PER_JOB` - jobs with too many feed-forward operations fail on IBM (error 6073).
+* `FRAMES` - `["Z"]` is the benchmark as it has always run: the checks as $Z\cdots Z$ terms, the data from
+  $|+\rangle$, read in $Z$. `["Z", "X"]` also runs every patch and depth in the **X frame** - the same algorithm
+  conjugated by $H$ on every data qubit ($X\cdots X$ terms, data from $|0\rangle$, `rz` mixer, read in $X$), built so
+  the data sit in the X frame through every ancilla readout - right after its Z-frame circuit, in the same job, and
+  files it as kind `mcm_x`. Noiselessly the frames agree; on a device the X frame is the one hurt by phase errors,
+  the Z frame by flips. Doubles the cost.
 """),
         code(r"""
 BACKEND_NAME      = "ibm_phoenix"       # a square-lattice device, or "noisy_simulator"
 ACCOUNT           = "mcm-primitives"    # saved IBM account; None for the default one
 DISTANCES         = [3, 5]
-N_POSITIONS       = {3: 12, 5: 8}       # d = 3: a spread of the placements; d = 5: all 8
+N_POSITIONS       = {3: 12, 5: 8}       # used when ANCHORS is None: d = 3 a spread of the placements, d = 5 all 8
+SCAN_ANCHORS      = {3: [(7, 2), (7, 3), (6, 3), (0, 3), (0, 4), (7, 5), (6, 4), (2, 5), (3, 7), (7, 7), (3, 2)],
+                     5: [(0, 5), (0, 4), (3, 5), (1, 5), (1, 4), (2, 4), (3, 4), (2, 5)]}
+ANCHORS           = SCAN_ANCHORS        # the 09-14 patch set, as benchmark_qec_memory.ipynb runs; None rescans
 MAX_COUPLER_ERROR = 0.30
 MAX_READOUT_ERROR = 0.30
 DEPTHS            = [1, 2, 3, 5, 7, 10]
@@ -3278,6 +3816,7 @@ LOCAL             = dict(distances=[3], positions=3, depths=[1, 2, 3], shots=200
 OPTIMIZATION_LEVEL   = 1
 DYNAMICAL_DECOUPLING = False
 MAX_CIRCUITS_PER_JOB = 8
+FRAMES            = ["Z"]               # ["Z", "X"]: also the X frame, in the same jobs (results as kind mcm_x)
 SUBMIT            = False               # True actually submits the jobs and consumes QPU time
 """),
         md(r"""
@@ -3315,7 +3854,7 @@ is taken in placement order and each patch gets its own colour.
 positions = {}
 for d in distances:
     code = codes.surface_code(d)
-    placements = surface_code_placements(G, code)
+    placements = surface_code_placements(G, code, anchors=(ANCHORS or {}).get(d) if SUBMIT else None)
     if cal is not None:
         flagged = {patch for patch, _ in backend.flag_instances(placements, cal, max_2q_error=MAX_COUPLER_ERROR,
                                                                 max_readout_error=MAX_READOUT_ERROR)}
@@ -3360,7 +3899,7 @@ refuses any routing. The printout gives the QPU-time estimate (the feed-forward 
 unverified assumption; IBM's usage report is authoritative).
 """),
         code(r"""
-plan = build_plan(backend, instances, depths=depths, shots=shots, delta=DELTA, max_per_batch=1)
+plan = build_plan(backend, instances, depths=depths, shots=shots, delta=DELTA, max_per_batch=1, frames=FRAMES)
 print_plan(plan, backend)
 print("\nnoiseless r and random + 3 sigma at these shots:")
 for d in distances:
@@ -3389,7 +3928,8 @@ Needs only the manifest. Results go to `data/results/<backend>/surface_code/mcm/
 result keeping the placement (data qubits and ancillas) it ran on.
 """),
         code(r"""
-manifests = sorted((DATA / "manifests" / backend.name).glob("*.json"), key=lambda p: p.name)
+manifests = sorted((p for p in (DATA / "manifests" / backend.name).glob("*.json")
+                    if not p.name.endswith("_memory.json")), key=lambda p: p.name)   # memory runs: their own notebook
 assert manifests, "no manifest yet - run the submit cell first"
 manifest_path = manifests[-1]
 print("harvesting", manifest_path.name)
@@ -3398,53 +3938,55 @@ saved = harvest(manifest_path, backend, data_dir=DATA / "results")
         md(r"""
 ## 7. Does the position show?
 
-Left: $r_{\rm ovl}$ against depth, one line per position, coloured by its error budget (yellow is lowest, dark purple highest), with
+One figure per frame run (`FRAMES`). Left: $r_{\rm ovl}$ against depth, one line per position, coloured by its error budget (yellow is lowest, dark purple highest), with
 the median over positions. Right: $r_{\rm ovl}$ at the deepest common depth against the error budget, with
 Spearman's rank correlation. If the benchmark ranks positions the way their calibrated errors do, the
 correlation is negative. The budget comes from the newest calibration snapshot of this device taken before
 the run, so the cell also works in a later session.
 """),
         code(r"""
-results = load_results(DATA / "results", backend.name, kind="mcm", manifest_path=manifest_path)
 created = json.loads(Path(manifest_path).read_text())["created"]
 snapshots = sorted((DATA / "calibration" / backend.name).glob("*_calibration.json"))
 before = [p for p in snapshots if json.loads(p.read_text())["fetched_at"] <= created]
 run_cal = json.loads(before[-1].read_text()) if before else cal
-budget = {patch: backend.error_budget(patch, run_cal) if run_cal else float("nan") for patch in results}
+run_frames = json.loads(Path(manifest_path).read_text()).get("frames", ["Z"])
 
-by_d = {}
-for patch, by_depth in results.items():
-    by_d.setdefault(patch.code.name, []).append((patch, by_depth))
-fig, axes = plt.subplots(len(by_d), 2, figsize=(12, 4.3 * len(by_d)), squeeze=False)
-for (ax, bx), (name, rows) in zip(axes, sorted(by_d.items())):
-    finite = [budget[p] for p, _ in rows if np.isfinite(budget[p])]
-    norm = plt.Normalize(min(finite), max(finite) + 1e-12) if finite else None
-    ps = sorted(set.intersection(*(set(by) for _, by in rows)))
-    for patch, by_depth in rows:
-        colour = plt.cm.viridis_r(norm(budget[patch])) if norm else "C0"
-        ax.plot(ps, [by_depth[p]["r_ovl"] for p in ps], "o-", color=colour, alpha=0.8, ms=4)
-    ax.plot(ps, [np.median([by[p]["r_ovl"] for _, by in rows]) for p in ps], "s--", color="black", lw=2,
-            label="median over positions")
-    ax.axhline(0, color="0.5", lw=0.8)
-    ax.set(xlabel="LR-QAOA layers $p$", ylabel=r"$r_{\rm ovl}$", title=f"{backend.name}, {name}: {len(rows)} positions",
-           xticks=ps)
-    ax.legend(frameon=False)
-    deepest = ps[-1]
-    x = np.array([budget[p] for p, _ in rows])
-    y = np.array([by[deepest]["r_ovl"] for _, by in rows])
-    err = np.array([by[deepest]["r_err"] / (by[deepest]["r_ideal"] - by[deepest]["r_rand"]) for _, by in rows])
-    if not np.isfinite(x).all():
-        bx.text(0.5, 0.5, "no calibration, no error budget", ha="center", va="center", transform=bx.transAxes)
-        bx.set_axis_off()
-        continue
-    bx.errorbar(x, y, yerr=err, fmt="o", mec="black", capsize=3)
-    if len(rows) >= 3:
-        rho, pvalue = spearmanr(x, y)
-        bx.set_title(f"p = {deepest}: Spearman rho = {rho:+.2f} (P = {pvalue:.3f}, n = {len(rows)})")
-    bx.set(xlabel="error budget per layer", ylabel=rf"$r_{{\rm ovl}}$ at p = {deepest}")
-fig.tight_layout()
-fig.savefig(FIGURES / f"{backend.name}_surface_code_positions.pdf", bbox_inches="tight")
-plt.show()
+for frame in run_frames:
+    results = load_results(DATA / "results", backend.name, kind=result_kind("mcm", frame), manifest_path=manifest_path)
+    budget = {patch: backend.error_budget(patch, run_cal) if run_cal else float("nan") for patch in results}
+    by_d = {}
+    for patch, by_depth in results.items():
+        by_d.setdefault(patch.code.name, []).append((patch, by_depth))
+    fig, axes = plt.subplots(len(by_d), 2, figsize=(12, 4.3 * len(by_d)), squeeze=False)
+    for (ax, bx), (name, rows) in zip(axes, sorted(by_d.items())):
+        finite = [budget[p] for p, _ in rows if np.isfinite(budget[p])]
+        norm = plt.Normalize(min(finite), max(finite) + 1e-12) if finite else None
+        ps = sorted(set.intersection(*(set(by) for _, by in rows)))
+        for patch, by_depth in rows:
+            colour = plt.cm.viridis_r(norm(budget[patch])) if norm else "C0"
+            ax.plot(ps, [by_depth[p]["r_ovl"] for p in ps], "o-", color=colour, alpha=0.8, ms=4)
+        ax.plot(ps, [np.median([by[p]["r_ovl"] for _, by in rows]) for p in ps], "s--", color="black", lw=2,
+                label="median over positions")
+        ax.axhline(0, color="0.5", lw=0.8)
+        ax.set(xlabel="LR-QAOA layers $p$", ylabel=r"$r_{\rm ovl}$", title=f"{backend.name}, {name}, {frame} frame: {len(rows)} positions",
+               xticks=ps)
+        ax.legend(frameon=False)
+        deepest = ps[-1]
+        x = np.array([budget[p] for p, _ in rows])
+        y = np.array([by[deepest]["r_ovl"] for _, by in rows])
+        err = np.array([by[deepest]["r_err"] / (by[deepest]["r_ideal"] - by[deepest]["r_rand"]) for _, by in rows])
+        if not np.isfinite(x).all():
+            bx.text(0.5, 0.5, "no calibration, no error budget", ha="center", va="center", transform=bx.transAxes)
+            bx.set_axis_off()
+            continue
+        bx.errorbar(x, y, yerr=err, fmt="o", mec="black", capsize=3)
+        if len(rows) >= 3:
+            rho, pvalue = spearmanr(x, y)
+            bx.set_title(f"p = {deepest}: Spearman rho = {rho:+.2f} (P = {pvalue:.3f}, n = {len(rows)})")
+        bx.set(xlabel="error budget per layer", ylabel=rf"$r_{{\rm ovl}}$ at p = {deepest}")
+    fig.tight_layout()
+    fig.savefig(FIGURES / f"{backend.name}_surface_code_positions{'' if frame == 'Z' else '_x'}.pdf", bbox_inches="tight")
+    plt.show()
 """),
     ]
 
@@ -3563,17 +4105,20 @@ $A \le 1$ absorbs the errors that do not grow with $R$ (state preparation and th
 
 Every shot is kept as its raw bits, one register per round (`s0 .. s{R-1}`, bit $k$ = check $k$ of
 `codes.surface_code(d).checks`) and one for the data (`c`, bit $i$ = data qubit $i$), in
-`data/results/<device>/surface_code/memory/`. The logical error rate is decoded again when the results are loaded,
-so a better decoder or a different `P_2Q_MODEL` can be applied later without touching the device.
+`data/results/<device>/surface_code/memory/`, next to the logical error rate each record was harvested with.
+Loading reads that rate back; passing `decode_again=True` (or a different `P_2Q_MODEL`) decodes every shot again,
+so a better decoder can be applied later without touching the device - at about half a minute per campaign.
 """),
         md(r"""
 ## 1. Configuration - the only cell you normally edit
 
 * `BACKEND_NAME` - a square-lattice IBM device (Nighthawk, e.g. `ibm_phoenix`), or `"noisy_simulator"` for a
   synthetic $11 \times 11$ lattice with uniform depolarizing noise.
-* `DISTANCES` - code distances. `ANCHORS` - the patch anchors $(r_0, c_0)$ to run per distance (data qubit $(i, j)$
-  sits at site $(i + j + r_0,\ i - j + c_0)$, as in the position scan); `None` takes the `N_BEST` placements with the
-  lowest calibrated error budget.
+* `DISTANCES` - code distances. `ANCHORS` - the patch anchors $(r_0, c_0)$ per distance (data qubit $(i, j)$ sits at
+  site $(i + j + r_0,\ i - j + c_0)$). The default `SCAN_ANCHORS` is the patch set of the 2026-09-14 scan, which
+  `benchmark_codes_ibm.ipynb` can run too, so the memory and LR-QAOA arms cover identical patches and can be compared
+  patch by patch. `None` for a distance takes the `N_BEST` best-calibrated placements instead. **Cost:** the full set
+  is 19 patches $\times$ 2 bases $\times$ 6 round counts = 228 circuits and 912 000 shots; one basis halves it.
 * `ROUNDS`, `BASES`, `SHOTS` - the memory sweep. Matching $R$ to the LR-QAOA depths ($R = p$) pairs every LR-QAOA point
   with a memory point on the same patch.
 * `P_2Q_MODEL` - the circuit-level noise strength that sets the decoder's matching weights.
@@ -3583,8 +4128,10 @@ so a better decoder or a different `P_2Q_MODEL` can be applied later without tou
 BACKEND_NAME = "ibm_phoenix"          # a square-lattice device, or "noisy_simulator"
 ACCOUNT      = "mcm-primitives"       # saved IBM account; None for the default one
 DISTANCES    = [3, 5]
-ANCHORS      = {3: None, 5: None}     # e.g. {3: [(7, 2)], 5: [(0, 5)]}; None = the N_BEST best-calibrated patches
-N_BEST       = 2
+SCAN_ANCHORS = {3: [(7, 2), (7, 3), (6, 3), (0, 3), (0, 4), (7, 5), (6, 4), (2, 5), (3, 7), (7, 7), (3, 2)],
+                5: [(0, 5), (0, 4), (3, 5), (1, 5), (1, 4), (2, 4), (3, 4), (2, 5)]}
+ANCHORS      = SCAN_ANCHORS           # the 2026-09-14 patch set; {3: None, 5: None} takes the N_BEST best-calibrated
+N_BEST       = 2                      # used only for a distance whose ANCHORS entry is None
 ROUNDS       = [1, 2, 3, 5, 7, 10]
 BASES        = ["Z", "X"]
 SHOTS        = 4000
@@ -3674,7 +4221,7 @@ the colours of the code drawing, and the couplers each check uses.
 patches = []
 for d in distances:
     code = codes.surface_code(d)
-    anchors = ANCHORS.get(d) if SUBMIT else None
+    anchors = ANCHORS.get(d) if SUBMIT else None       # the local rehearsal never runs the full set
     found = surface_code_placements(G, code, anchors=anchors)
     if anchors is None:
         score = (lambda patch: backend.error_budget(patch, cal)) if cal is not None else (lambda patch: 0.0)
@@ -3732,7 +4279,8 @@ saved = mem.harvest(manifest_path, backend, data_dir=DATA / "results")
         md(r"""
 ## 7. Results
 
-Logical error rate against rounds for every patch and basis, decoded again from the stored shots, with the fit of
+Logical error rate against rounds for every patch and basis, as harvested (`decode_again=True` re-derives it from
+the stored shots), with the fit of
 $P_L(R) = \tfrac{1}{2}[1 - A(1 - 2\varepsilon_L)^R]$ (lines) and its logical error per round $\varepsilon_L$ in the table. A logical qubit that is protected keeps $\varepsilon_L$ below the error of
 a single physical qubit, and a larger distance lowers it further only below threshold.
 """),
@@ -3766,6 +4314,1150 @@ plt.show()
     ]
 
 
+def memory_vs_benchmark_notebook():
+    return [
+        md(r"""
+# Memory experiment vs. LR-QAOA benchmark, campaign by campaign
+
+On several days the same surface-code patches of `ibm_phoenix` were measured twice: by the **LR-QAOA
+benchmark** (`benchmark_codes_ibm.ipynb`, the patch's checks as an Ising Hamiltonian, one syndrome-extraction
+round per layer) and by the **memory experiment** (`benchmark_qec_memory.ipynb`, a logical qubit kept through
+$R$ rounds and decoded), on the very same data qubits, ancillas and couplers, with a calibration snapshot of the
+chip taken minutes before. This notebook puts every such **campaign** side by side and asks:
+
+* how the chip evolves from one campaign to the next - in the benchmark, in the memory, in the calibration;
+* whether each campaign ranks the patches the same way, and which patches stay good;
+* how well the benchmark predicts the memory experiment, against every calibration number, campaign by campaign;
+* which patches each method would pick, and how good those picks really were.
+
+It only reads `data/`: no account, nothing is sent. A campaign harvested later appears on its own. Every
+quantity is defined in the next section and computed in its cell.
+"""),
+        code(r"""
+import sys
+from datetime import datetime
+from pathlib import Path
+
+ROOT = Path.cwd().parent if Path.cwd().name == "notebooks" else Path.cwd()
+sys.path.insert(0, str(ROOT / "src"))          # not needed after `pip install -e .`
+DATA, FIGURES = ROOT / "data", ROOT / "figures"
+FIGURES.mkdir(parents=True, exist_ok=True)
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import t as student_t
+
+from qecbench.layout import square_lattice_coordinates
+"""),
+        md(r"""
+## 0. The quantities
+
+A **campaign** is one day with both runs of `BACKEND` - the LR-QAOA benchmark
+(`<stamp>_<backend>_surface_code_mcm.json`) and the memory experiment (`<stamp>_<backend>_surface_code_memory.json`)
+- on the same patches, and a calibration snapshot taken just before. Per patch:
+
+* **score** - the LR-QAOA $r_{\rm ovl}$ averaged over the depths $p \ge$ `MIN_DEPTH`, optionally only those with
+  $r_{\rm ovl} >$ `R_OVL_FLOOR`. Used for the chip's history in section 3.
+* **rank** - the patch's rank within its campaign at each of those depths, averaged (1 = best at every depth).
+  Where a patch needs a single benchmark number this is the one used, because $r_{\rm ovl}$ falls steeply with
+  depth - much more steeply in the X frame - so a plain mean is decided by the shallowest depth kept.
+* $P_L^Z(R)$, $P_L^X(R)$ - the logical error rate measured after $R$ rounds, as decoded from the shots; where a
+  patch needs one memory number, its $P_L$ after `R_REF` rounds (`mem_Z`, `mem_X`).
+* **life** - the largest round count measured with $P_L$ below `PL_CEILING`, $Z$ and $X$ added.
+* **calibration** - the mean and worst CZ error over the patch's couplers, the mean mid-circuit readout error of
+  its ancillas, the mean final readout and `sx` error of its qubits, the mean $1/T_1$ and $1/T_2$ of its data
+  qubits, and the **budget**: the unweighted sum of the errors of one round, every CZ, every ancilla readout and
+  every data readout.
+
+Every predictor is oriented so that larger means worse (the benchmark enters as $-$score), so a positive
+Spearman $\rho$ against $P_L$ means it ranks the patches the way the memory experiment does.
+"""),
+        code(r"""
+import json
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import numpy as np
+
+from qecbench.analysis import instance_from_record, records_in
+
+PREDICTORS = {                   # name: what it is (larger = worse for all of them)
+    "rank": "LR-QAOA benchmark, Z frame: the patch's mean rank over depth (1 = best)",
+    "rank_x": "the same benchmark in the X frame (when it was run)",
+    "cz_mean": "mean CZ error over the patch's couplers",
+    "cz_max": "worst CZ error of the patch",
+    "anc_ro_mean": "mean mid-circuit readout error of the ancillas",
+    "data_ro_mean": "mean final readout error of the data qubits",
+    "sx_mean": "mean sx error of the patch's qubits",
+    "inv_T1": "mean 1/T1 of the data qubits",
+    "inv_T2": "mean 1/T2 of the data qubits",
+    "budget": "sum of CZ, ancilla-readout and data-readout errors of one round",
+}
+
+
+# ======================================================================================
+# Campaigns
+# ======================================================================================
+@dataclass
+class Campaign:
+    '''One day of both experiments on a backend.'''
+
+    day: str                                  # "2026-09-22"
+    lrqaoa: Path                              # the benchmark, Z frame (kind mcm)
+    memory: Path
+    calibration: Path | None = None           # snapshot file; None = the per-patch one inside the memory run
+    calibration_age: timedelta | None = None  # how long before the memory run it was taken
+    patches: list = field(default_factory=list)  # data-qubit tuples measured by every arm
+    note: str = ""
+    lrqaoa_x: Path | None = None              # the same benchmark in the X frame (kind mcm_x), when it was run
+
+    @property
+    def label(self):
+        return self.day[5:]                   # "09-22"
+
+
+def _created(path):
+    '''When a run started: its header, else the ``YYYYMMDD_HHMM[SS]`` its file name starts with.'''
+    doc = json.loads(Path(path).read_text())
+    created = doc.get("run", {}).get("created")
+    if created:
+        return datetime.fromisoformat(created), doc
+    stamp = "_".join(Path(path).name.split("_")[:2])
+    return datetime.strptime(stamp, "%Y%m%d_%H%M%S" if len(stamp) == 15 else "%Y%m%d_%H%M"), doc
+
+
+def _patches(doc):
+    return {tuple(r["parameters"]["data_qubits"]) for r in records_in(doc)}
+
+
+def discover(results_dir="data/results", backend="ibm_phoenix", calibration_dir="data/calibration",
+             max_calibration_age_hours=6.0, min_patches=5):
+    '''Every campaign of ``backend``: the LR-QAOA and memory runs of the same day, sharing their patches.
+
+    A day whose benchmark also ran in the X frame (kind ``mcm_x``) carries it too, so both frames can be compared
+    with both memories. Simulated runs are skipped. Of several runs on one day the latest of each kind is taken. The calibration is
+    the latest snapshot fetched up to ``max_calibration_age_hours`` before the memory run started, else the
+    per-patch snapshot the run stored itself, else none. A campaign with fewer than ``min_patches`` patches in
+    common is still returned, with a ``note`` saying why it cannot be ranked.
+    '''
+    root = Path(results_dir) / backend / "surface_code"
+    by_day = {}
+    for kind in ("mcm", "mcm_x", "memory"):
+        for path in sorted((root / kind).glob("*.json")):
+            created, doc = _created(path)
+            if doc["run"].get("simulated"):
+                continue
+            by_day.setdefault(created.date().isoformat(), {})[kind] = (created, path, doc)
+    snapshots = []
+    for path in sorted((Path(calibration_dir) / backend).glob("*_calibration.json")):
+        fetched = json.loads(path.read_text()).get("fetched_at")
+        if fetched:
+            snapshots.append((datetime.fromisoformat(fetched), path))
+    out = []
+    for day, runs in sorted(by_day.items()):
+        if not {"mcm", "memory"} <= set(runs):      # a day may also have the X frame
+            continue
+        (_, lrqaoa, doc_l), (started, memory, doc_m) = runs["mcm"], runs["memory"]
+        lrqaoa_x = runs["mcm_x"][1] if "mcm_x" in runs else None
+        common = sorted(_patches(doc_l) & _patches(doc_m)
+                        & (_patches(runs["mcm_x"][2]) if lrqaoa_x else _patches(doc_m)))
+        before = [(t, p) for t, p in snapshots if started - timedelta(hours=max_calibration_age_hours) <= t <= started]
+        cal, age = (before[-1][1], started - before[-1][0]) if before else (None, None)
+        if cal is None and not doc_m["run"].get("calibration"):
+            note = "no calibration snapshot"
+        else:
+            note = ""
+        if len(common) < min_patches:
+            note = f"only {len(common)} patch(es) in both runs - not ranked"
+        out.append(Campaign(day, lrqaoa, memory, cal, age, common, note, lrqaoa_x))
+    return out
+
+
+# ======================================================================================
+# One row per patch and campaign
+# ======================================================================================
+def _coupler_error(cal, u, v):
+    two = cal["two_qubit"]
+    return (two.get(f"{u}-{v}") or two.get(f"{v}-{u}") or {}).get("error", np.nan)
+
+
+def _qubit(cal, q):
+    return cal["one_qubit"].get(str(q)) or {}
+
+
+def calibration_of(patch, cal):
+    '''The calibration predictors of ``patch`` from a device snapshot (``IBMBackend.calibration``).'''
+    cz = np.array([_coupler_error(cal, u, v) for u, v in patch.couplers], float)
+    data, anc = list(patch.data_qubits), list(patch.ancillas)
+    ro_d = np.array([_qubit(cal, q).get("readout_error", np.nan) for q in data], float)
+    ro_a = np.array([_qubit(cal, q).get("mcm_readout_error", np.nan) for q in anc], float)
+    sx = np.array([_qubit(cal, q).get("sx_error", np.nan) for q in data + anc], float)
+    t1 = np.array([_qubit(cal, q).get("T1", np.nan) for q in data], float)
+    t2 = np.array([_qubit(cal, q).get("T2", np.nan) for q in data], float)
+    return {"cz_mean": np.nanmean(cz), "cz_max": np.nanmax(cz), "anc_ro_mean": np.nanmean(ro_a),
+            "data_ro_mean": np.nanmean(ro_d), "sx_mean": np.nanmean(sx),
+            "inv_T1": float(np.nanmean(1 / t1)), "inv_T2": float(np.nanmean(1 / t2)),
+            "budget": float(np.nansum(cz) + np.nansum(ro_a) + np.nansum(ro_d))}
+
+
+def calibration_from_run(stored):
+    '''The same predictors from the per-patch aggregates a position scan stored in its run header.'''
+    return {"cz_mean": stored["cz_mean"], "cz_max": stored["cz_max"], "anc_ro_mean": stored["anc_mcm_ro_err_mean"],
+            "data_ro_mean": stored["data_ro_err_mean"], "sx_mean": np.nan,
+            "inv_T1": 1 / stored["data_T1_mean"], "inv_T2": 1 / stored["data_T2_mean"],
+            "budget": stored["cz_sum"] + stored["anc_mcm_ro_err_sum"] + stored["data_ro_err_sum"]}
+
+
+def patch_rows(campaigns, distance=3, min_depth=2, r_ovl_floor=None, pl_ceiling=0.10, r_ref=3):
+    '''One dict per (campaign, patch) of ``distance``, with every number of the module docstring.'''
+    rows = []
+    for camp in campaigns:
+        doc_l = json.loads(camp.lrqaoa.read_text())
+        doc_x = json.loads(camp.lrqaoa_x.read_text()) if camp.lrqaoa_x else None
+        doc_m = json.loads(camp.memory.read_text())
+        snapshot = json.loads(camp.calibration.read_text()) if camp.calibration else None
+        stored = doc_m["run"].get("calibration") or {}
+        keep = set(camp.patches)
+        depths, depths_x, patch_of = {}, {}, {}
+        for doc, into in ((doc_l, depths), (doc_x, depths_x)):
+            for rec in records_in(doc) if doc else ():
+                key = tuple(rec["parameters"]["data_qubits"])
+                if key in keep:
+                    into.setdefault(key, {})[rec["parameters"]["depth"]] = rec["benchmark"]["r_ovl"]
+        rates = {}
+        for rec in records_in(doc_m):
+            key = tuple(rec["parameters"]["data_qubits"])
+            if key in keep:
+                patch_of.setdefault(key, instance_from_record(rec))
+                b, p = rec["benchmark"], rec["parameters"]
+                rates.setdefault(key, {}).setdefault(p["basis"], {})[p["rounds"]] = b["logical_error_rate"]
+        for key in camp.patches:
+            patch = patch_of.get(key)
+            if patch is None or patch.code.info.get("distance") != distance:
+                continue
+            kept = lambda by: {p: v for p, v in sorted(by.items())
+                               if p >= min_depth and (r_ovl_floor is None or v > r_ovl_floor)}
+            used, used_x = kept(depths.get(key, {})), kept(depths_x.get(key, {}))
+            row = {"day": camp.day, "campaign": camp.label, "patch": key, "name": f"@{min(key)}",
+                   "r_ovl": dict(sorted(depths.get(key, {}).items())), "depths_used": list(used),
+                   "r_ovl_x": dict(sorted(depths_x.get(key, {}).items())),
+                   "score": float(np.mean(list(used.values()))) if used else np.nan,
+                   "score_x": float(np.mean(list(used_x.values()))) if used_x else np.nan}
+            for basis, series in rates.get(key, {}).items():
+                below = [r for r in sorted(series) if series[r] < pl_ceiling]
+                row.update({f"P_L_{basis}": dict(sorted(series.items())), f"mem_{basis}": series.get(r_ref, np.nan),
+                            f"life_{basis}": max(below) if below else 0})
+            row["life"] = row.get("life_Z", 0) + row.get("life_X", 0)
+            row["-life"] = -row["life"]                   # larger = worse, like every other target
+            if snapshot is not None:
+                row.update(calibration_of(patch, snapshot))
+            else:
+                name = next((k for k, v in stored.items() if sorted(v["data_qubits"]) == sorted(key)), None)
+                row.update(calibration_from_run(stored[name]) if name else {k: np.nan for k in PREDICTORS if k != "-score"})
+            row["-score"], row["-score_x"] = -row["score"], -row["score_x"]
+            rows.append(row)
+    return rows
+
+
+# ======================================================================================
+# Comparisons
+# ======================================================================================
+def spearman(x, y):
+    '''``(rho, p, n)`` over the finite pairs; NaN below three of them.'''
+    from scipy.stats import spearmanr
+
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    ok = np.isfinite(x) & np.isfinite(y)
+    if ok.sum() < 3 or np.ptp(x[ok]) == 0 or np.ptp(y[ok]) == 0:
+        return np.nan, np.nan, int(ok.sum())
+    r, p = spearmanr(x[ok], y[ok])
+    return float(r), float(p), int(ok.sum())
+
+
+def by_campaign(rows):
+    out = {}
+    for row in rows:
+        out.setdefault(row["campaign"], []).append(row)
+    return out
+
+
+def agreement(rows, predictor, target):
+    '''``{campaign: (rho, p, n)}`` and ``"pooled"``: how ``predictor`` ranks the patches against ``target``.'''
+    out = {c: spearman([r[predictor] for r in sub], [r[target] for r in sub]) for c, sub in by_campaign(rows).items()}
+    out["pooled"] = spearman([r[predictor] for r in rows], [r[target] for r in rows])
+    return out
+
+
+def stability(rows, metric):
+    '''``{(a, b): (rho, p, n)}``: does ``metric`` rank the same patches the same way in campaigns ``a`` and ``b``?'''
+    camps = by_campaign(rows)
+    names = sorted(camps)
+    out = {}
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            va = {r["patch"]: r[metric] for r in camps[a]}
+            vb = {r["patch"]: r[metric] for r in camps[b]}
+            common = sorted(set(va) & set(vb))
+            out[(a, b)] = spearman([va[k] for k in common], [vb[k] for k in common])
+    return out
+
+
+def pick(rows, predictor, k=3):
+    '''The ``k`` rows with the smallest ``predictor`` (every predictor is larger = worse).'''
+    ok = [r for r in rows if np.isfinite(r[predictor])]
+    return sorted(ok, key=lambda r: r[predictor])[:k]
+
+
+def selection(rows, predictor, outcome="life", k=3):
+    '''``{campaign: (chosen, typical, best possible)}``: mean ``outcome`` of the ``k`` patches ``predictor`` picks,
+    of every patch, and of the ``k`` best there were (larger ``outcome`` = better, e.g. rounds under the ceiling).'''
+    out = {}
+    for c, sub in by_campaign(rows).items():
+        values = [r[outcome] for r in sub if np.isfinite(r[outcome])]
+        chosen = [r[outcome] for r in pick(sub, predictor, k)]
+        out[c] = (float(np.nanmean(chosen)), float(np.mean(values)), float(np.mean(sorted(values)[-k:])))
+    return out
+
+
+def chip_graph(calibration_path):
+    '''The coupling graph of the chip, from the couplers a calibration snapshot lists.'''
+    import networkx as nx
+
+    cal = json.loads(Path(calibration_path).read_text())
+    G = nx.Graph()
+    G.add_nodes_from(int(q) for q in cal["one_qubit"])
+    G.add_edges_from(tuple(int(q) for q in key.split("-")) for key in cal["two_qubit"])
+    return G
+"""),
+        md(r"""
+## 1. Configuration - the only cell you normally edit
+
+* `BACKEND` - the chip. `DISTANCE` - the patches compared.
+* `MIN_DEPTH`, `R_OVL_FLOOR` - which LR-QAOA depths make up a patch's **score** (the mean $r_{\rm ovl}$): every
+  $p \ge$ `MIN_DEPTH` with $r_{\rm ovl} >$ `R_OVL_FLOOR` (`None`: no floor). `MIN_DEPTH = 2` leaves out the
+  one-layer circuit, which barely tells patches apart.
+* `PL_CEILING` - the logical error rate below which a memory result counts: a patch's **lifetime** is the largest
+  number of rounds it stays under it, per basis.
+* `R_REF` - the round count whose $P_L$ stands for a patch where one memory number is needed (sections 3, 4, 6).
+* `TOP` - how many patches a method picks. `OUTCOME` - what a pick is judged by: `"life"` (rounds under the
+  ceiling, $Z$ + $X$), `"life_Z"` or `"life_X"`.
+* `EXCLUDE` - campaign days to leave out, e.g. `["2026-09-17"]`.
+"""),
+        code(r"""
+BACKEND     = "ibm_phoenix"
+DISTANCE    = 3
+MIN_DEPTH   = 1          # 2 leaves out the one-layer circuit
+R_OVL_FLOOR = 0.1        # None: every depth from MIN_DEPTH
+PL_CEILING  = 0.10
+R_REF       = 3          # the P_L that stands for a patch where one memory number is needed
+TOP         = 3
+OUTCOME     = "life"     # "life", "life_Z" or "life_X"
+EXCLUDE     = []
+"""),
+        md(r"""
+## 2. The campaigns
+
+Each day with both a (non-simulated) LR-QAOA run and a memory run of `BACKEND`, the patches the two share, and
+the calibration snapshot: the latest one taken up to six hours before the memory run started, or the per-patch
+snapshot the run stored itself (the 2026-09-14 position scan). A campaign with too few patches in common is
+listed but not ranked.
+"""),
+        code(r"""
+found = [c for c in discover(DATA / "results", BACKEND, DATA / "calibration") if c.day not in EXCLUDE]
+print(f"{'day':>10}  {'LR-QAOA run (Z frame)':>46}  {'X frame':>9}  {'memory run':>52}  {'cal age':>8} {'patches':>8}")
+for c in found:
+    age = "" if c.calibration_age is None else f"{c.calibration_age.total_seconds() / 60:.0f} min"
+    print(f"{c.day:>10}  {c.lrqaoa.name:>46}  {('yes' if c.lrqaoa_x else '-'):>9}  {c.memory.name:>52}  "
+          f"{age:>8} {len(c.patches):>8}" + (f"   <- {c.note}" if c.note else ""))
+campaigns = [c for c in found if not c.note.startswith("only")]
+rows = patch_rows(campaigns, distance=DISTANCE, min_depth=MIN_DEPTH, r_ovl_floor=R_OVL_FLOOR,
+                     pl_ceiling=PL_CEILING, r_ref=R_REF)
+per = by_campaign(rows)
+labels = sorted(per)
+days = {c.label: datetime.fromisoformat(c.day) for c in campaigns}
+for _c, _sub in by_campaign(rows).items():          # depth-averaged rank, per frame
+    for _key, _frame in (("rank", "r_ovl"), ("rank_x", "r_ovl_x")):
+        _depths = sorted(set.intersection(*(set(r[_frame]) for r in _sub))) if all(r[_frame] for r in _sub) else []
+        _depths = [p for p in _depths if p >= MIN_DEPTH]
+        for r in _sub:
+            r[_key] = float(np.mean([sorted(_sub, key=lambda q: -q[_frame][p]).index(r) + 1 for p in _depths])) \
+                if _depths else np.nan
+
+names = sorted({r["name"] for r in rows}, key=lambda n: int(n[1:]))
+with_x = [c.label for c in campaigns if c.lrqaoa_x]
+print(f"\n{len(labels)} campaigns ranked, {len(names)} surface_d{DISTANCE} patches: {', '.join(names)}")
+print(f"both frames of the benchmark: {', '.join(with_x) if with_x else 'none yet'}")
+"""),
+        md(r"""
+## 3. The chip over time
+
+Every patch is a faint line; the thick line is the median over the patches and the band their inter-quartile
+range. Top row: the two experiments - the benchmark score (higher is better) and the logical error per round in
+each basis (lower is better). Bottom row: the calibration of the same patches.
+"""),
+        code(r"""
+panels = [("score", r"benchmark score (mean $r_{\rm ovl}$)", False), ("mem_Z", rf"$P_L^Z$ after R = {R_REF}", True),
+          ("mem_X", rf"$P_L^X$ after R = {R_REF}", True), ("cz_mean", "mean CZ error", True),
+          ("anc_ro_mean", "ancilla MCM readout error", True), ("data_ro_mean", "data readout error", True)]
+PLAIN = {"score": "benchmark score", "mem_Z": f"P_L^Z at R={R_REF}", "mem_X": f"P_L^X at R={R_REF}",
+         "cz_mean": "mean CZ error", "anc_ro_mean": "ancilla readout", "data_ro_mean": "data readout"}
+fig, axes = plt.subplots(2, 3, figsize=(15, 7.5), sharex=True)
+x = [days[c] for c in labels]
+for ax, (metric, title, log) in zip(axes.flat, panels):
+    for name in names:
+        series = [next((r[metric] for r in per[c] if r["name"] == name), np.nan) for c in labels]
+        ax.plot(x, series, "-", color="0.6", lw=0.8, alpha=0.5)
+    values = [np.array([r[metric] for r in per[c]], float) for c in labels]
+    med = [np.nanmedian(v) for v in values]
+    ax.fill_between(x, [np.nanpercentile(v, 25) for v in values], [np.nanpercentile(v, 75) for v in values],
+                    color="#2f6f9f", alpha=0.25)
+    ax.plot(x, med, "o-", color="#2f6f9f", lw=2.2)
+    ax.set(title=title, yscale="log" if log else "linear")
+    ax.grid(alpha=0.3)
+for ax in axes[1]:
+    ax.set_xticks(x, labels)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_evolution.pdf", bbox_inches="tight")
+plt.show()
+
+print(f"{'campaign':>9} " + "".join(f"{PLAIN[m]:>18}" for m, _, _ in panels))
+for c in labels:
+    print(f"{c:>9} " + "".join(f"{np.nanmedian([r[m] for r in per[c]]):>18.4f}" for m, _, _ in panels))
+"""),
+        md(r"""
+## 4. Patch by patch: does the ranking hold from one campaign to the next?
+
+Each patch's **rank** in every campaign (1 = best), by the benchmark, by each basis of the memory experiment and by
+the CZ error. A patch that is good for the chip stays near the top of its column; noise in a measurement shuffles
+it. Below, the Spearman correlation of the ranking between every pair of campaigns: how reproducible each
+measurement is on its own, before it is compared with anything else.
+"""),
+        code(r"""
+def ranks(metric, better_high=False):
+    out = np.full((len(names), len(labels)), np.nan)
+    for j, c in enumerate(labels):
+        sub = [r for r in per[c] if np.isfinite(r[metric])]
+        order = sorted(sub, key=lambda r: -r[metric] if better_high else r[metric])
+        for k, r in enumerate(order):
+            out[names.index(r["name"]), j] = k + 1
+    return out
+
+rank_panels = [("score", "benchmark score", True), ("mem_Z", rf"memory $P_L^Z$ (R = {R_REF})", False),
+               ("mem_X", rf"memory $P_L^X$ (R = {R_REF})", False), ("cz_mean", "mean CZ error", False)]
+fig, axes = plt.subplots(1, len(rank_panels), figsize=(4.2 * len(rank_panels), 0.38 * len(names) + 1.8), sharey=True)
+for ax, (metric, title, high) in zip(axes, rank_panels):
+    R = ranks(metric, high)
+    ax.imshow(R, cmap="RdYlGn_r", vmin=1, vmax=len(names), aspect="auto")
+    for i in range(len(names)):
+        for j in range(len(labels)):
+            if np.isfinite(R[i, j]):
+                ax.text(j, i, f"{R[i, j]:.0f}", ha="center", va="center", fontsize=9)
+    ax.set_xticks(range(len(labels)), labels)
+    ax.set_title(title)
+axes[0].set_yticks(range(len(names)), names)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_ranks.pdf", bbox_inches="tight")
+plt.show()
+
+print("ranking stability, Spearman rho between campaigns (p in brackets):")
+for metric, title, _ in rank_panels:
+    pairs = stability(rows, metric)
+    print(f"  {PLAIN[metric]:>16}: " + "  ".join(f"{a}/{b} {v[0]:+.2f} ({v[1]:.2f})" for (a, b), v in pairs.items()))
+"""),
+        md(r"""
+## 5. Depth by depth: $r_{\rm ovl}$ at $p$ against $P_L$ after $R = p$ rounds
+
+The finest comparison the two experiments allow. One LR-QAOA layer is one syndrome-extraction round, and both
+were run at the same depths, so every patch gives a directly paired point at each $p = R$: its $r_{\rm ovl}$
+after $p$ layers and its measured logical error rate after $R = p$ rounds, with no average over depths. For
+each campaign and depth, $\rho$ ranks the patches by $-r_{\rm ovl}(p)$ against $P_L(R)$ (positive = the patch
+the benchmark rates higher keeps its logical qubit better at that depth). **Pooled** ranks the patches within
+each campaign first, so a chip-wide shift from one day to the next cannot count as agreement.
+
+Where the benchmark ran in **both frames**, each is compared with **both memories**: the Z frame ($Z\cdots Z$
+checks, data from $|+\rangle$, read in $Z$) and the X frame (the same algorithm conjugated by $H$ on every data
+qubit), against $P_L^Z$ and $P_L^X$. If the frame is what decides, each frame agrees best with the memory of its
+own basis.
+
+The second table keeps only the points inside the cuts of the configuration cell ($r_{\rm ovl} >$ `R_OVL_FLOOR`
+and $P_L <$ `PL_CEILING`); $n$ shows how many patches are left. Below: the same $\rho$ for the calibration
+numbers, which do not change with $R$ but are compared with $P_L$ at each $R$ in the same way.
+"""),
+        code(r"""
+from scipy.stats import rankdata
+
+P = sorted(set.intersection(*(set(r["r_ovl"]) & set(r["P_L_Z"]) & set(r["P_L_X"]) for r in rows)))
+
+def depth_pairs(sub, p, basis, predictor="r_ovl", cut=False):
+    xs, ys = [], []
+    for r in sub:
+        key = predictor if predictor.startswith("r_ovl") else "r_ovl"
+        ro, pl = r.get(key, {}).get(p, np.nan), r[f"P_L_{basis}"].get(p, np.nan)
+        if cut and not ((R_OVL_FLOOR is None or ro > R_OVL_FLOOR) and pl < PL_CEILING):
+            continue
+        xs.append(-ro if predictor.startswith("r_ovl") else r[predictor])
+        ys.append(pl)
+    return xs, ys
+
+def depth_rho(p, basis, predictor="r_ovl", cut=False, campaign=None):
+    if campaign is not None:
+        return spearman(*depth_pairs(per[campaign], p, basis, predictor, cut))
+    xs, ys = [], []                               # pooled: ranks within each campaign
+    for c in labels:
+        x, y = depth_pairs(per[c], p, basis, predictor, cut)
+        if len(x) >= 3:
+            xs += list(rankdata(x) / len(x))
+            ys += list(rankdata(y) / len(y))
+    return spearman(xs, ys)
+
+BENCH = {"Z frame": "r_ovl"}
+if any(r["r_ovl_x"] for r in rows):
+    BENCH["X frame"] = "r_ovl_x"
+for basis in ("Z", "X"):
+    for cut in (False, True):
+        print(f"\nmemory {basis}: rho(-r_ovl(p), P_L^{basis}(R = p))" +
+              (f"   only r_ovl > {R_OVL_FLOOR} and P_L < {PL_CEILING:.0%}" if cut else "   every point"))
+        print(f"{'campaign':>9} {'frame':>7} " + "".join(f"{'p = R = ' + str(p):>15}" for p in P))
+        for c in labels + ["pooled"]:
+            for frame, pred in BENCH.items():
+                cells = [depth_rho(p, basis, predictor=pred, cut=cut, campaign=None if c == "pooled" else c)
+                         for p in P]
+                if all(not np.isfinite(v[0]) for v in cells):
+                    continue
+                print(f"{c:>9} {frame.split()[0]:>7} "
+                      + "".join((f"{v[0]:+.2f} (n={v[2]:>2})" if np.isfinite(v[0]) else f"   -   (n={v[2]:>2})").rjust(15)
+                                for v in cells))
+
+heat_panels = [(frame, pred, basis) for frame, pred in BENCH.items() for basis in ("Z", "X")]
+fig, axes = plt.subplots(1, len(heat_panels), figsize=(6.5 * len(heat_panels), 0.55 * len(labels) + 2.6),
+                         squeeze=False)
+for ax, (frame, pred, basis) in zip(axes[0], heat_panels):
+    M = np.array([[depth_rho(p, basis, predictor=pred, campaign=None if c == "pooled" else c)[0] for p in P]
+                  for c in labels + ["pooled"]])
+    ax.imshow(M, cmap="RdBu", vmin=-1, vmax=1, aspect="auto")
+    for i in range(M.shape[0]):
+        for j in range(M.shape[1]):
+            ax.text(j, i, f"{M[i, j]:+.2f}", ha="center", va="center", fontsize=9,
+                    fontweight="bold" if i == M.shape[0] - 1 else "normal")
+    ax.axhline(len(labels) - 0.5, color="k", lw=1.5)
+    ax.set_xticks(range(len(P)), [f"p = R = {p}" for p in P])
+    ax.set_yticks(range(len(labels) + 1), labels + ["pooled"])
+    ax.set_title(rf"{frame}: $\rho(-r_{{\rm ovl}},\ P_L^{{{basis}}})$", fontsize=11)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_depth_rho.pdf", bbox_inches="tight")
+plt.show()
+"""),
+        md(r"""
+### Every patch at every depth
+
+One panel per depth and basis: each patch of each campaign as a point, its $r_{\rm ovl}$ after $p$ layers against
+its logical error rate after $R = p$ rounds, coloured by campaign. The grey band is the `PL_CEILING` cut.
+"""),
+        code(r"""
+colours = {c: plt.get_cmap("viridis")(k / max(len(labels) - 1, 1)) for k, c in enumerate(labels)}
+fig, axes = plt.subplots(2, len(P), figsize=(3.1 * len(P), 6.4), sharey="row")
+for i, basis in enumerate(("Z", "X")):
+    for j, p in enumerate(P):
+        ax = axes[i, j]
+        for c in labels:
+            ro = [r["r_ovl"].get(p, np.nan) for r in per[c]]
+            pl = [r[f"P_L_{basis}"].get(p, np.nan) for r in per[c]]
+            ax.scatter(ro, pl, s=22, color=colours[c], label=c if (i, j) == (0, 0) else None)
+        ax.axhspan(1e-3, PL_CEILING, color="0.85", zorder=0)
+        ax.set_yscale("log")
+        ax.grid(alpha=0.3)
+        rho = depth_rho(p, basis)[0]
+        ax.set_title(f"p = R = {p}   pooled $\\rho$ = {rho:+.2f}", fontsize=9)
+        if i == 1:
+            ax.set_xlabel(r"$r_{\rm ovl}(p)$")
+    axes[i, 0].set_ylabel(rf"$P_L^{basis}(R)$")
+axes[0, 0].legend(fontsize=8)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_depth_scatter.pdf", bbox_inches="tight")
+plt.show()
+"""),
+        md(r"""
+### The two frames against each other
+
+Every patch of every campaign that ran both frames, at every depth: $r_{\rm ovl}$ in the Z frame against
+$r_{\rm ovl}$ in the X frame, coloured by depth, with the diagonal for reference. Noiselessly the two frames give
+the same $r$, so every point would sit on the diagonal; on the device the distance below it is the extra error the
+X frame sees - the phase-type noise the data pick up while the ancillas are read. The spread along each depth's
+cloud is what the two frames disagree about when ranking patches.
+"""),
+        code(r"""
+x_camps = [c.label for c in campaigns if c.lrqaoa_x]
+if not x_camps:
+    print("no campaign with both frames yet")
+else:
+    fig, axes = plt.subplots(1, len(x_camps), figsize=(5.2 * len(x_camps), 4.8), squeeze=False, sharex=True, sharey=True)
+    cmap = plt.get_cmap("viridis")
+    for ax, c in zip(axes[0], x_camps):
+        sub = [r for r in per[c] if r["r_ovl_x"]]
+        for k, p in enumerate(P):
+            zs = [r["r_ovl"][p] for r in sub]
+            xs = [r["r_ovl_x"][p] for r in sub]
+            ax.scatter(zs, xs, color=cmap(k / max(len(P) - 1, 1)), s=34, label=f"p = {p}", zorder=3)
+            print(f"{c}  p = {p:>2}: mean r_ovl  Z {np.mean(zs):.3f}  X {np.mean(xs):.3f}  "
+                  f"X - Z {np.mean(np.array(xs) - np.array(zs)):+.3f}   rho(Z, X) = {spearman(zs, xs)[0]:+.2f}")
+        lim = [0, max(max(r["r_ovl"][p] for r in sub for p in P), max(r["r_ovl_x"][p] for r in sub for p in P)) * 1.05]
+        ax.plot(lim, lim, "--", color="0.5", lw=1)
+        ax.set(xlim=lim, ylim=lim, xlabel=r"$r_{\rm ovl}$, Z frame", title=f"{c}, surface_d{DISTANCE}")
+        ax.grid(alpha=0.3)
+        ax.set_aspect("equal")
+    axes[0][0].set_ylabel(r"$r_{\rm ovl}$, X frame")
+    axes[0][-1].legend(fontsize=8, loc="upper left")
+    fig.tight_layout()
+    fig.savefig(FIGURES / f"{BACKEND}_campaigns_frames_against_each_other.pdf", bbox_inches="tight")
+    plt.show()
+"""),
+        md(r"""
+### The best and worst patches, followed through depth
+
+Only for a campaign that ran both frames. The `N_BEST` patches that kept the $X$ logical qubit best (lowest
+$P_L^X$, ranked at every round count and averaged) and the `N_WORST` at the other end, each followed from the
+first depth to the last: its $r_{\rm ovl}(p)$ against $P_L^X(R = p)$, the X frame solid and labelled with the
+depth, the Z frame of the same patch dashed. If a frame measures what the memory does, the patches lie on one
+curve and the worse ones simply sit further along it.
+"""),
+        code(r"""
+N_BEST, N_WORST = 3, 3
+x_campaigns = [c.label for c in campaigns if c.lrqaoa_x]
+if not x_campaigns:
+    print("no campaign with both frames yet")
+else:
+    trail = per[x_campaigns[-1]]
+    keys = {r["name"]: r for r in trail}
+    mean_rank = {n: np.mean([sorted(trail, key=lambda r: r["P_L_X"][p]).index(keys[n]) + 1 for p in P])
+                 for n in keys}
+    order = sorted(keys, key=lambda n: mean_rank[n])
+    best, worst = order[:N_BEST], (order[-N_WORST:] if N_WORST else [])
+    print(f"{x_campaigns[-1]}: best by X memory  " + ", ".join(f"{n} (rank {mean_rank[n]:.1f})" for n in best))
+    print(f"{' ' * len(x_campaigns[-1])}  worst by X memory " + ", ".join(f"{n} (rank {mean_rank[n]:.1f})" for n in worst))
+    fig, ax = plt.subplots(figsize=(8.5, 5.8))
+    groups = [(best, plt.get_cmap("tab10").colors, dict(marker="s", lw=2, ms=7), dict(lw=1, ms=5, alpha=0.55)),
+              (worst, plt.get_cmap("Dark2").colors[3:], dict(marker="^", lw=1.1, ms=6, alpha=0.8),
+               dict(lw=0.8, ms=4, alpha=0.4))]
+    for chosen, colours, x_style, z_style in groups:
+        for colour, n in zip(colours, chosen):
+            r = keys[n]
+            pl = [r["P_L_X"][p] for p in P]
+            ax.plot([r["r_ovl_x"][p] for p in P], pl, "-", color=colour, label=f"{n}, X frame", **x_style)
+            ax.plot([r["r_ovl"][p] for p in P], pl, "o--", color=colour, label=f"{n}, Z frame", **z_style)
+            for p, xv, yv in zip(P, [r["r_ovl_x"][p] for p in P], pl):
+                ax.annotate(f"{p}", (xv, yv), textcoords="offset points", xytext=(5, 4), fontsize=8, color=colour)
+    ax.set(xlabel=r"$r_{\rm ovl}(p)$", ylabel=r"$P_L^X(R = p)$", yscale="log",
+           title=f"{x_campaigns[-1]}: the {len(best)} best and {len(worst)} worst patches by X memory")
+    ax.grid(alpha=0.3)
+    ax.legend(fontsize=7.5, ncol=2)
+    fig.tight_layout()
+    fig.savefig(FIGURES / f"{BACKEND}_campaigns_frame_trajectories.pdf", bbox_inches="tight")
+    plt.show()
+"""),
+        md(r"""
+### The benchmark against the calibration, depth by depth
+
+Pooled $\rho$ against $P_L(R)$ at each $R$: the benchmark at the same depth, and each calibration number.
+"""),
+        code(r"""
+cal_preds = {f"benchmark, {frame}": pred for frame, pred in BENCH.items()}
+cal_preds.update({"mean CZ error": "cz_mean", "round budget": "budget",
+                  "data readout": "data_ro_mean", "ancilla readout": "anc_ro_mean"})
+fig, axes = plt.subplots(1, 2, figsize=(13, 4.3), sharey=True)
+for ax, basis in zip(axes, ("Z", "X")):
+    print(f"\npooled rho against P_L^{basis}(R):")
+    print(f"{'predictor':>24} " + "".join(f"{'R = ' + str(p):>9}" for p in P))
+    for name, pred in cal_preds.items():
+        rho = [depth_rho(p, basis, predictor=pred)[0] for p in P]
+        print(f"{name:>24} " + "".join(f"{v:>+9.2f}" for v in rho))
+        ax.plot(P, rho, "o-", lw=3 if pred.startswith("r_ovl") else 1.5, label=name)
+    ax.axhline(0, color="k", lw=0.8)
+    ax.set(xlabel="p = R", title=f"pooled agreement with $P_L^{basis}(R)$", ylim=(-1, 1))
+    ax.grid(alpha=0.3)
+axes[0].set_ylabel(r"Spearman $\rho$")
+axes[0].legend(fontsize=8)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_depth_vs_calibration.pdf", bbox_inches="tight")
+plt.show()
+"""),
+        md(r"""
+## 6. Every predictor, campaign by campaign
+
+Each patch reduced to its logical error rate after `R_REF` rounds, and every predictor - the benchmark score and
+each calibration number - ranked against it, campaign by campaign. Every predictor is oriented so that larger
+means worse (the benchmark enters as $-$score), so **positive means it ranks the patches the way the memory
+experiment does**. The dotted lines mark the $\rho$ that $n$ patches need for $p < 0.05$ on its own.
+
+**Read with care.** With about a dozen patches and nine predictors, two bases and several campaigns, a few
+$p < 0.05$ appear by chance: a predictor counts when it agrees campaign after campaign, not in one of them.
+The pooled column combines the same patches seen several times, so it gains resolution, not independence.
+"""),
+        code(r"""
+order = ["rank"] + (["rank_x"] if any(r["r_ovl_x"] for r in rows) else []) \
+        + ["cz_mean", "cz_max", "anc_ro_mean", "data_ro_mean", "sx_mean", "inv_T1", "inv_T2", "budget"]
+table = {(pred, target): agreement(rows, pred, target) for pred in order for target in ("mem_Z", "mem_X")}
+for target in ("mem_Z", "mem_X"):
+    print(f"\nrho against P_L^{target[-1]} after R = {R_REF} rounds:")
+    print(f"{'predictor':>14} " + "".join(f"{c:>15}" for c in labels) + f"{'pooled':>15}")
+    for pred in order:
+        a = table[(pred, target)]
+        print(f"{pred:>14} " + "".join(f"{a[c][0]:>+8.2f} ({a[c][1]:.2f})" for c in labels + ["pooled"]))
+
+n = int(np.median([len(per[c]) for c in labels]))
+tcrit = student_t.ppf(0.975, n - 2)
+rho_crit = tcrit / np.sqrt(n - 2 + tcrit ** 2)
+style = {"rank": ("#2f6f9f", "o", 3.0), "rank_x": ("#e08214", "s", 3.0), "cz_mean": ("#b8560f", "s", 2.0),
+         "budget": ("#4d9221", "D", 2.0), "data_ro_mean": ("#8e44ad", "^", 1.6), "anc_ro_mean": ("#c0392b", "v", 1.2)}
+fig, axes = plt.subplots(1, 2, figsize=(13, 4.5), sharey=True)
+for ax, target in zip(axes, ("mem_Z", "mem_X")):
+    for pred in order:
+        colour, marker, lw = style.get(pred, ("0.7", ".", 0.8))
+        rho = [table[(pred, target)][c][0] for c in labels]
+        ax.plot(x, rho, marker=marker, color=colour, lw=lw, label=f"{pred} (pooled {table[(pred, target)]['pooled'][0]:+.2f})")
+    for sign in (+1, -1):
+        ax.axhline(sign * rho_crit, color="k", ls=":", lw=1)
+    ax.axhline(0, color="k", lw=0.8)
+    ax.set(title=f"agreement with $P_L^{target[-1]}$ after R = {R_REF} rounds", ylim=(-1, 1))
+    ax.set_xticks(x, labels)
+    ax.grid(alpha=0.3)
+    ax.legend(fontsize=8, loc="lower left", ncol=2)
+axes[0].set_ylabel(r"Spearman $\rho$")
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_agreement.pdf", bbox_inches="tight")
+plt.show()
+print(f"dotted: |rho| = {rho_crit:.2f}, p = 0.05 for n = {n} patches")
+"""),
+        md(r"""
+### The benchmark against the memory, campaign by campaign
+
+Each patch as a point: its benchmark score against its logical error rate after `R_REF` rounds (log scale).
+The patches the benchmark would pick are ringed; the ones that really kept the logical qubit longest (`OUTCOME`)
+are marked with a star.
+"""),
+        code(r"""
+fig, axes = plt.subplots(2, len(labels), figsize=(3.6 * len(labels), 7), sharex=True, sharey="row", squeeze=False)
+for j, c in enumerate(labels):
+    sub = per[c]
+    chosen = {r["name"] for r in pick(sub, "rank", TOP)}
+    best = {r["name"] for r in sorted(sub, key=lambda r: (-r[OUTCOME], r["mem_Z"]))[:TOP]}
+    for i, basis in enumerate(("Z", "X")):
+        ax = axes[i, j]
+        for r in sub:
+            ax.scatter(r["score"], r[f"mem_{basis}"], color="#2f6f9f", zorder=3)
+            if r["name"] in chosen:
+                ax.scatter(r["score"], r[f"mem_{basis}"], s=220, facecolor="none", edgecolor="#b8560f", lw=1.8, zorder=4)
+            if r["name"] in best:
+                ax.scatter(r["score"], r[f"mem_{basis}"], marker="*", s=90, color="gold", edgecolor="k", lw=0.6, zorder=5)
+        rho = spearman([-r["score"] for r in sub], [r[f"mem_{basis}"] for r in sub])[0]
+        ax.set_title(f"{c}   $\\rho$ = {rho:+.2f}", fontsize=10)
+        ax.set_yscale("log")
+        ax.grid(alpha=0.3)
+        if j == 0:
+            ax.set_ylabel(rf"$P_L^{basis}$ after R = {R_REF}")
+    axes[1, j].set_xlabel("benchmark score")
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_scatter.pdf", bbox_inches="tight")
+plt.show()
+"""),
+        md(r"""
+## 7. Picking the best patches
+
+Each method picks its `TOP` patches in every campaign: the benchmark (highest score), the CZ error, the
+round budget and the data readout (lowest). A pick is judged by `OUTCOME` of the patches it chose, against the
+typical patch (all of them) and the best `TOP` there were. A method that sits at "best possible" found the good
+patches; one at "typical" did no better than choosing blind.
+"""),
+        code(r"""
+methods = {"benchmark Z frame": "rank", "CZ error": "cz_mean", "round budget": "budget",
+           "data readout": "data_ro_mean"}
+if any(r["r_ovl_x"] for r in rows):
+    methods = {"benchmark Z frame": "rank", "benchmark X frame": "rank_x", **methods}
+picks = {m: selection(rows, pred, OUTCOME, TOP) for m, pred in methods.items()}
+print(f"mean {OUTCOME} of the {TOP} patches each method picks")
+print(f"{'method':>14} " + "".join(f"{c:>9}" for c in labels) + f"{'mean':>9}")
+for m in methods:
+    v = [picks[m][c][0] for c in labels]
+    print(f"{m:>14} " + "".join(f"{u:>9.2f}" for u in v) + f"{np.mean(v):>9.2f}")
+for k, label in ((1, "typical patch"), (2, "best possible")):
+    v = [picks[next(iter(methods))][c][k] for c in labels]
+    print(f"{label:>14} " + "".join(f"{u:>9.2f}" for u in v) + f"{np.mean(v):>9.2f}")
+
+fig, ax = plt.subplots(figsize=(9, 4.2))
+width = 0.8 / len(methods)
+for k, m in enumerate(methods):
+    ax.bar(np.arange(len(labels)) + (k - (len(methods) - 1) / 2) * width, [picks[m][c][0] for c in labels],
+           width, label=m)
+for k, name, ls in ((1, "typical patch", "--"), (2, "best possible", "-")):
+    ax.hlines([picks[next(iter(methods))][c][k] for c in labels], np.arange(len(labels)) - 0.45, np.arange(len(labels)) + 0.45,
+              colors="k", linestyles=ls, lw=1.4, label=name)
+ax.set_xticks(range(len(labels)), labels)
+ax.set(ylabel=f"{OUTCOME} of the {TOP} picked", title=f"picking {TOP} patches")
+ax.legend(fontsize=8, ncol=3)
+ax.grid(axis="y", alpha=0.3)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_selection.pdf", bbox_inches="tight")
+plt.show()
+
+print("\nwhat each method picked:")
+for c in labels:
+    actual = sorted(per[c], key=lambda r: (-r[OUTCOME], r["mem_Z"]))[:TOP]
+    print(f"  {c}: " + "   ".join(f"{m}: {', '.join(r['name'] for r in pick(per[c], p, TOP))}"
+                               for m, p in methods.items())
+          + f"   | best memory: {', '.join(r['name'] for r in actual)}")
+"""),
+        md(r"""
+### The patches that stay good
+
+Every patch's mean rank over all campaigns, by each measurement, and where the patches sit on the chip (the chip
+drawn from the couplers of the latest calibration snapshot). The `TOP` patches of the memory experiment are
+outlined in black. Neighbouring placements share qubits, so several good patches in one corner are one good
+region of the chip rather than independent choices.
+"""),
+        code(r"""
+mean_rank = {}
+for metric, title, high in rank_panels:
+    R = ranks(metric, high)
+    mean_rank[metric] = {name: np.nanmean(R[i]) for i, name in enumerate(names)}
+memory_rank = {n: (mean_rank["mem_Z"][n] + mean_rank["mem_X"][n]) / 2 for n in names}
+print("mean rank over the campaigns (1 = best)")
+print(f"{'patch':>6} " + "".join(f"{PLAIN[m]:>18}" for m, _, _ in rank_panels) + f"{'memory, Z and X':>18}")
+for n_ in sorted(names, key=lambda n: memory_rank[n]):
+    print(f"{n_:>6} " + "".join(f"{mean_rank[m][n_]:>18.1f}" for m, _, _ in rank_panels) + f"{memory_rank[n_]:>18.1f}")
+winners = sorted(names, key=lambda n: memory_rank[n])[:TOP]
+by_benchmark = sorted(names, key=lambda n: mean_rank["score"][n])[:TOP]
+print(f"\nbest {TOP} by the memory experiment, over all campaigns: {', '.join(winners)}")
+print(f"best {TOP} by the benchmark, over all campaigns:         {', '.join(by_benchmark)}"
+      f"   ({len(set(winners) & set(by_benchmark))} of {TOP} the same)")
+
+latest = max((c for c in campaigns if c.calibration), key=lambda c: c.day)
+G = chip_graph(latest.calibration)
+coords = square_lattice_coordinates(G)
+patch_of = {r["name"]: r["patch"] for r in rows}
+fig, ax = plt.subplots(figsize=(7, 8))
+for u, v in G.edges:
+    (r1, c1), (r2, c2) = coords[u], coords[v]
+    ax.plot([c1, c2], [-r1, -r2], color="0.85", lw=1, zorder=0)
+ax.scatter([c for r, c in coords.values()], [-r for r, c in coords.values()], s=18, color="0.75", zorder=1)
+cmap = plt.get_cmap("RdYlGn_r")
+for q in patch_of[winners[0]]:                  # the qubits of the best patch, for scale
+    r, c = coords[q]
+    ax.scatter(c, -r, s=70, facecolor="none", edgecolor="#2f6f9f", lw=1.4, zorder=2)
+for n_ in names:
+    rc = np.array([coords[q] for q in patch_of[n_]], float).mean(axis=0)
+    ax.scatter(rc[1], -rc[0], s=620, color=cmap((memory_rank[n_] - 1) / max(len(names) - 1, 1)),
+               edgecolor="k" if n_ in winners else "0.4", lw=2.6 if n_ in winners else 0.8, zorder=3)
+    ax.text(rc[1], -rc[0], f"{n_}\n{memory_rank[n_]:.1f}", ha="center", va="center", fontsize=7.5, zorder=4)
+ax.set_aspect("equal")
+ax.axis("off")
+ax.set_title(f"surface_d{DISTANCE} patches on {BACKEND}: each at its centre, with its mean memory rank\n"
+             f"(green = best; black ring = best {TOP}; blue circles = data qubits of {winners[0]})", fontsize=10)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_campaigns_chip.pdf", bbox_inches="tight")
+plt.show()
+"""),
+        md(r"""
+## 8. What changed in the latest campaign
+
+The newest campaign against the one before it, in numbers: the chip-wide medians, how much the patch rankings
+moved, and whether the agreement between benchmark and memory went up or down.
+"""),
+        code(r"""
+if len(labels) < 2:
+    print("one campaign only - nothing to compare yet")
+else:
+    new, old = labels[-1], labels[-2]
+    print(f"{new} against {old}")
+    for metric, title, _ in panels:
+        a, b = (np.nanmedian([r[metric] for r in per[c]]) for c in (old, new))
+        print(f"  {PLAIN[metric]:>18}: {a:.4f} -> {b:.4f}  ({100 * (b - a) / a:+.0f} %)")
+    for metric, title, _ in rank_panels:
+        rho = stability(rows, metric)[(old, new)][0]
+        print(f"  {PLAIN[metric]:>18}: ranking kept with rho = {rho:+.2f}")
+    for target in ("mem_Z", "mem_X"):
+        for pred in [p for p in ("rank", "rank_x", "cz_mean", "budget") if p in order]:
+            a, b = table[(pred, target)][old][0], table[(pred, target)][new][0]
+            print(f"  agreement of {pred:>8} with {target}: {a:+.2f} -> {b:+.2f}")
+"""),
+        md(r"""
+## 9. What the campaigns support so far
+
+A summary computed from everything above, so it changes as campaigns are added. For each memory basis: the
+pooled agreement of each benchmark frame and of the best calibration number, campaign by campaign; how much the
+chip re-ordered its own patches between campaigns (if it barely moved, that campaign tests little); and how well
+each measurement reproduces itself. Read the frames against the memory of their own basis first.
+"""),
+        code(r"""
+best_cal = ["cz_mean", "budget", "data_ro_mean", "anc_ro_mean", "sx_mean", "inv_T1", "inv_T2"]
+def pooled_rho(pred, basis, campaign):
+    return depth_rho(P[1], basis, predictor=pred, campaign=campaign)[0] if False else np.nanmean(
+        [depth_rho(p, basis, predictor=pred, campaign=campaign)[0] for p in P[1:]])
+
+for basis in ("Z", "X"):
+    print(f"\nmemory {basis}: mean rho over p = R >= 2, per campaign")
+    print(f"{'campaign':>9} " + "".join(f"{h:>18}" for h in BENCH) + f"{'best calibration':>24}")
+    for c in labels:
+        cells = [pooled_rho(pred, basis, c) for pred in BENCH.values()]
+        cal = {name: pooled_rho(name, basis, c) for name in best_cal}
+        top = max(cal, key=lambda k: cal[k])
+        print(f"{c:>9} " + "".join(f"{v:>18.2f}" for v in cells) + f"{f'{cal[top]:.2f} ({top})':>24}")
+
+print("\nhow much the chip re-ordered itself between campaigns (Spearman of P_L at R = 3)")
+for basis in ("Z", "X"):
+    pairs = []
+    for a, b in zip(labels, labels[1:]):
+        va = {r["patch"]: r[f"P_L_{basis}"][3] for r in per[a]}
+        vb = {r["patch"]: r[f"P_L_{basis}"][3] for r in per[b]}
+        common = sorted(set(va) & set(vb))
+        pairs.append(f"{a}->{b} {spearman([va[k] for k in common], [vb[k] for k in common])[0]:+.2f}")
+    print(f"  {basis}: " + "   ".join(pairs))
+
+print("\nreproducibility of each measurement between campaigns (Spearman)")
+for label, metric in [("benchmark Z frame", "rank"), ("benchmark X frame", "rank_x"),
+                      ("memory P_L^Z(R=3)", "mem_Z"), ("memory P_L^X(R=3)", "mem_X"), ("mean CZ error", "cz_mean")]:
+    pairs = stability(rows, metric)
+    got = [f"{a}->{b} {v[0]:+.2f}" for (a, b), v in pairs.items() if np.isfinite(v[0])]
+    print(f"  {label:>19}: " + ("   ".join(got) if got else "not run in two campaigns yet"))
+"""),
+
+    ]
+
+
+def xframe_ibm_notebook():
+    return [
+        md(r"""
+# Experimental: the LR-QAOA benchmark in the X frame, on IBM
+
+Does the frame of the benchmark explain the $X$ memory results? The benchmark measures a code's checks as
+$Z\cdots Z$ terms: the data start in $|+\rangle$, and the late layers - where the LR ramp is close to a
+computational-basis state - are hurt most by errors that **flip** the data, the ones $Z$ memory fails on. The
+**X frame** is the same algorithm conjugated by $H$ on every data qubit ($X\cdots X$ terms, `rz` mixer, data from
+$|0\rangle$, read in $X$), built natively so the data really sit in the $X$ frame through every ancilla readout:
+there a **phase** error does what a flip did, which is what $X$ memory fails on. Noiselessly both give the same
+$r$, so $r_{\rm ovl}$ of the two frames compares directly.
+
+**The prediction:** at each $p = R$, the X frame ranks the patches like the $X$ memory experiment and the Z frame
+like the $Z$ one: $\rho(r^X_{\rm ovl}, P_L^X) > \rho(r^Z_{\rm ovl}, P_L^X)$, and the reverse for $Z$. If both frames
+rank the patches alike, the frame is not what separates the two memories.
+
+Both frames run **interleaved in the same jobs**, on the patches of the 2026-09-14 scan. Run
+`benchmark_qec_memory.ipynb` on the same patches in the same session, so section 5 has its memory data.
+
+**Removable:** `qecbench.xframe`, `tests/test_xframe.py`, this notebook (and its function in `make_notebooks.py`),
+and the folders `data/manifests/xframe/` and `data/results/<backend>/surface_code/xframe/`. Nothing else uses them.
+"""),
+        code(r"""
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path.cwd().parent if Path.cwd().name == "notebooks" else Path.cwd()
+sys.path.insert(0, str(ROOT / "src"))          # not needed after `pip install -e .`
+DATA, FIGURES = ROOT / "data", ROOT / "figures"
+FIGURES.mkdir(parents=True, exist_ok=True)
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import spearmanr
+
+from qecbench import codes
+from qecbench import xframe as xf
+from qecbench.backends import IBMBackend
+from qecbench.layout import surface_code_placements
+"""),
+        md(r"""
+## 1. Configuration
+
+`SUBMIT = False` builds, transpiles and prices everything against the device (an account is needed to read its
+target, nothing is sent); `True` sends it.
+"""),
+        code(r"""
+BACKEND_NAME = "ibm_phoenix"
+ACCOUNT      = "mcm-primitives"
+SCAN_ANCHORS = {3: [(7, 2), (7, 3), (6, 3), (0, 3), (0, 4), (7, 5), (6, 4), (2, 5), (3, 7), (7, 7), (3, 2)],
+                5: [(0, 5), (0, 4), (3, 5), (1, 5), (1, 4), (2, 4), (3, 4), (2, 5)]}
+DISTANCES    = [3, 5]
+DEPTHS       = [1, 2, 3, 5, 7, 10]     # the memory experiment's round counts, so every p has its R = p
+SHOTS        = 1000
+DELTA        = 0.5
+SUBMIT       = False                   # True sends the jobs and consumes QPU time
+"""),
+        md(r"""
+## 2. Patches and circuits
+
+The same placements as the benchmark and the memory experiment (`layout.surface_code_placements` from the scan's
+anchors). Below, what the transpiler makes of one circuit in each frame: the X frame has no `sx` in the mixer
+(`rz` is virtual) but a Hadamard on each data qubit around every block of CZs, and on this device the two come out
+with the same number of `sx` pulses - so the frames differ in where the data sit, not in how many gates they get.
+"""),
+        code(r"""
+backend = IBMBackend(BACKEND_NAME, account=ACCOUNT, optimization_level=1, dynamical_decoupling=False)
+G = backend.coupling_graph()
+patches = [p for d in DISTANCES for p in surface_code_placements(G, codes.surface_code(d), anchors=SCAN_ANCHORS[d])]
+print(f"{len(patches)} patches: " + ", ".join(f"{p.code.name}@{min(p.data_qubits)}" for p in patches))
+
+xplan = xf.plan(backend, patches, DEPTHS, shots=SHOTS, delta=DELTA)
+est = xplan["estimate"]
+n = len(xplan["circuits"])
+print(f"\n{n} circuits = {len(patches)} patches x {len(DEPTHS)} depths x 2 frames, "
+      f"{-(-n // backend.max_circuits_per_job)} jobs of up to {backend.max_circuits_per_job}")
+print(f"estimate: {est['total']:.1f} QPU s = ${est['usd']:.2f}   ({est['notes'][0]})")
+
+i = next(k for k, t in enumerate(xplan["tasks"]) if t["depth"] == 3)
+print("\ntranspiled gates, first patch at p = 3:")
+for frame, qc in (("Z", xplan["circuits"][i]), ("X", xplan["circuits"][i + 1])):
+    print(f"  {frame} frame: " + ", ".join(f"{k} {v}" for k, v in sorted(qc.count_ops().items())))
+"""),
+        md(r"""
+## 3. Submit
+
+A calibration snapshot is taken first, as for every run. The manifest (`data/manifests/xframe/`) is written after
+every job. Then run the memory experiment on the same patches.
+"""),
+        code(r"""
+if SUBMIT:
+    backend.calibration(save_dir=DATA / "calibration")
+    manifest_path = xf.submit(xplan, backend, manifest_dir=DATA / "manifests" / "xframe")
+else:
+    print("SUBMIT = False - nothing sent")
+"""),
+        md(r"""
+## 4. Harvest
+
+The newest X-frame manifest; harvesting again later adds the jobs that were still running.
+"""),
+        code(r"""
+manifests = sorted((DATA / "manifests" / "xframe").glob("*_xframe.json"))
+if manifests:
+    saved = xf.harvest(manifests[-1], backend, data_dir=DATA / "results")
+else:
+    print("no X-frame manifest yet")
+"""),
+        md(r"""
+## 5. Both frames against the memory experiment of the same day
+
+For each $p = R$ and each basis, the Spearman $\rho$ between $-r_{\rm ovl}(p)$ of each frame and the measured
+$P_L(R)$ over the $d = 3$ patches (positive = the patch the frame rates higher keeps its logical qubit better).
+The prediction holds if the diagonal of each table (Z frame with $Z$ memory, X frame with $X$ memory) beats the
+off-diagonal. Below it: do the two frames even rate the patches differently?
+"""),
+        code(r"""
+runs = sorted((DATA / "results" / BACKEND_NAME / "surface_code" / "xframe").glob("*_xframe.json"))
+assert runs, "no harvested X-frame run yet"
+frames, run = xf.load(runs[-1])
+day = run["created"][:10].replace("-", "")
+memory_files = sorted((DATA / "results" / BACKEND_NAME / "surface_code" / "memory").glob(f"{day}_*_memory.json"))
+assert memory_files, f"no memory run on {run['created'][:10]} - run benchmark_qec_memory.ipynb on the same patches"
+P_L = {}
+for rec in json.loads(memory_files[-1].read_text())["results"]:
+    key = tuple(rec["parameters"]["data_qubits"])
+    P_L.setdefault(rec["parameters"]["basis"], {}).setdefault(key, {})[rec["parameters"]["rounds"]] = \
+        rec["benchmark"]["logical_error_rate"]
+print(f"X-frame run {runs[-1].name}  +  memory run {memory_files[-1].name}")
+
+d3 = [k for k in frames["Z"] if len(k) == 9 and k in P_L["Z"]]
+depths = sorted(set(DEPTHS) & set(next(iter(P_L["Z"].values()))))
+rho = {}
+for basis in ("Z", "X"):
+    print(f"\nrho(-r_ovl(p), P_L^{basis}(R = p)), {len(d3)} surface_d3 patches")
+    print(f"{'frame':>8} " + "".join(f"{'p=R=' + str(p):>10}" for p in depths))
+    for frame in ("Z", "X"):
+        row = [spearmanr([-frames[frame][k][p] for k in d3], [P_L[basis][k][p] for k in d3])[0] for p in depths]
+        rho[(frame, basis)] = row
+        mark = "  <- same frame as the memory" if frame == basis else ""
+        print(f"{frame:>8} " + "".join(f"{v:>+10.2f}" for v in row) + mark)
+
+print("\ndo the frames rate the patches differently? rho(r_ovl Z frame, r_ovl X frame) and the mean X - Z")
+for p in depths:
+    a, b = [frames["Z"][k][p] for k in d3], [frames["X"][k][p] for k in d3]
+    print(f"  p = {p:>2}: rho = {spearmanr(a, b)[0]:+.2f}   mean r_ovl X - Z = {np.mean(b) - np.mean(a):+.3f}")
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharey=True)
+for ax, basis in zip(axes, ("Z", "X")):
+    for frame, style in (("Z", "o-"), ("X", "s--")):
+        ax.plot(depths, rho[(frame, basis)], style, lw=2.5 if frame == basis else 1.5, label=f"{frame} frame")
+    ax.axhline(0, color="k", lw=0.8)
+    ax.set(title=f"agreement with the {basis} memory", xlabel="p = R", ylim=(-1, 1))
+    ax.grid(alpha=0.3)
+    ax.legend()
+axes[0].set_ylabel(r"Spearman $\rho$")
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND_NAME}_xframe_vs_memory.pdf", bbox_inches="tight")
+plt.show()
+"""),
+        md(r"""
+### $r_{\rm ovl}$ against the logical error rate, patch by patch
+
+Every $d = 3$ patch at every $p = R$: its $r_{\rm ovl}$ after $p$ layers in each frame against its measured logical
+error rate after $R = p$ rounds (top: $Z$ memory, bottom: $X$ memory). A thin line joins the two frames of one patch;
+the frame matching the memory's basis is outlined. A good predictor puts the points on a falling line.
+"""),
+        code(r"""
+styles = {"Z": dict(marker="o", color="#2f6f9f"), "X": dict(marker="s", color="#b8560f")}
+fig, axes = plt.subplots(2, len(depths), figsize=(3.2 * len(depths), 6.8), sharey="row", squeeze=False)
+for i, basis in enumerate(("Z", "X")):
+    for j, p in enumerate(depths):
+        ax = axes[i, j]
+        for k in d3:
+            ax.plot([frames["Z"][k][p], frames["X"][k][p]], [P_L[basis][k][p]] * 2, color="0.8", lw=0.8, zorder=1)
+        for frame in ("Z", "X"):
+            ro = [frames[frame][k][p] for k in d3]
+            pl = [P_L[basis][k][p] for k in d3]
+            r = spearmanr([-v for v in ro], pl)[0]
+            ax.scatter(ro, pl, s=38, alpha=0.9, zorder=2, label=rf"{frame} frame, $\rho$ = {r:+.2f}", **styles[frame],
+                       edgecolor="k" if frame == basis else "none", linewidth=0.8)
+        ax.set_yscale("log")
+        ax.grid(alpha=0.3)
+        ax.set_title(f"p = R = {p}", fontsize=10)
+        ax.legend(fontsize=7, loc="best")
+        if i == 1:
+            ax.set_xlabel(r"$r_{\rm ovl}(p)$")
+    axes[i, 0].set_ylabel(rf"$P_L^{basis}(R)$")
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND_NAME}_xframe_rovl_vs_logical_error.pdf", bbox_inches="tight")
+plt.show()
+"""),
+        md(r"""
+### The best patches, depth by depth
+
+The `N_BEST` patches that kept the $X$ logical qubit best (lowest $P_L^X$, ranked at every round count and
+averaged), each followed from $p = R = 1$ to $10$: its $r_{\rm ovl}(p)$ against $P_L^X(R = p)$, the X frame solid and
+labelled with the depth, the Z frame of the same patch dashed. `N_WORST` adds the patches at the other end, thinner
+and with triangles (`0` leaves them out): if the X frame measures what the memory does, they continue the best
+patches' curve further down rather than lying on a curve of their own.
+"""),
+        code(r"""
+N_BEST, N_WORST = 3, 3                     # N_WORST = 0: the best patches only
+mean_rank = {k: np.mean([sorted(d3, key=lambda q: P_L["X"][q][p]).index(k) + 1 for p in depths]) for k in d3}
+order = sorted(d3, key=lambda k: mean_rank[k])
+best, worst = order[:N_BEST], (order[-N_WORST:] if N_WORST else [])
+print("best by X memory:  " + ", ".join(f"@{min(k)} (mean rank {mean_rank[k]:.1f})" for k in best))
+if worst:
+    print("worst by X memory: " + ", ".join(f"@{min(k)} (mean rank {mean_rank[k]:.1f})" for k in worst))
+
+fig, ax = plt.subplots(figsize=(8.5, 5.8))
+groups = [(best, plt.get_cmap("tab10").colors, dict(marker="s", lw=2, ms=7), dict(lw=1, ms=5, alpha=0.55)),
+          (worst, plt.get_cmap("Dark2").colors[3:], dict(marker="^", lw=1.1, ms=6, alpha=0.8),
+           dict(lw=0.8, ms=4, alpha=0.4))]
+for patches_, colours, x_style, z_style in groups:
+    for colour, k in zip(colours, patches_):
+        pl = [P_L["X"][k][p] for p in depths]
+        ax.plot([frames["X"][k][p] for p in depths], pl, "-", color=colour, label=f"@{min(k)}, X frame", **x_style)
+        ax.plot([frames["Z"][k][p] for p in depths], pl, "o--", color=colour, label=f"@{min(k)}, Z frame", **z_style)
+        for p, xv, yv in zip(depths, [frames["X"][k][p] for p in depths], pl):
+            ax.annotate(f"{p}", (xv, yv), textcoords="offset points", xytext=(5, 4), fontsize=8, color=colour)
+ax.set(xlabel=r"$r_{\rm ovl}(p)$", ylabel=r"$P_L^X(R = p)$", yscale="log",
+       title=f"the {N_BEST} best" + (f" and {N_WORST} worst" if worst else "")
+             + f" patches by X memory, p = R = {depths[0]} ... {depths[-1]}")
+ax.grid(alpha=0.3)
+ax.legend(fontsize=7.5, ncol=2)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND_NAME}_xframe_best_patches.pdf", bbox_inches="tight")
+plt.show()
+"""),
+    ]
+
+
 def write(name, cells):
     nb = nbf.v4.new_notebook(cells=cells)
     nb.metadata["kernelspec"] = {"name": "python3", "display_name": "Python 3", "language": "python"}
@@ -3785,6 +5477,8 @@ if __name__ == "__main__":
         "benchmark_qec_memory.ipynb": qec_memory_notebook,
         "noise_study.ipynb": noise_study_notebook,
         "paper_figures.ipynb": paper_figures_notebook,
+        "memory_vs_benchmark.ipynb": memory_vs_benchmark_notebook,
+        "benchmark_xframe_ibm.ipynb": xframe_ibm_notebook,          # experimental; see its first cell
     }
     wanted = sys.argv[1:] or list(NOTEBOOKS)          # e.g. python make_notebooks.py paper_figures.ipynb
     for name in wanted:

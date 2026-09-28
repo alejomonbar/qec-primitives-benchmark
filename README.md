@@ -16,6 +16,32 @@ square-lattice chips (see *QEC structures*).
 It also reads the result files of earlier campaigns of this benchmark (per-instance JSON files) and
 converts them into its own format (see *Paper figures*).
 
+## The paper
+
+This repository is part of the paper
+
+> J. A. Montañez-Barrera and K. Michielsen, *Evaluating the performance of QEC primitives on Quantum Processors
+> at large width and depth* (Jülich Supercomputing Centre, 2026).
+
+It holds the code and every dataset behind the paper's results: the problem instances (1D chains and the
+surface-code, colour-code and bivariate-bicycle qLDPC check Hamiltonians, `qecbench.codes`), the direct and MCM
+circuits, the device runs on IBM, IQM and Quantinuum QPUs in a common format (`data/results/`), the
+depolarizing-noise study that defines `κ` and `λ_eff` (`notebooks/noise_study.ipynb`), the shot-budget analysis
+(`qecbench.shots`) and the surface-code memory experiments (`qecbench.memory`). How it maps onto the paper:
+
+| paper | here |
+|---|---|
+| Sec. II A-B, Eqs. (1)-(18): LR-QAOA schedule, Hamiltonians, `r`, `r_ovl`, `ε_acc`, `κ`, `λ_eff` | `qecbench.lrqaoa`, `qecbench.codes`, `qecbench.noise_study`; `notebooks/noise_study.ipynb` |
+| Sec. II C, Eqs. (19)-(24): shots to rank two devices | `qecbench.shots` |
+| Sec. II D-E, Table I: circuits and resources | `qecbench.circuits`, `qecbench.code_programs`, `CodeStructure.counts` |
+| Sec. III A-B: triplets and 1D chains | `notebooks/benchmark_ibm.ipynb`, `benchmark_iqm.ipynb`, `benchmark_quantinuum.ipynb` |
+| Sec. III C: QEC structure evaluation | `notebooks/benchmark_codes_quantinuum.ipynb`, `benchmark_codes_ibm.ipynb` |
+| Sec. III E: surface-code memory vs LR-QAOA | `notebooks/benchmark_qec_memory.ipynb` |
+| Figs. 3-9 | `notebooks/paper_figures.ipynb`, from the stored data alone (see *Paper figures*) |
+
+To run the benchmark on a new device, start from the notebook of its vendor; to redraw a figure, run its section
+of `paper_figures.ipynb`, which needs no account.
+
 ## Install
 
 ```bash

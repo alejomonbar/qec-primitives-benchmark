@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -98,3 +101,21 @@ def test_plot_patch_on_chip_marks_every_qubit_of_the_patch():
     ax = plot_patch_on_chip(G, square_lattice_coordinates(G), patch, title="p")
     assert sorted(int(t.get_text()) for t in ax.texts) == sorted(patch.qubits)
     assert ax.get_title() == "p"
+
+
+def test_loading_reads_the_harvested_rate_and_re_decodes_only_when_asked(tmp_path):
+    backend = SimBackend(topology="grid", qubits=121, seed=1)
+    patch = surface_code_placements(backend.coupling_graph(), codes.surface_code(3))[0]
+    plan = mem.plan(backend, [patch], rounds=[1, 2], bases=["Z"], shots=200)
+    manifest = mem.submit(plan, backend, manifest_dir=tmp_path / "m",
+                          noise_model=mem.uniform_noise_model(1e-3, 1e-2, 1e-2), seed=3)
+    saved = Path(mem.harvest(manifest, backend, data_dir=tmp_path / "r"))
+    stored = {r["parameters"]["rounds"]: r["benchmark"]["logical_error_rate"]
+              for r in json.loads(saved.read_text())["results"]}
+    files = {saved.name}
+    (by_basis,) = mem.load_results(tmp_path / "r", backend.name, files=files).values()
+    assert {R: s["rate"] for R, s in by_basis["Z"].items()} == stored        # the harvested numbers, untouched
+    (again,) = mem.load_results(tmp_path / "r", backend.name, files=files, decode_again=True).values()
+    assert {R: s["rate"] for R, s in again["Z"].items()} == stored           # decoding again reproduces them
+    (other,) = mem.load_results(tmp_path / "r", backend.name, files=files, p_2q_model=0.3).values()
+    assert set(other["Z"]) == set(stored)                                    # other weights: decoded, may differ

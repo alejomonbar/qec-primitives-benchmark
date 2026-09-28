@@ -275,3 +275,37 @@ def test_public_job_id_drops_the_aws_account():
     assert public_job_id(arn) == "arn:aws:braket:eu-north-1:<aws-account>:quantum-task/24410d46-a910-4965-a501-9fa6e2afc93c"
     assert public_job_id(public_job_id(arn)) == public_job_id(arn)
     assert public_job_id("dajqaehhvn6c73cuomrg") == "dajqaehhvn6c73cuomrg" and public_job_id(None) is None
+
+
+def test_harvest_refuses_a_memory_manifest_with_a_pointer_to_its_own_harvest(tmp_path):
+    from qecbench.experiment import harvest
+
+    path = tmp_path / "20260922_095516_ibm_phoenix_surface_code_memory.json"
+    path.write_text(json.dumps({"backend": "ibm_phoenix", "experiment": "memory", "created": "2026-09-22T09:55:16",
+                                "jobs": [{"job_id": "x", "tasks": [{"index": 0, "basis": "Z", "rounds": 1,
+                                                                    "instance": {}}]}]}))
+    with pytest.raises(ValueError, match="memory-experiment manifest.*qecbench.memory.harvest"):
+        harvest(path, backend=None, data_dir=tmp_path)
+
+
+def test_both_frames_run_side_by_side_and_file_apart(tmp_path):
+    backend = AerBackend(seed=4)                                    # a 9-qubit path, noiseless
+    chains = [Chain((0, 1, 2, 3, 4))]
+    plan = build_plan(backend, chains, depths=[1, 2], shots=3000, frames=("Z", "X"))
+    assert [(t["kind"], t["frame"], t["depth"]) for t in plan["tasks"]] == [
+        ("mcm", "Z", 1), ("mcm_x", "X", 1), ("mcm", "Z", 2), ("mcm_x", "X", 2)]      # a batch's frames adjacent
+    manifest = submit(plan, backend, manifest_dir=tmp_path / "m")
+    saved = harvest(manifest, backend, data_dir=tmp_path / "r")
+    assert sorted(Path(p).parent.name for p in saved) == ["mcm", "mcm_x"]
+    for kind in ("mcm", "mcm_x"):
+        (by_depth,) = load_results(tmp_path / "r", backend.name, kind=kind).values()
+        for s in by_depth.values():
+            assert abs(s["r"] - s["r_ideal"]) < 4 * s["r_err"]          # both frames, the noiseless r
+    with pytest.raises(ValueError, match="frames"):
+        build_plan(backend, chains, depths=[1], shots=10, frames=("Y",))
+
+
+def test_a_backend_without_the_x_frame_says_so():
+    backend = AerBackend(dialect="iqm")
+    with pytest.raises(ValueError, match="builds frames"):
+        build_plan(backend, [Chain((0, 1, 2))], depths=[1], shots=10, frames=("Z", "X"))

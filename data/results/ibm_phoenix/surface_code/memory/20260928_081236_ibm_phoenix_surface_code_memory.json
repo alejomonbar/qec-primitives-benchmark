@@ -1,0 +1,26 @@
+{
+ "run": {
+  "backend": "ibm_phoenix",
+  "created": "2026-09-28T08:12:36.290613",
+  "experiment": "memory",
+  "shots": 4000,
+  "rounds": [
+   1,
+   2,
+   3,
+   5,
+   7,
+   10
+  ],
+  "bases": [
+   "Z",
+   "X"
+  ],
+  "p_2q_model": 0.003,
+  "simulated": false,
+  "noise_model": null,
+  "manifest": "20260928_081236_ibm_phoenix_surface_code_memory.json",
+  "results": 0
+ },
+ "results": []
+}

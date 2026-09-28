@@ -1,5 +1,6 @@
 """Both dialects, simulated on Aer, must reproduce the exact noiseless r."""
 
+import numpy as np
 import pytest
 
 from qecbench import Chain, Direct
@@ -104,3 +105,55 @@ def test_braket_translation_of_the_direct_reference():
     assert "measure_ff" not in program and "cc_prx" not in program   # no feed-forward at all
     assert program.count("cz $") == 4                                # two bonds x two CZ
     assert program.count("measure $") == 3                           # every qubit carries data
+
+
+# -- the X frame --------------------------------------------------------------------------------------
+def _xframe_patch():
+    from qecbench import codes
+    from qecbench.primitives import CodePatch
+
+    return CodePatch(codes.color_code(3), kind="mcm")          # 7 data + 3 ancillas: quick on Aer
+
+
+def _last_gate_on_data_before_first_readout(qc, n):
+    last = {}
+    for ins in qc.data:
+        if ins.operation.name == "measure":
+            return last
+        if ins.operation.name == "barrier":
+            continue
+        for q in {qc.find_bit(b).index for b in ins.qubits} & set(range(n)):
+            last[q] = ins.operation.name
+    return last
+
+
+def test_the_x_frame_holds_the_data_in_x_through_every_readout():
+    patch = _xframe_patch()
+    n = patch.n_data
+    z = build_dynamic([patch], 2, frame="Z")
+    x = build_dynamic([patch], 2, frame="X")
+    assert set(_last_gate_on_data_before_first_readout(z, n).values()) == {"cz"}
+    assert set(_last_gate_on_data_before_first_readout(x, n).values()) == {"h"}
+    on_data = lambda qc, name: [i for i in qc.data if i.operation.name == name
+                                and {qc.find_bit(b).index for b in i.qubits} & set(range(n))]
+    assert on_data(z, "rx") and not on_data(z, "rz")                # Z frame: rx mixer
+    assert on_data(x, "rz") and not on_data(x, "rx")                # X frame: rz mixer
+    with pytest.raises(ValueError, match="mcm"):
+        build_dynamic([Direct((0, 1, 2))], 2, frame="X")
+    with pytest.raises(ValueError, match="frame"):
+        build_dynamic([patch], 2, frame="Y")
+
+
+def test_both_frames_give_the_same_noiseless_r():
+    from qecbench.analysis import analyse
+    from qecbench.backends.aer import run_aer
+    from qecbench.backends.base import reverse_keys
+
+    patch, depth = _xframe_patch(), 2
+    got = {}
+    for frame in ("Z", "X"):
+        (regs,) = run_aer([build_dynamic([patch], depth, frame=frame)], shots=6000, seed=5)
+        got[frame] = analyse(reverse_keys(regs["d0"]), patch, depth)
+    assert abs(got["Z"]["r"] - got["X"]["r"]) < 4 * np.hypot(got["Z"]["r_err"], got["X"]["r_err"])
+    for a in got.values():
+        assert abs(a["r"] - a["r_ideal"]) < 4 * a["r_err"]

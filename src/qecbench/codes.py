@@ -452,6 +452,9 @@ def load(path, name: str | None = None, family: str = "custom") -> CodeStructure
     return from_hamiltonian(default, terms, n_data, family, source=path.name)
 
 
+SMALLEST = {"surface_code": 3, "color_code": 3, "qldpc": "BB18"}   # the smallest size of each family
+
+
 def build(family: str, size) -> CodeStructure:
     """``build("surface_code", 3)``, ``build("color_code", 5)``, ``build("qldpc", "BB18")``."""
     if family == "surface_code":

@@ -279,11 +279,12 @@ def test_figure6_runs_match_the_published_bars():
     from qecbench.analysis import load_results
 
     root = __import__("pathlib").Path(__file__).resolve().parents[1] / "data" / "results"
-    published = {("Helios-1", "surface_code", "mcm", "surface_d9", 5): 0.48,
-                 ("Helios-1E", "color_code", "direct", "color_d5", 20): 0.76,
-                 ("Helios-1", "qldpc", "mcm", "BB48", 10): 0.5631}
-    for (backend, family, kind, name, p), r in published.items():
-        files = {f.name for f in (root / backend / family / kind).glob("*.json")}
+    # the imported campaigns themselves: a later run of the same structure and depth must not stand in
+    published = {("Helios-1", "surface_code", "mcm", "surface_d9", 5, "20260309_1631"): 0.48,
+                 ("Helios-1E", "color_code", "direct", "color_d5", 20, None): 0.76,
+                 ("Helios-1", "qldpc", "mcm", "BB48", 10, None): 0.5631}
+    for (backend, family, kind, name, p, stamp), r in published.items():
+        files = {f.name for f in (root / backend / family / kind).glob(f"{stamp or ''}*.json")}
         with __import__("warnings").catch_warnings():
             __import__("warnings").simplefilter("ignore")
             res = load_results(root, backend, kind=kind, files=files)

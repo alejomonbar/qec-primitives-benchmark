@@ -12,6 +12,7 @@ from ..layout import validate_batch
 class Backend:
     vendor = "generic"
     kinds: tuple[str, ...] = ("mcm",)
+    frames: tuple[str, ...] = ("Z",)       # circuit frames build() can make (circuits.FRAMES)
     is_simulator = False
     max_circuits_per_job = 1
 

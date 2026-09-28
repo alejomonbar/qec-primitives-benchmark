@@ -34,6 +34,7 @@ UNIT_SECONDS = {"ns": 1e-9, "us": 1e-6, "µs": 1e-6, "ms": 1e-3, "s": 1.0, "": 1
 class IBMBackend(Backend):
     vendor = "ibm"
     kinds = ("mcm", "direct")
+    frames = ("Z", "X")
 
     def __init__(self, name=None, backend=None, account=None, service=None,
                  optimization_level=1, dynamical_decoupling=False, max_circuits_per_job=8,
@@ -167,10 +168,10 @@ class IBMBackend(Backend):
         return flagged
 
     # -- circuits -------------------------------------------------------------------------
-    def build(self, batch, depth, delta, kind="mcm"):
+    def build(self, batch, depth, delta, kind="mcm", frame="Z"):
         from qiskit import transpile
 
-        qc = build_dynamic(batch, depth, delta, kind)
+        qc = build_dynamic(batch, depth, delta, kind, frame=frame)
         _, layout = compact_index(batch)
         return transpile(qc, backend=self.backend, initial_layout=layout,
                          optimization_level=self.optimization_level)

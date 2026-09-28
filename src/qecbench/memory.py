@@ -560,11 +560,13 @@ def memory_record(counts, patch, rounds, basis, manifest, job_id, extra=None):
     }
 
 
-def load_results(data_dir, backend_name, files=None, p_2q_model=None, bases=None):
-    """``{patch: {basis: {rounds: summary}}}``, decoded again from the stored shots.
+def load_results(data_dir, backend_name, files=None, p_2q_model=None, bases=None, decode_again=None):
+    """``{patch: {basis: {rounds: summary}}}`` of the stored memory runs.
 
-    ``summary`` holds ``rate, err, detection_fraction, shots, file``. ``p_2q_model`` overrides the matching
-    weights the run was decoded with; ``bases`` keeps only those bases.
+    ``summary`` holds ``rate, err, detection_fraction, shots, file``. By default the rate each record was
+    harvested with is read back, which is what a run file is for; the shots are decoded again only when
+    ``decode_again=True`` or when ``p_2q_model`` asks for different matching weights (decoding a whole
+    campaign takes about half a minute). ``bases`` keeps only those bases.
     """
     from .analysis import instance_from_record, records_in
 
@@ -578,8 +580,15 @@ def load_results(data_dir, backend_name, files=None, p_2q_model=None, bases=None
             if bases is not None and params["basis"] not in bases:
                 continue
             patch = instance_from_record(record)
-            p = p_2q_model or params["p_2q_model"]
-            rate, err, fired = decode(*record_shots(record, patch.code), patch.code, params["rounds"], params["basis"], p)
+            again = decode_again if decode_again is not None else (p_2q_model is not None
+                                                                   and p_2q_model != params["p_2q_model"])
+            if again:
+                p = p_2q_model or params["p_2q_model"]
+                rate, err, fired = decode(*record_shots(record, patch.code), patch.code, params["rounds"],
+                                          params["basis"], p)
+            else:
+                b = record["benchmark"]
+                rate, err, fired = b["logical_error_rate"], b["logical_error_rate_err"], b["detection_fraction"]
             out.setdefault(patch, {}).setdefault(params["basis"], {})[params["rounds"]] = {
                 "rate": rate, "err": err, "detection_fraction": fired, "shots": params["shots"], "file": path.name}
     return out

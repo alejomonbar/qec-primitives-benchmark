@@ -20,12 +20,13 @@ from pathlib import Path
 
 from .analysis import (instance_from_record, make_record, public_job_id, record_key, records_in, result_dir,
                        run_filename, save_run, short_path)
+from .circuits import FRAMES, result_kind
 from .layout import pack
 from .primitives import from_dict
 
 
 def build_plan(backend, instances, depths, shots, delta=0.5, buffer=False,
-               max_per_batch=None, strategy=None):
+               max_per_batch=None, strategy=None, frames=("Z",)):
     """Pack, validate, build and price every circuit of an experiment.
 
     The circuit an instance gets follows from what it is: a ``Chain`` runs the
@@ -34,7 +35,17 @@ def build_plan(backend, instances, depths, shots, delta=0.5, buffer=False,
     [Direct.from_chain(c) for c in chains]`` - and both go into the same jobs, so the
     reference sees the same calibration as the benchmark.  Each kind is packed separately,
     since their instances need different circuits.
+
+    ``frames=("Z", "X")`` also builds every ``mcm`` batch in the X frame (``circuits.build_dynamic``), right after
+    its Z-frame circuit so the two share a job; those results are filed as kind ``mcm_x``. ``direct`` batches are
+    built in the Z frame only.
     """
+    frames = tuple(dict.fromkeys(frames))
+    if not frames or set(frames) - set(FRAMES):
+        raise ValueError(f"frames must be taken from {FRAMES}, not {frames}")
+    unsupported = set(frames) - set(getattr(backend, "frames", ("Z",)))
+    if unsupported:
+        raise ValueError(f"{backend.name} builds frames {getattr(backend, 'frames', ('Z',))}, not {sorted(unsupported)}")
     instances = sorted(set(instances))
     if not instances:
         raise ValueError("no instances to run")
@@ -57,15 +68,18 @@ def build_plan(backend, instances, depths, shots, delta=0.5, buffer=False,
     for depth in depths:
         for kind in kinds:
             for i, batch in enumerate(batches[kind]):
-                qc = backend.build(batch, depth, delta, kind)
-                problems = backend.check_built(qc, batch)
-                if problems:
-                    raise ValueError(f"batch {i}, depth {depth}, {kind}: " + "; ".join(problems[:5]))
-                tasks.append({"kind": kind, "depth": depth, "batch": i, "instances": batch})
-                circuits.append(qc)
+                for frame in (frames if kind == "mcm" else ("Z",)):
+                    qc = (backend.build(batch, depth, delta, kind) if frame == "Z"
+                          else backend.build(batch, depth, delta, kind, frame=frame))
+                    problems = backend.check_built(qc, batch)
+                    if problems:
+                        raise ValueError(f"batch {i}, depth {depth}, {kind} ({frame} frame): " + "; ".join(problems[:5]))
+                    tasks.append({"kind": result_kind(kind, frame), "frame": frame, "depth": depth, "batch": i,
+                                  "instances": batch})
+                    circuits.append(qc)
     plan = {"backend": backend.name, "vendor": backend.vendor, "instances": instances,
             "batches": batches, "depths": list(depths), "shots": shots, "delta": delta,
-            "kinds": kinds, "buffer": buffer, "max_per_batch": max_per_batch,
+            "kinds": kinds, "frames": list(frames), "buffer": buffer, "max_per_batch": max_per_batch,
             "tasks": tasks, "circuits": circuits}
     plan["estimate"] = backend.estimate(plan)
     return plan
@@ -88,17 +102,21 @@ def print_plan(plan, backend=None):
                                            for (f, k), c in sorted(fam.items())))
         print(f"  {'':<7}  {len(batches)} circuit(s) per depth, running "
               f"{' + '.join(str(len(b)) for b in batches)} instances in parallel")
-    print(f"Circuits   : {n} = {len(plan['depths'])} depths x "
-          f"{sum(len(b) for b in plan['batches'].values())} circuits per depth")
+    print(f"Circuits   : {n} = {len(plan['depths'])} depths x {n // len(plan['depths'])} circuits per depth"
+          + (f" (frames {', '.join(plan['frames'])})" if plan.get("frames", ["Z"]) != ["Z"] else ""))
     print(f"Jobs       : {-(-n // per_job)}, up to {per_job} circuit(s) each")
     est = plan.get("estimate")
     if not est:
+        return
+    if est.get("total") is None:
+        print(f"Cost       : pending - {est['unit']} estimate {est.get('job_id')} has not finished; "
+              f"quote the plan again to read it")
         return
     header = f"\n{'depth':>6} {'kind':>8} {'circuits':>9} {'instances':>10} {est['unit']:>10}"
     print(header)
     print("-" * (len(header) - 1))
     for depth in plan["depths"]:
-        for kind in plan["kinds"]:
+        for kind in sorted({t["kind"] for t in plan["tasks"]}):
             sel = [i for i, t in enumerate(plan["tasks"])
                    if t["depth"] == depth and t["kind"] == kind]
             if not sel:
@@ -121,9 +139,15 @@ def submit(plan, backend, manifest_dir="data/manifests", label=None):
     path = Path(manifest_dir) / backend.name / f"{name}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     est = plan.get("estimate") or {}
+    if est and est.get("total") is None and hasattr(backend, "quote"):
+        est = backend.quote(plan) or est          # look at the estimate job now rather than trust the plan
+    if est and est.get("total") is None:
+        raise RuntimeError(f"the {est['unit']} estimate {est.get('job_id')} is still running, and the per-program "
+                           f"budgets come from it: submit again once it has finished. Nothing was sent.")
     manifest = {"backend": backend.name, "vendor": backend.vendor, "created": datetime.now().isoformat(),
                 "shots": plan["shots"], "delta": plan["delta"], "depths": plan["depths"],
-                "kinds": plan["kinds"], "buffer": plan["buffer"], "max_per_batch": plan["max_per_batch"],
+                "kinds": plan["kinds"], "frames": plan.get("frames", ["Z"]), "buffer": plan["buffer"],
+                "max_per_batch": plan["max_per_batch"],
                 "estimate": {k: est.get(k) for k in ("unit", "total", "usd")},
                 "simulated": backend.simulated, "noise_model": backend.noise_description,
                 "jobs": []}
@@ -137,7 +161,8 @@ def submit(plan, backend, manifest_dir="data/manifests", label=None):
     for start in range(0, n, size):
         chunk = list(range(start, min(start + size, n)))
         record = {"job_id": None,
-                  "tasks": [{"kind": plan["tasks"][i]["kind"], "depth": plan["tasks"][i]["depth"],
+                  "tasks": [{"kind": plan["tasks"][i]["kind"], "frame": plan["tasks"][i].get("frame", "Z"),
+                             "depth": plan["tasks"][i]["depth"],
                              "batch": plan["tasks"][i]["batch"], "index": k,
                              "instances": [inst.to_dict() for inst in plan["tasks"][i]["instances"]]}
                             for k, i in enumerate(chunk)]}
@@ -151,10 +176,13 @@ def submit(plan, backend, manifest_dir="data/manifests", label=None):
 
 def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
     manifest = json.loads(Path(manifest_path).read_text())
+    if manifest.get("experiment") == "memory":
+        raise ValueError(f"{Path(manifest_path).name} is a memory-experiment manifest: harvest it with "
+                         f"qecbench.memory.harvest (benchmark_qec_memory.ipynb)")
     existing = {} if overwrite else _existing(data_dir, manifest["backend"])
     stamp = datetime.fromisoformat(manifest["created"]).strftime("%Y%m%d_%H%M%S")
     header = {k: manifest.get(k) for k in ("backend", "vendor", "created", "shots", "delta",
-                                           "depths", "kinds", "buffer", "simulated",
+                                           "depths", "kinds", "frames", "buffer", "simulated",
                                            "noise_model", "estimate")}
     header["manifest"] = Path(manifest_path).name
     groups, skipped = {}, 0
@@ -183,7 +211,8 @@ def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
                                   batch_size=len(task["instances"]),
                                   simulated=manifest.get("simulated", False),
                                   noise=manifest.get("noise_model"),
-                                  extra={"manifest": Path(manifest_path).name})
+                                  extra={"manifest": Path(manifest_path).name,
+                                         **({"frame": task["frame"]} if task.get("frame", "Z") != "Z" else {})})
                 groups.setdefault((inst.structure, task["kind"]), []).append(rec)
                 existing[key] = True
 

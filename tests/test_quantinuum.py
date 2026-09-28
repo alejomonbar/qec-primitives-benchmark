@@ -79,24 +79,42 @@ def test_guppy_programs_compile():
 
 
 class FakeNexus:
-    """Records what would be sent to Nexus and plays back results."""
+    """Records what would be sent to Nexus and plays back results.
+
+    A cost-estimation job (one sent to ``Helios-1SC``) starts in ``quote_state`` and moves only when the
+    test sets ``states[job_id]``; it prices program ``i`` at ``10 + i`` HQC.
+    """
 
     def __init__(self, results):
-        self.sent, self._results = {}, results
+        self.sent, self._results, self.stalled = {}, results, False
+        self.quote_state, self.states, self._quote_jobs = "COMPLETED", {}, {}
         self.projects = SimpleNamespace(get_or_create=lambda name: self.sent.setdefault("project", name))
         self.context = SimpleNamespace(set_active_project=lambda project: None)
         self.hugr = SimpleNamespace(upload=lambda package, name: f"ref:{name}",
                                     cost_confidence=self._cost)
         self.models = SimpleNamespace(HeliosConfig=lambda **kw: kw, HeliosEmulatorConfig=lambda **kw: kw)
-        self.jobs = SimpleNamespace(get=lambda id: id, status=lambda ref: SimpleNamespace(status="COMPLETED"),
-                                    results=lambda ref: list(reversed(self._results)))
+        self.jobs = SimpleNamespace(
+            get=lambda id: id, wait_for=lambda ref, timeout=None: None,
+            status=lambda ref: SimpleNamespace(status=self.states.get(ref, "COMPLETED"), message="", error_detail=None),
+            cost_confidence=lambda ref: [(10.0 + i, 5.0) for i in range(len(self._quote_jobs[ref]))],
+            results=lambda ref: list(reversed(self._results)))
 
-    def _cost(self, programs, n_shots, system_name):
+    def _cost(self, programs, n_shots, system_name, timeout=None):
         self.sent["quoted"] = (list(programs), n_shots, system_name)
+        self.sent["quote_timeout"] = timeout
+        if self.stalled:
+            raise TimeoutError
         return [(10.0 + i, 5.0) for i in range(len(programs))]
 
-    def start_execute_job(self, programs, n_shots, backend_config, name):
-        self.sent["job"] = dict(programs=programs, n_shots=n_shots, config=backend_config, name=name)
+    def start_execute_job(self, programs, n_shots, backend_config, name, max_cost=None):
+        if backend_config["system_name"].endswith("SC"):          # a cost estimate, not a run
+            job_id = f"quote-{len(self._quote_jobs) + 1}"
+            self._quote_jobs[job_id] = list(programs)
+            self.states[job_id] = self.quote_state
+            self.sent["quote_job"] = dict(programs=programs, n_shots=n_shots, config=backend_config, name=name)
+            return SimpleNamespace(id=job_id)
+        self.sent["job"] = dict(programs=programs, n_shots=n_shots, config=backend_config, name=name,
+                                max_cost=max_cost)
         return SimpleNamespace(id="job-123")
 
 
@@ -115,13 +133,17 @@ def test_quote_submit_and_fetch_against_a_stand_in_for_nexus(monkeypatch):
     assert emulator.simulated and "hosted emulator" in emulator.noise_description
     plan = {"circuits": programs, "shots": 50}
     est = emulator.quote(plan)
-    assert est["unit"] == "HQC" and est["total"] == 21.0 and fake.sent["quoted"][2] == "Helios-1"
+    assert est["unit"] == "HQC" and est["total"] == 21.0 and est["job_id"] == "quote-1"
+    assert fake.sent["quote_job"]["config"] == {"system_name": "Helios-1SC"}
+    assert fake.sent["quote_job"]["programs"] == ["ref:p4", "ref:p5"] and "job" not in fake.sent
 
     record = emulator.submit(programs, 50)
     job = fake.sent["job"]
-    assert record == {"job_id": "job-123", "programs": ["p4", "p5"], "max_cost": 23.0}
+    # one budget per program (Nexus applies max_cost to each), not the job's total for every one
+    assert record == {"job_id": "job-123", "programs": ["p4", "p5"], "max_cost": [12.0, 13.0]}
     assert job["programs"] == ["ref:p4", "ref:p5"] and job["n_shots"] == [50, 50]
-    assert job["config"]["system_name"] == "Helios-1E" and job["config"]["max_cost"] == 23.0
+    assert job["max_cost"] == [12.0, 13.0]
+    assert job["config"]["system_name"] == "Helios-1E" and "max_cost" not in job["config"]
     assert job["config"]["emulator_config"] == {"n_qubits": 7}      # the 5-chain holds 5 + 2 at once
 
     tasks = [{"index": 1}, {"index": 0}]
@@ -130,6 +152,74 @@ def test_quote_submit_and_fetch_against_a_stand_in_for_nexus(monkeypatch):
     hardware = QuantinuumBackend("Helios-1")
     hardware.submit(programs[:1], 50)
     assert "emulator_config" not in fake.sent["job"]["config"] and fake.sent["project"] == "Helios-Samples"
+
+
+def test_a_quote_is_started_once_and_read_back_when_nexus_has_finished(monkeypatch, capsys):
+    fake = FakeNexus([])
+    fake.quote_state = "QUEUED"
+    monkeypatch.setitem(sys.modules, "qnexus", fake)
+    compiled = SimpleNamespace(compile=lambda: "hugr")
+    backend = QuantinuumBackend("Helios-1", cost_margin=3)
+    plan = {"circuits": [HeliosProgram(compiled, 4, "mcm", 3, name="p4"),
+                         HeliosProgram(compiled, 5, "mcm", 3, name="p5")], "shots": 20}
+
+    assert backend.quote(plan) is None                    # returns at once while Nexus is busy
+    assert plan["estimate"]["job_id"] == "quote-1" and plan["estimate"]["total"] is None
+    assert "QUEUED" in capsys.readouterr().out
+    assert backend.quote(plan) is None and len(fake._quote_jobs) == 1   # asking again starts nothing new
+
+    fake.states["quote-1"] = "COMPLETED"
+    est = backend.quote(plan)
+    assert est["total"] == 21.0 and est["per_circuit"] == [10.0, 11.0] and len(fake._quote_jobs) == 1
+    assert backend.submit(plan["circuits"], 20)["max_cost"] == [13.0, 14.0]   # the quote sets the budgets
+
+
+def test_submit_reads_an_estimate_that_finished_after_it_was_quoted(monkeypatch, tmp_path):
+    pytest.importorskip("guppylang")
+    from qecbench.experiment import build_plan, submit
+
+    fake = FakeNexus([])
+    fake.quote_state = "QUEUED"
+    monkeypatch.setitem(sys.modules, "qnexus", fake)
+    backend = QuantinuumBackend("Helios-1", cost_margin=3)
+    plan = build_plan(backend, chain_instances(4, ("mcm",)), depths=[2, 3], shots=20, delta=0.5)
+    assert backend.quote(plan) is None                        # pending when the plan cell ran
+
+    fake.states["quote-1"] = "COMPLETED"                      # Nexus finishes; nobody re-quotes
+    submit(plan, backend, manifest_dir=tmp_path)
+    assert fake.sent["job"]["max_cost"] == [13.0, 14.0] and len(fake._quote_jobs) == 1
+
+    fake.quote_state = "QUEUED"                               # still running at submission: refused
+    fake.sent.pop("job")
+    plan = build_plan(backend, chain_instances(4, ("mcm",)), depths=[2], shots=20, delta=0.5)
+    backend.quote(plan)
+    with pytest.raises(RuntimeError, match="still running.*Nothing was sent"):
+        submit(plan, backend, manifest_dir=tmp_path)
+    assert "job" not in fake.sent
+
+
+def test_a_failed_quote_is_cleared_so_the_next_call_starts_again(monkeypatch):
+    fake = FakeNexus([])
+    fake.quote_state = "DEPLETED"
+    monkeypatch.setitem(sys.modules, "qnexus", fake)
+    compiled = SimpleNamespace(compile=lambda: "hugr")
+    backend = QuantinuumBackend("Helios-1")
+    plan = {"circuits": [HeliosProgram(compiled, 4, "mcm", 3, name="p4")], "shots": 20}
+    with pytest.raises(RuntimeError, match="quote-1 ended DEPLETED"):
+        backend.quote(plan)
+    fake.quote_state = "COMPLETED"
+    assert backend.quote(plan)["total"] == 10.0 and plan["estimate"]["job_id"] == "quote-2"
+
+
+def test_submitting_an_unquoted_program_cannot_hang(monkeypatch):
+    fake = FakeNexus([])
+    fake.stalled = True
+    monkeypatch.setitem(sys.modules, "qnexus", fake)
+    compiled = SimpleNamespace(compile=lambda: "hugr")
+    backend = QuantinuumBackend("Helios-1", quote_timeout=5)
+    with pytest.raises(RuntimeError, match="no cost estimate within 5 s.*Nothing was sent"):
+        backend.submit([HeliosProgram(compiled, 4, "mcm", 3, name="p4")], 20)
+    assert fake.sent["quote_timeout"] == 5 and "job" not in fake.sent
 
 
 def test_bitstring_counts_reads_register_c():

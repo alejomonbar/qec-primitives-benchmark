@@ -167,14 +167,15 @@ def ideal_energy_distribution(hamiltonian, n: int, depth: int, delta: float = 0.
 
     Everything a finite-shot question needs (how the mean of ``S`` shots spreads, how often it clears
     the random-guessing threshold) follows from it. It has one entry per distinct energy, so it is
-    small even when the statevector is not; above ``STORE_REFERENCE_QUBITS`` it is kept in the
-    reference store (``references``) next to ``<H>``. Past ``MAX_STATEVECTOR_QUBITS`` only a stored
-    distribution can be returned (e.g. the histogram of a large noiseless simulation, stored by
-    ``scripts/import_legacy_codes.py --references``); otherwise this raises.
+    small even when the statevector is not, and it is **kept in the reference store** (``references``)
+    next to ``<H>`` whatever the size: the statevector is evolved once and every later call reads the
+    file. Past ``MAX_STATEVECTOR_QUBITS`` only a stored distribution can be returned (e.g. the histogram
+    of a large noiseless simulation, stored by ``scripts/import_legacy_codes.py --references``);
+    otherwise this raises.
     """
     from . import references
 
-    stored = references.lookup(hamiltonian, n, depth, delta) if n > STORE_REFERENCE_QUBITS else None
+    stored = references.lookup(hamiltonian, n, depth, delta)
     if stored is not None and "distribution" in stored:
         levels, probabilities = map(np.array, zip(*stored["distribution"]))
         return levels, probabilities
@@ -184,9 +185,8 @@ def ideal_energy_distribution(hamiltonian, n: int, depth: int, delta: float = 0.
     probabilities, table = _evolve(hamiltonian, n, depth, delta)
     levels, inverse = np.unique(np.round(table, 9), return_inverse=True)
     probabilities = np.bincount(inverse, weights=probabilities, minlength=len(levels))
-    if n > STORE_REFERENCE_QUBITS:
-        references.store(hamiltonian, n, depth, delta, float(probabilities @ levels), "statevector",
-                         distribution=[[float(e), float(q)] for e, q in zip(levels, probabilities)])
+    references.store(hamiltonian, n, depth, delta, float(probabilities @ levels), "statevector",
+                     distribution=[[float(e), float(q)] for e, q in zip(levels, probabilities)])
     return levels, probabilities
 
 
