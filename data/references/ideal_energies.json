@@ -870,6 +870,24 @@
   "n": 25,
   "n_terms": 24
  },
+ "712f18ddfd410e6f4c7a44e6ab9c263a5c119c54": {
+  "created": "2026-09-28T08:54:51",
+  "delta": 0.5,
+  "depth": 20,
+  "energy": -18.224695593644803,
+  "method": "statevector",
+  "n": 25,
+  "n_terms": 24
+ },
+ "79638715c43870dbd91c7852b167bd42515fc3a2": {
+  "created": "2026-09-28T08:51:28",
+  "delta": 0.5,
+  "depth": 12,
+  "energy": -17.002503872880105,
+  "method": "statevector",
+  "n": 25,
+  "n_terms": 24
+ },
  "97956c62973830122d3237ddbeea06dbafb5d5f9": {
   "created": "2026-09-24T10:04:40",
   "delta": 0.5,
@@ -1127,6 +1145,15 @@
   "method": "statevector",
   "n": 18,
   "n_terms": 14
+ },
+ "c07ca2f0206ff54b3d6978a0496eaa57bffd2691": {
+  "created": "2026-09-28T08:53:03",
+  "delta": 0.5,
+  "depth": 15,
+  "energy": -17.606235585398743,
+  "method": "statevector",
+  "n": 25,
+  "n_terms": 24
  },
  "c194adb68a72e39bcc896a1146d2e2a6c81b17e6": {
   "created": "2026-09-24T10:04:34",
