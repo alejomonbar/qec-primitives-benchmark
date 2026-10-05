@@ -71,7 +71,7 @@ class AerBackend(Backend):
         self.seed = seed
         self.rules = rules            # optional adapter whose validate() should also apply
         self.kinds = ("mcm", "direct")
-        self.frames = ("Z", "X") if dialect == "dynamic" else ("Z",)
+        self.frames = ("Z", "X", "XZ") if dialect == "dynamic" else ("Z",)
         self._submitted = 0
 
     def coupling_graph(self):
@@ -85,12 +85,12 @@ class AerBackend(Backend):
             return self.rules.validate(batch, kind)
         return validate_batch(batch, self.graph)
 
-    def build(self, batch, depth, delta, kind="mcm", frame="Z"):
+    def build(self, batch, depth, delta, kind="mcm", frame="Z", readout=None):
         if self.dialect == "iqm":
             if frame != "Z":
                 raise ValueError("the IQM dialect is built in the Z frame only")
             return iqm_to_dynamic(build_iqm(batch, depth, delta, kind))
-        return build_dynamic(batch, depth, delta, kind, frame=frame)
+        return build_dynamic(batch, depth, delta, kind, frame=frame, readout=readout)
 
     @property
     def noise_description(self):

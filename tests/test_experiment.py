@@ -309,3 +309,26 @@ def test_a_backend_without_the_x_frame_says_so():
     backend = AerBackend(dialect="iqm")
     with pytest.raises(ValueError, match="builds frames"):
         build_plan(backend, [Chain((0, 1, 2))], depths=[1], shots=10, frames=("Z", "X"))
+
+
+def test_xz_frame_runs_as_two_readouts_and_loads_as_one_result(tmp_path):
+    from qecbench import codes
+    from qecbench.layout import surface_code_placements
+
+    G = nx.convert_node_labels_to_integers(nx.grid_2d_graph(5, 5), ordering="sorted")
+    patch = surface_code_placements(G, codes.surface_code(3))[0]
+    backend = AerBackend(G, seed=4)
+    plan = build_plan(backend, [patch], depths=[1], shots=60, frames=("XZ",))
+    assert [(t["kind"], t["frame"], t["readout"]) for t in plan["tasks"]] == [
+        ("mcm_xz_z", "XZ", "Z"), ("mcm_xz_x", "XZ", "X")]                # the two readouts adjacent, one job
+    saved = harvest(submit(plan, backend, manifest_dir=tmp_path / "m"), backend, data_dir=tmp_path / "r")
+    assert sorted(Path(p).parent.name for p in saved) == ["mcm_xz_x", "mcm_xz_z"]
+    assert first_record(saved[0])["benchmark"]["part"] in ("Z", "X")
+    assert load_results(tmp_path / "r", backend.name, kind="mcm") == {}
+    ((instance, by_depth),) = load_results(tmp_path / "r", backend.name, kind="mcm_xz").items()
+    s = by_depth[1]
+    assert instance == patch and set(s["halves"]) == {"Z", "X"}
+    assert abs(s["r"] - s["r_ideal"]) < 5 * s["r_err"]
+    for half in ("mcm_xz_z", "mcm_xz_x"):                    # a half on its own: its four checks, no reference
+        (alone,) = load_results(tmp_path / "r", backend.name, kind=half).values()
+        assert alone[1]["optimal_energy"] == -4

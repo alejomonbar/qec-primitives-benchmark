@@ -917,8 +917,6 @@ for label, metric in [("benchmark Z frame", "rank"), ("benchmark X frame", "rank
     got = [f"{a}->{b} {v[0]:+.2f}" for (a, b), v in pairs.items() if np.isfinite(v[0])]
     print(f"  {label:>19}: " + ("   ".join(got) if got else "not run in two campaigns yet"))
 
-# %%
-
 # %% [markdown]
 # ## 10. The logical error, with the patches in the order the benchmark ranks them
 #
@@ -1000,3 +998,103 @@ fig.suptitle(f"{BACKEND}, {stamp_[4:6]}-{stamp_[6:8]}: logical error probability
 fig.tight_layout()
 fig.savefig(FIGURES / f"{BACKEND}_logical_error_sorted_by_benchmark.pdf", bbox_inches="tight")
 plt.show()
+
+# %% [markdown]
+# ## 11. The three frames against the memory
+#
+# The run of 10-02 12:18 has the benchmark in its three frames - Z, X, and XZ (every check in the basis the surface
+# code gives it, under a $Y$ mixer) - next to a memory run on the same patches. Top: $r_{\rm ovl}$ against depth in
+# each frame, one line per patch, coloured by the rank the memory gives that patch (dark is the lowest $P_L$).
+# Bottom: the mean of $P_L^X$ and $P_L^Z$ after $R = p$ rounds, with the patches in the order each frame ranks them
+# at that depth; the number on a bar is the memory's own rank and the dashed staircase a perfect ranking.
+
+# %%
+from scipy.stats import rankdata, spearmanr
+
+from qecbench import memory as mem
+from qecbench.analysis import load_results
+
+STAMP3   = "20261002_121845"        # the benchmark run with the three frames
+MEMORY3  = "20261002_121348"        # the memory run of the same sitting
+DEPTH3   = 3                        # the depth p the patches are ranked at, against the memory after R = p rounds
+DISTANCE3 = 3
+
+name3 = lambda kind: f"{STAMP3}_{BACKEND}_surface_code_{kind}.json"
+frames3 = {"Z": load_results(DATA / "results", BACKEND, kind="mcm", files={name3("mcm")}),
+           "X": load_results(DATA / "results", BACKEND, kind="mcm_x", files={name3("mcm_x")}),
+           "XZ": load_results(DATA / "results", BACKEND, kind="mcm_xz", files={name3("mcm_xz_z"), name3("mcm_xz_x")})}
+memory3 = mem.load_results(DATA / "results", BACKEND, files={f"{MEMORY3}_{BACKEND}_surface_code_memory.json"})
+patches3 = sorted((q for q in memory3 if q.code.info.get("distance") == DISTANCE3
+                   and all(q in frames3[f] for f in frames3)), key=lambda q: min(q.data_qubits))
+depths3 = sorted(set.intersection(*(set(frames3[f][q]) for f in frames3 for q in patches3)))
+p_l = np.array([(memory3[q]["X"][DEPTH3]["rate"] + memory3[q]["Z"][DEPTH3]["rate"]) / 2 for q in patches3])
+p_l_err = np.array([np.hypot(memory3[q]["X"][DEPTH3]["err"], memory3[q]["Z"][DEPTH3]["err"]) / 2 for q in patches3])
+truth3 = rankdata(p_l)                                       # 1 = lowest logical error probability
+shade = plt.cm.viridis((truth3 - 1) / (len(patches3) - 1))   # each patch keeps its colour: dark = best memory
+colours3 = {"Z": "#2f6f9f", "X": "#b8560f", "XZ": "#3d8f5f"}
+
+fig, axes = plt.subplots(2, 3, figsize=(12, 7))
+for (ax, bx), frame in zip(axes.T, frames3):
+    score = np.array([frames3[frame][q][DEPTH3]["r_ovl"] for q in patches3])
+    for q, c in zip(patches3, shade):
+        ax.plot(depths3, [frames3[frame][q][p]["r_ovl"] for p in depths3], "o-", color=c, ms=3.5, lw=1.1, alpha=0.9)
+    ax.plot(depths3, [np.median([frames3[frame][q][p]["r_ovl"] for q in patches3]) for p in depths3], "s--",
+            color="black", lw=1.8, ms=5, label="median")
+    ax.axvline(DEPTH3, color="0.6", lw=0.8, ls=":")
+    ax.set(xlabel="LR-QAOA layers $p$", ylabel=r"$r_{\rm ovl}$", xticks=depths3, ylim=(-0.05, 1.0),
+           title=f"{frame} frame")
+    ax.grid(alpha=0.3)
+    order = np.argsort(-score, kind="stable")                # left: the patch this frame scores best
+    bx.bar(range(len(order)), p_l[order], yerr=p_l_err[order], color=colours3[frame], alpha=0.85,
+           edgecolor="black", linewidth=0.6, error_kw={"elinewidth": 0.9, "capsize": 2})
+    bx.step(np.arange(len(order) + 1) - 0.5, np.append(np.sort(p_l), np.sort(p_l)[-1]), where="post",
+            color="black", lw=1, ls="--", label="a perfect ranking")
+    for k, i in enumerate(order):                            # the rank the memory itself gives that patch
+        bx.text(k, p_l[i] + p_l_err[i], f"{int(truth3[i])}", ha="center", va="bottom", fontsize=8)
+    rho = spearmanr(-score, p_l)[0]
+    shift = np.mean(np.abs(rankdata(-score) - truth3))
+    bx.set_xticks(range(len(order)), [f"@{min(patches3[i].data_qubits)}" for i in order], fontsize=8, rotation=45)
+    bx.set(xlabel=rf"patches, best $r_{{\rm ovl}}$ at $p = {DEPTH3}$ first", ylabel=r"mean of $P_L^X$ and $P_L^Z$",
+           ylim=(0, 1.15 * (p_l + p_l_err).max()))
+    bx.set_title(rf"sorted by the {frame} frame: $\rho$ = {rho:.2f}, mean shift {shift:.1f}", fontsize=10)
+    bx.grid(axis="y", alpha=0.3)
+    print(f"{frame:>2} frame: rho {rho:+.2f}, mean shift {shift:.2f}   order " +
+          " ".join(f"@{min(patches3[i].data_qubits)}({int(truth3[i])})" for i in order))
+axes[0, 0].legend(fontsize=8, frameon=False)
+axes[1, 0].legend(fontsize=8, frameon=False, loc="upper left")
+fig.suptitle(f"{BACKEND}, {STAMP3[4:6]}-{STAMP3[6:8]}, d = {DISTANCE3}: the three frames against depth (line colour: "
+             f"the patch's memory rank, dark = lowest $P_L$), and the logical error probability after "
+             f"R = {DEPTH3} rounds\nwith the patches in the order each frame ranks them (numbers: the memory's own rank)",
+             fontsize=10)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_three_frames_against_memory.pdf", bbox_inches="tight")
+plt.show()
+
+# %%
+PATCH3 = None         # the patch to show, by its lowest data qubit (e.g. 64); None takes the one with the lowest P_L
+
+best3 = (patches3[int(np.argmin(p_l))] if PATCH3 is None
+         else next(q for q in patches3 if min(q.data_qubits) == PATCH3))
+markers3 = {"Z": "o", "X": "s", "XZ": "D"}
+
+fig, ax = plt.subplots(figsize=(5.2, 3.8))
+for frame in frames3:
+    by = frames3[frame][best3]
+    ax.errorbar(depths3, [by[p]["r_ovl"] for p in depths3],
+                yerr=[by[p]["r_err"] / (by[p]["r_ideal"] - by[p]["r_rand"]) for p in depths3],
+                fmt=markers3[frame] + "-", color=colours3[frame], mec="black", ms=6, lw=1.4, capsize=3,
+                label=rf"$r_{{\rm ovl}}^{{{frame}}}$")
+    print(f"{frame:>2} frame: " + "  ".join(f"p={p}: {by[p]['r_ovl']:.3f}" for p in depths3))
+i3 = patches3.index(best3)
+ax.axhline(0, color="0.5", lw=0.8)
+ax.set(xlabel="LR-QAOA layers $p$", ylabel=r"$r_{\rm ovl}$", xticks=depths3, ylim=(-0.05, 1.0),
+       title=f"{BACKEND}, {STAMP3[4:6]}-{STAMP3[6:8]}: patch @{min(best3.data_qubits)}, d = {DISTANCE3} "
+             rf"(memory rank {int(truth3[i3])}, $P_L$ = {p_l[i3]:.3f} at R = {DEPTH3})")
+ax.title.set_fontsize(10)
+ax.grid(alpha=0.3)
+ax.legend(frameon=False)
+fig.tight_layout()
+fig.savefig(FIGURES / f"{BACKEND}_best_patch_three_frames.pdf", bbox_inches="tight")
+plt.show()
+
+# %%

@@ -28,25 +28,79 @@ FILE_RE = re.compile(r"^(?P<stamp>\d{8}_\d{4,6})_(?P<backend>.+?)_(?P<family>tri
                      r"(?P<qubits>\d+(?:_\d+)*)_(?P<kind>[a-z_]+?)_nq(?P<n>\d+)_depth(?P<depth>\d+)\.json$")
 
 
-def analyse(counts, primitive, depth, delta=0.5) -> dict:
-    """Approximation ratio with its shot-noise error and both reference points."""
-    ham = primitive.hamiltonian
+HALVES = {"mcm_xz": {"mcm_xz_z": "Z", "mcm_xz_x": "X"}}     # a kind read in two bases: {kind of each half: its checks}
+
+
+def kind_part(kind):
+    """The check type a result of this kind measures (``"Z"`` or ``"X"``), or ``None`` if it measures them all."""
+    return next((halves[kind] for halves in HALVES.values() if kind in halves), None)
+
+
+def part_hamiltonian(primitive, part):
+    """The terms of a code patch's Hamiltonian whose check is of type ``part`` (``"Z"`` or ``"X"``)."""
+    from .memory import check_types
+
+    return {tuple(check): primitive.hamiltonian[tuple(check)]
+            for check, basis in zip(primitive.code.checks, check_types(primitive.code)) if basis == part}
+
+
+def analyse(counts, primitive, depth, delta=0.5, part=None) -> dict:
+    """Approximation ratio with its shot-noise error and both reference points.
+
+    ``part`` (``"Z"`` or ``"X"``) analyses one half of an XZ-frame result: the data were read in that basis, so
+    only the checks of that type can be evaluated. ``r`` is then the ratio of that half alone, there is no
+    noiseless reference for it, and the two halves are put together by ``combine_halves``.
+    """
+    ham = primitive.hamiltonian if part is None else part_hamiltonian(primitive, part)
     shots = sum(counts.values())
-    e_opt, e_max = primitive.optimal_energy(), primitive.max_energy()
+    if part is None:
+        e_opt, e_max = primitive.optimal_energy(), primitive.max_energy()
+    else:                                      # commuting checks: the half can be satisfied, or violated, all at once
+        bound = float(sum(abs(c) for c in ham.values()))
+        e_opt, e_max = -bound, bound
     e = dict(zip(counts, bitstring_energies(counts, ham).tolist()))
     values = np.repeat(list(e.values()), list(counts.values()))
     mean_e = float(values.mean())
     err_e = float(values.std(ddof=1) / np.sqrt(shots)) if shots > 1 else float("nan")
     span = e_opt - e_max
     r = (mean_e - e_max) / span
-    r_rand, r_rand_std = random_baseline(primitive, shots)
-    r_id = ideal_r(primitive, depth, delta)
-    return {"shots": shots, "expected_energy": mean_e, "optimal_energy": e_opt, "max_energy": e_max,
+    if part is None:
+        r_rand, r_rand_std = random_baseline(primitive, shots)
+        r_id = ideal_r(primitive, depth, delta)
+    else:
+        r_rand = -e_max / span
+        r_rand_std = float(np.sqrt(sum(c ** 2 for c in ham.values()) / shots) / abs(span))
+        r_id = float("nan")
+    return {"shots": shots, "expected_energy": mean_e, "expected_energy_err": err_e,
+            "optimal_energy": e_opt, "max_energy": e_max,
             "r": r, "r_err": abs(err_e / span), "r_rand": r_rand, "r_rand_std": r_rand_std,
             "r_ideal": r_id, "r_ovl": (r - r_rand) / (r_id - r_rand),
             "n_sigmas": (r - r_rand) / r_rand_std,
             "p_optimal": sum(n for b, n in counts.items() if abs(e[b] - e_opt) < 1e-9) / shots,
-            "energies": e}
+            "energies": e, **({"part": part} if part else {})}
+
+
+def combine_halves(primitive, depth, halves, delta=0.5) -> dict:
+    """One summary from the two halves of an XZ-frame result (``{"Z": analyse(...), "X": analyse(...)}``).
+
+    The energy is the sum of the two, each measured in its own circuit, so their shot noise adds in quadrature;
+    the references are those of the whole Hamiltonian, which the XZ frame shares with the Z frame.
+    """
+    e_opt, e_max = primitive.optimal_energy(), primitive.max_energy()
+    span = e_opt - e_max
+    mean_e = sum(h["expected_energy"] for h in halves.values())
+    err_e = float(np.sqrt(sum(h["expected_energy_err"] ** 2 for h in halves.values())))
+    shots = min(h["shots"] for h in halves.values())
+    r = (mean_e - e_max) / span
+    r_rand, r_rand_std = random_baseline(primitive, shots)
+    r_id = ideal_r(primitive, depth, delta)
+    return {"shots": shots, "expected_energy": mean_e, "expected_energy_err": err_e,
+            "optimal_energy": e_opt, "max_energy": e_max,
+            "r": r, "r_err": abs(err_e / span), "r_rand": r_rand, "r_rand_std": r_rand_std,
+            "r_ideal": r_id, "r_ovl": (r - r_rand) / (r_id - r_rand),
+            "n_sigmas": (r - r_rand) / r_rand_std, "p_optimal": float("nan"),
+            "halves": {part: {"r": h["r"], "r_err": h["r_err"], "file": h.get("file")}
+                       for part, h in halves.items()}}
 
 
 def result_dir(data_dir, backend_name, primitive, kind):
@@ -169,9 +223,11 @@ def make_record(counts, primitive, *, depth, delta, backend_name, job_id, kind, 
     ``noise`` says where that simulation's noise came from; both are written into the file so
     a run can never be mistaken for hardware data later.
     """
-    a = analyse(counts, primitive, depth, delta)
+    part = kind_part(kind)                      # an XZ-frame result holds one half of the checks
+    a = analyse(counts, primitive, depth, delta, part=part)
     gammas, betas = angles(depth, delta)
     threshold = a["r_rand"] + 3 * a["r_rand_std"]
+    extra = {**({"part": part} if part else {}), **(extra or {})}
     return {
         "metadata": {"timestamp": datetime.now().isoformat(),
                      "experiment_type": "Hamiltonian_QAOA_mid_circuit_measurement",
@@ -465,7 +521,12 @@ def load_results(data_dir, backend_name, kind="mcm", n_data=None, job_ids=None, 
     Both layouts are read: the ``<backend>/<structure>/<kind>/`` tree this package writes, and a
     flat directory of result files (how earlier campaigns stored them). ``files`` keeps only the
     files with those names, to pick particular runs.
+
+    ``kind="mcm_xz"`` reads the XZ frame, whose energy is measured in two circuits: the results filed as
+    ``mcm_xz_z`` and ``mcm_xz_x`` are added (``combine_halves``), and an instance appears at a depth only when
+    both halves are there.
     """
+    halves, pending = HALVES.get(kind, {}), {}
     if manifest_path is not None:
         manifest = json.loads(Path(manifest_path).read_text())
         job_ids = {j["job_id"] for j in manifest["jobs"] if j.get("job_id")}
@@ -486,19 +547,28 @@ def load_results(data_dir, backend_name, kind="mcm", n_data=None, job_ids=None, 
             if meta.get("backend") != backend_name:
                 continue
             from_name = parse_filename(path.name) or {}
-            if (params.get("kind") or from_name.get("kind") or "mcm") != kind:
+            found = params.get("kind") or from_name.get("kind") or "mcm"
+            if found != kind and found not in halves:
                 continue
             if job_ids is not None and public_job_id(meta.get("task_id")) not in job_ids:
                 continue
             instance = instance_from_record(record)
             if instance is None or (n_data is not None and instance.n_data != n_data):
                 continue
-            depth = params["depth"]
-            a = analyse(record["samples"], instance, depth, params.get("delta") or 0.5)
+            depth, delta = params["depth"], params.get("delta") or 0.5
+            a = analyse(record["samples"], instance, depth, delta, part=kind_part(found))
             a.pop("energies")
+            a.update(job_id=meta.get("task_id"), file=path.name, legacy="benchmark" not in record)
+            if found in halves:                           # one half of an energy: wait for the other
+                pending.setdefault((instance, depth, delta), {})[halves[found]] = a
+            else:
+                results.setdefault(instance, {})[depth] = a
+    for (instance, depth, delta), got in pending.items():
+        if len(got) == len(halves):
+            first = got[next(iter(halves.values()))]
             results.setdefault(instance, {})[depth] = {
-                **a, "job_id": meta.get("task_id"), "file": path.name,
-                "legacy": "benchmark" not in record}
+                **combine_halves(instance, depth, got, delta),
+                "job_id": first["job_id"], "file": first["file"], "legacy": False}
     return results
 
 

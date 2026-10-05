@@ -20,7 +20,7 @@ from pathlib import Path
 
 from .analysis import (instance_from_record, make_record, public_job_id, record_key, records_in, result_dir,
                        run_filename, save_run, short_path)
-from .circuits import FRAMES, result_kind
+from .circuits import FRAMES, READOUTS, result_kind
 from .layout import pack
 from .primitives import from_dict
 
@@ -37,8 +37,10 @@ def build_plan(backend, instances, depths, shots, delta=0.5, buffer=False,
     since their instances need different circuits.
 
     ``frames=("Z", "X")`` also builds every ``mcm`` batch in the X frame (``circuits.build_dynamic``), right after
-    its Z-frame circuit so the two share a job; those results are filed as kind ``mcm_x``. ``direct`` batches are
-    built in the Z frame only.
+    its Z-frame circuit so the two share a job; those results are filed as kind ``mcm_x``. ``"XZ"`` builds the
+    batch with every check in the basis the code gives it, under a Y mixer, as two circuits - the data read in Z
+    and read in X - filed as ``mcm_xz_z`` and ``mcm_xz_x`` and added into one energy by
+    ``analysis.load_results(kind="mcm_xz")``. ``direct`` batches are built in the Z frame only.
     """
     frames = tuple(dict.fromkeys(frames))
     if not frames or set(frames) - set(FRAMES):
@@ -69,14 +71,19 @@ def build_plan(backend, instances, depths, shots, delta=0.5, buffer=False,
         for kind in kinds:
             for i, batch in enumerate(batches[kind]):
                 for frame in (frames if kind == "mcm" else ("Z",)):
-                    qc = (backend.build(batch, depth, delta, kind) if frame == "Z"
-                          else backend.build(batch, depth, delta, kind, frame=frame))
-                    problems = backend.check_built(qc, batch)
-                    if problems:
-                        raise ValueError(f"batch {i}, depth {depth}, {kind} ({frame} frame): " + "; ".join(problems[:5]))
-                    tasks.append({"kind": result_kind(kind, frame), "frame": frame, "depth": depth, "batch": i,
-                                  "instances": batch})
-                    circuits.append(qc)
+                    # a frame whose checks do not share a basis needs one circuit per readout basis
+                    for readout in (READOUTS[frame] if len(READOUTS[frame]) > 1 else (None,)):
+                        qc = (backend.build(batch, depth, delta, kind) if frame == "Z"
+                              else backend.build(batch, depth, delta, kind, frame=frame) if readout is None
+                              else backend.build(batch, depth, delta, kind, frame=frame, readout=readout))
+                        problems = backend.check_built(qc, batch)
+                        if problems:
+                            raise ValueError(f"batch {i}, depth {depth}, {kind} ({frame} frame): "
+                                             + "; ".join(problems[:5]))
+                        tasks.append({"kind": result_kind(kind, frame, readout), "frame": frame, "depth": depth,
+                                      "batch": i, "instances": batch,
+                                      **({"readout": readout} if readout else {})})
+                        circuits.append(qc)
     plan = {"backend": backend.name, "vendor": backend.vendor, "instances": instances,
             "batches": batches, "depths": list(depths), "shots": shots, "delta": delta,
             "kinds": kinds, "frames": list(frames), "buffer": buffer, "max_per_batch": max_per_batch,
@@ -162,6 +169,7 @@ def submit(plan, backend, manifest_dir="data/manifests", label=None):
         chunk = list(range(start, min(start + size, n)))
         record = {"job_id": None,
                   "tasks": [{"kind": plan["tasks"][i]["kind"], "frame": plan["tasks"][i].get("frame", "Z"),
+                             **({"readout": plan["tasks"][i]["readout"]} if plan["tasks"][i].get("readout") else {}),
                              "depth": plan["tasks"][i]["depth"],
                              "batch": plan["tasks"][i]["batch"], "index": k,
                              "instances": [inst.to_dict() for inst in plan["tasks"][i]["instances"]]}
@@ -212,7 +220,8 @@ def harvest(manifest_path, backend, data_dir="data/results", overwrite=False):
                                   simulated=manifest.get("simulated", False),
                                   noise=manifest.get("noise_model"),
                                   extra={"manifest": Path(manifest_path).name,
-                                         **({"frame": task["frame"]} if task.get("frame", "Z") != "Z" else {})})
+                                         **({"frame": task["frame"]} if task.get("frame", "Z") != "Z" else {}),
+                                         **({"readout": task["readout"]} if task.get("readout") else {})})
                 groups.setdefault((inst.structure, task["kind"]), []).append(rec)
                 existing[key] = True
 

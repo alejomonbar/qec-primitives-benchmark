@@ -157,3 +157,90 @@ def test_both_frames_give_the_same_noiseless_r():
     assert abs(got["Z"]["r"] - got["X"]["r"]) < 4 * np.hypot(got["Z"]["r_err"], got["X"]["r_err"])
     for a in got.values():
         assert abs(a["r"] - a["r_ideal"]) < 4 * a["r_err"]
+
+
+# -- XZ frame: every check in the basis the code gives it, under a Y mixer ---------------------
+def _xz_patch():
+    from qecbench import codes
+    from qecbench.primitives import CodePatch
+
+    return CodePatch(codes.surface_code(3), kind="mcm")
+
+
+def _one_trajectory_counts(qc, register):
+    """Exact distribution of a classical register, following one outcome of every mid-circuit measurement."""
+    from qiskit.quantum_info import Statevector
+
+    state, bits = Statevector.from_int(0, 2 ** qc.num_qubits), {}
+    final = {}
+    for ins in qc.data:
+        op, qubits = ins.operation, [qc.find_bit(q).index for q in ins.qubits]
+        if op.name == "barrier":
+            continue
+        if op.name == "measure":
+            if any(ins.clbits[0] in reg and reg.name == register for reg in qc.cregs):
+                final[qc.find_bit(ins.clbits[0]).registers[0][1]] = qubits[0]
+                continue
+            outcome, state = state.measure(qubits)
+            bits[ins.clbits[0]] = int(outcome)
+        elif op.name == "if_else":
+            clbit, value = op.condition
+            if bits[clbit] == value:
+                for inner in op.blocks[0].data:
+                    state = state.evolve(inner.operation, [qubits[op.blocks[0].find_bit(q).index]
+                                                           for q in inner.qubits])
+        else:
+            state = state.evolve(op, qubits)
+    order = [final[k] for k in sorted(final)]
+    return {key[::-1]: p for key, p in state.probabilities_dict(order).items() if p > 1e-14}
+
+
+def test_xz_frame_builds_each_check_in_its_own_basis():
+    from qecbench.circuits import READOUTS, result_kind
+    from qecbench.memory import check_types
+
+    patch = _xz_patch()
+    n = patch.n_data
+    assert set(check_types(patch.code)) == {"X", "Z"} and READOUTS["XZ"] == ("Z", "X")
+    assert result_kind("mcm", "XZ", "Z") == "mcm_xz_z" and result_kind("mcm", "XZ", "X") == "mcm_xz_x"
+    assert result_kind("mcm", "XZ") == "mcm_xz" and result_kind("mcm", "X") == "mcm_x"
+    with pytest.raises(ValueError, match="read in"):
+        result_kind("mcm", "X", "Z")
+    z, xz = build_dynamic([patch], 2, frame="Z"), build_dynamic([patch], 2, frame="XZ", readout="Z")
+    on_data = lambda qc, name: [i for i in qc.data if i.operation.name == name
+                                and {qc.find_bit(b).index for b in i.qubits} & set(range(n))]
+    assert on_data(xz, "ry") and not on_data(xz, "rx") and not on_data(xz, "rz")     # Y mixer
+    assert xz.count_ops()["cz"] == z.count_ops()["cz"]                              # same entangling cost
+    with pytest.raises(ValueError):
+        build_dynamic([Chain((0, 1, 2))], 2, frame="XZ", readout="Z")               # a chain has no check bases
+
+
+@pytest.mark.parametrize("depth", [1, 3])
+def test_xz_frame_gives_the_noiseless_r_exactly(depth):
+    from qecbench.analysis import bitstring_energies, part_hamiltonian
+    from qecbench.lrqaoa import ideal_r
+
+    patch = _xz_patch()
+    energy = 0.0
+    for readout in ("Z", "X"):                              # each half of the checks from its own circuit
+        probs = _one_trajectory_counts(build_dynamic([patch], depth, frame="XZ", readout=readout), "d0")
+        half = part_hamiltonian(patch, readout)
+        assert len(half) == 4
+        energy += float(np.dot(list(probs.values()), bitstring_energies(probs, half)))
+    e_opt, e_max = patch.optimal_energy(), patch.max_energy()
+    assert (energy - e_max) / (e_opt - e_max) == pytest.approx(ideal_r(patch, depth, 0.5), abs=1e-9)
+
+
+def test_xz_halves_add_up_to_one_energy():
+    from qecbench.analysis import combine_halves, kind_part
+
+    patch, shots = _xz_patch(), 500
+    assert kind_part("mcm_xz_z") == "Z" and kind_part("mcm_xz_x") == "X" and kind_part("mcm_x") is None
+    satisfied = {"0" * patch.n_data: shots}                 # all-zero data: every check reads +1, the worst energy
+    halves = {part: analyse(satisfied, patch, 3, part=part) for part in ("Z", "X")}
+    for a in halves.values():
+        assert (a["optimal_energy"], a["max_energy"], a["r"], a["r_rand"]) == (-4, 4, 0, 0.5)
+        assert np.isnan(a["r_ideal"])
+    both = combine_halves(patch, 3, halves)
+    assert both["expected_energy"] == 8 and both["r"] == 0 and both["shots"] == shots
+    assert both["r_ideal"] == analyse(satisfied, patch, 3)["r_ideal"]

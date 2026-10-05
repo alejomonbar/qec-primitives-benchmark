@@ -2086,6 +2086,11 @@ rather than the best ones, because a correlation needs contrast.
   the data sit in the X frame through every ancilla readout - right after its Z-frame circuit, in the same job, and
   files it as kind `mcm_x`. Noiselessly the frames agree; on a device the X frame is the one hurt by phase errors,
   the Z frame by flips. Doubles the cost.
+  `"XZ"` adds the **XZ frame**: every check in the basis the surface code gives it ($X\cdots X$ and
+  $Z\cdots Z$ together, as in the memory experiment), the data from $|{+i}\rangle$ under a $Y$ mixer. It is the
+  same algorithm again - noiselessly the same $r$ - but half the checks are read in $Z$ and half in $X$, so
+  each depth takes two circuits, filed as kinds `mcm_xz_z` and `mcm_xz_x` and read back as one energy with
+  `load_results(kind="mcm_xz")`. Surface code only. `["Z", "X", "XZ"]` is four circuits per patch and depth.
 """),
         code(r"""
 BACKEND_NAME      = "ibm_phoenix"       # a square-lattice device, or "noisy_simulator"
@@ -2104,7 +2109,7 @@ LOCAL             = dict(distances=[3], positions=3, depths=[1, 2, 3], shots=200
 OPTIMIZATION_LEVEL   = 1
 DYNAMICAL_DECOUPLING = False
 MAX_CIRCUITS_PER_JOB = 8
-FRAMES            = ["Z"]               # ["Z", "X"]: also the X frame, in the same jobs (results as kind mcm_x)
+FRAMES            = ["Z"]               # any of "Z", "X", "XZ", in the same jobs (results as kinds mcm, mcm_x, mcm_xz_z + mcm_xz_x)
 SUBMIT            = False               # True actually submits the jobs and consumes QPU time
 """),
         md(r"""
@@ -2273,7 +2278,7 @@ for frame in run_frames:
             bx.set_title(f"p = {deepest}: Spearman rho = {rho:+.2f} (P = {pvalue:.3f}, n = {len(rows)})")
         bx.set(xlabel="error budget per layer", ylabel=rf"$r_{{\rm ovl}}$ at p = {deepest}")
     fig.tight_layout()
-    fig.savefig(FIGURES / f"{backend.name}_surface_code_positions{'' if frame == 'Z' else '_x'}.pdf", bbox_inches="tight")
+    fig.savefig(FIGURES / f"{backend.name}_surface_code_positions{'' if frame == 'Z' else '_' + frame.lower()}.pdf", bbox_inches="tight")
     plt.show()
 """),
     ]

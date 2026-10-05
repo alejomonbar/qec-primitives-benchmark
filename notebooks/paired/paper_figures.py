@@ -7,7 +7,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.19.5
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: .venv (3.12.12)
 #     language: python
 #     name: python3
 # ---
@@ -1159,7 +1159,7 @@ mcm_r_panel("surface_d5",
                   name="fig8c_mcm_rovl_surface_d5.pdf")
 
 # %% [markdown]
-# ## 10. Fig. 9 - both frames of the benchmark against both memories, in one campaign
+# ## 10. Fig. 9a - both frames of the benchmark against both memories, in one campaign
 #
 # A **campaign** is one session in which the same surface-code patches of `ibm_phoenix` were measured four ways on
 # the same physical qubits: the LR-QAOA benchmark in the **Z frame** (the checks as $Z\cdots Z$ terms, kind `mcm`) and
@@ -1167,7 +1167,7 @@ mcm_r_panel("surface_d5",
 # memory holding $|0\rangle_L$ and $|+\rangle_L$ ($R$ rounds, both bases). One LR-QAOA layer is one syndrome-extraction
 # round, so each patch gives a paired point at every $p = R$.
 #
-# **Fig. 9b** follows the single patch that held $|+\rangle_L$ longest from the first depth to the last, in every
+# **Fig. 9a** follows the single patch that held $|+\rangle_L$ longest from the first depth to the last, in every
 # sitting that ran both frames, one marker and colour per sitting: $r_{\rm ovl}(p)$ against $P_L^X(R = p)$, the X
 # frame solid and the Z frame of the same patch faint and dashed. One patch across the campaigns means the panel
 # reads as the chip drifting under a fixed placement, and the curve the benchmark traces into a logical error rate
@@ -1195,7 +1195,10 @@ from qecbench import memory as mem
 from qecbench.analysis import load_results
 from scipy.stats import rankdata, spearmanr
 
-CAMPAIGN = None          # None: the newest session that ran both frames and the memory; else "20260924"
+# the sittings the paper's Fig. 9a draws (benchmark stamps); None takes every sitting in data/
+SITTINGS = ["20260922_1326", "20260923_0715", "20260923_1635", "20260924_0804", "20260926_0857", "20260926_1311",
+            "20260928_0812", "20260928_0900", "20260928_1313", "20260929_1054", "20260929_1102", "20260930_0919"]
+CAMPAIGN = "20260930_0919"   # the reference sitting; None: the newest of SITTINGS
 DISTANCE = 3
 N_BEST, N_WORST = 3, 3
 SURFACE = RESULTS / "ibm_phoenix" / "surface_code"
@@ -1272,16 +1275,17 @@ def campaign_data(day, files):
     return frames, logical, patches, depths
 
 
-sessions = campaigns()
+sessions = {k: got for k, got in campaigns().items() if SITTINGS is None or k in SITTINGS}
 day = CAMPAIGN or max(sessions)
 frames, logical, patches, depths = campaign_data(day, sessions[day])
 print(f"{day}: {len(patches)} surface_d{DISTANCE} patches, depths {depths}, "
       f"{', '.join(k + ' ' + v.name for k, v in sessions[day].items())}")
 
-by_session = {st: campaign_data(st, f) for st, f in sittings().items() if "mcm_x" in f}
+by_session = {st: campaign_data(st, f) for st, f in sittings().items()
+              if "mcm_x" in f and (SITTINGS is None or st in SITTINGS)}
 by_session = {st: got for st, got in by_session.items() if len(got[2]) >= 4}   # too few shared patches says nothing
-MARKERS = ["o", "s", "^", "D", "v", "P", "X", "*"]
-MIN_DEPTH = 2                                      # p = R = 1 is a single round, where the memory barely errs
+MARKERS = ["o", "s", "^", "D", "v", "P", "X", "*","h", "H", "<", ">", "1", "2", "3", "4"]
+MIN_DEPTH = 2                                     # p = R = 1 is a single round, where the memory barely errs
 deep_of = lambda ds: [p for p in ds if p >= MIN_DEPTH]
 label_of = lambda st: session_label(st, by_session)
 for st, (fr, _, qs, ds) in sorted(by_session.items()):
@@ -1307,7 +1311,6 @@ for j, st in enumerate(shown):
     pl = [lg[star]["X"][p]["rate"] for p in ds]
     ax.plot([fr["X"][star][p]["r_ovl"] for p in ds], pl, "-", marker=MARKERS[j], color=colours[j], lw=1.6,
             ms=7, zorder=3, label=label_of(st), markeredgecolor="black", alpha=0.7)
-    # ax.plot([fr["Z"][star][p]["r_ovl"] for p in ds], pl, "--", color=colours[j], lw=0.9, alpha=0.55, zorder=2)
     if st == shown[-1]:                            # depths marked once, on the newest campaign
         for p, xv, yv in zip(ds, [fr["X"][star][p]["r_ovl"] for p in ds], pl):
             ax.annotate(f"{p}", (xv, yv), textcoords="offset points", xytext=(6, 1), fontsize=7, color="0.25",
@@ -1329,7 +1332,7 @@ ax.grid(alpha=0.3)
 if SHOW_LABELS:
     ax.set(xlabel=r"$r_{\rm ovl}(p)$", ylabel=r"$P_L^X(R = p)$")
 fig_b.tight_layout()
-fig_b.savefig(FIGURES / "fig9b_best_patches.pdf", transparent=True, bbox_inches="tight")
+fig_b.savefig(FIGURES / "fig9a_best_patches.pdf", transparent=True, bbox_inches="tight")
 plt.show()
 
 
@@ -1350,60 +1353,7 @@ for basis in ("Z", "X"):
         print(f"   P_L^{basis} vs r_ovl^{frame}: {rho:+.2f}")
 
 # %% [markdown]
-# ### 10d. Both frames against depth, in one sitting
-#
-# The two frames of the same sitting, patch by patch, against the depth of the benchmark: faint lines are the
-# individual patches, the heavy line their median. Noiselessly the two frames are the same algorithm and would lie on
-# top of each other, so the gap between the medians is the extra error the X frame sees, and the gap widening with
-# $p$ says it accumulates per layer rather than being a fixed cost at state preparation or readout. The axis is
-# logarithmic in $r_{\rm ovl}$, so a straight line is an exponential decay in depth.
-#
-# The two frames do not merely differ in rate, they differ in shape: the X frame falls off exponentially over the
-# whole range, while the Z frame flattens beyond $p \approx 3$ and holds a floor. A single rate per layer is
-# therefore a fair summary of the X frame and only a crude one of the Z frame, which is why the cell prints the rate
-# over the early layers separately from the one over the whole range.
-#
-# `p = 1` is kept here: this panel is about how the benchmark decays, not about ranking patches against the memory.
-
-# %%
-fig_d, ax = plt.subplots(figsize=(3.4, 3.2))       # one column wide, as Fig. 9a and 9b
-rates = {}
-for frame in ("Z", "X"):
-    for q in patches:                              # every patch, faint
-        ys = [frames[frame][q][p]["r_ovl"] for p in depths]
-        ax.plot(depths, ys, "-", color=TILE_FRAME[frame], lw=0.7, alpha=0.25, zorder=1)
-    median = np.array([np.median([frames[frame][q][p]["r_ovl"] for q in patches]) for p in depths])
-    ax.plot(depths, median, "-o", color=TILE_FRAME[frame], lw=2, ms=5, zorder=3, label=f"{frame} frame")
-    good = median > 0                              # the decay rate per layer, from the median
-    early = good & (np.array(depths) <= 3)
-    rates[frame] = (-np.polyfit(np.array(depths)[good], np.log(median[good]), 1)[0],
-                    -np.polyfit(np.array(depths)[early], np.log(median[early]), 1)[0])
-ax.set(yscale="log", xlabel="" if not SHOW_LABELS else "$p$")
-ax.set_xticks(depths)
-ax.get_xaxis().set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
-ax.grid(alpha=0.3)
-ax.legend(fontsize=7, frameon=False, loc="lower left")
-if SHOW_LABELS:
-    ax.set_ylabel(r"$r_{\rm ovl}$")
-fig_d.tight_layout()
-fig_d.savefig(FIGURES / "fig9d_frames_vs_depth.pdf", transparent=True, bbox_inches="tight")
-plt.show()
-
-print(f"{day}: median r_ovl by depth")
-print(f"{'frame':>7} " + "".join(f"{'p=' + str(p):>9}" for p in depths)
-      + f"{'rate, all p':>13}{'rate, p<=3':>12}")
-for frame in ("Z", "X"):
-    med = [np.median([frames[frame][q][p]["r_ovl"] for q in patches]) for p in depths]
-    print(f"{frame:>7} " + "".join(f"{v:>9.3f}" for v in med)
-          + f"{rates[frame][0]:>13.3f}{rates[frame][1]:>12.3f}")
-print(f"over the whole range the X frame falls {rates['X'][0] / rates['Z'][0]:.2f}x faster per layer; over the "
-      f"first layers, where both still decay, {rates['X'][1] / rates['Z'][1]:.2f}x")
-ratio = [np.median([frames["Z"][q][p]["r_ovl"] for q in patches])
-         / np.median([frames["X"][q][p]["r_ovl"] for q in patches]) for p in depths]
-print("Z/X ratio of the medians by depth: " + "  ".join(f"p={p}:{v:.2f}" for p, v in zip(depths, ratio)))
-
-# %% [markdown]
-# ### 10e. One patch, every sitting - is the decay a property of the patch or of the day?
+# ### 10b. One patch, every sitting - is the decay a property of the patch or of the day?
 #
 # The panel above is one sitting and every patch; this one is one patch and every sitting. The same placement is
 # followed through each session that ran both frames, faint lines for the individual days and the heavy line for
@@ -1421,18 +1371,23 @@ print("Z/X ratio of the medians by depth: " + "  ".join(f"p={p}:{v:.2f}" for p, 
 
 # %%
 TRACK_PATCH = None                                 # e.g. 63; None takes the patch Fig. 9b follows
+# the sittings the paper's Fig. 9b averages; None takes every sitting of Fig. 9a that ran the full sweep
+TRACK_SITTINGS = ["20260922_1326", "20260923_0715", "20260923_1635", "20260924_0804", "20260926_0857", "20260926_1311",
+                  "20260928_0812", "20260928_0900"]
+SWEEP = [1, 2, 3, 5, 7, 10]                        # the depths a sitting needs when TRACK_SITTINGS is None
 tracked = star if TRACK_PATCH is None else next(q for q in patches if min(q.data_qubits) == TRACK_PATCH)
-shown_days = [st for st, (fr, _, qs, _) in by_session.items() if tracked in qs and "X" in fr]
+shown_days = [st for st, (fr, _, qs, ds) in by_session.items() if tracked in qs and "X" in fr
+              and (st in TRACK_SITTINGS if TRACK_SITTINGS is not None else set(SWEEP) <= set(ds))]
 ps_e = sorted(set.intersection(*(set(by_session[st][0]["Z"][tracked]) for st in shown_days)))
 
-fig_e, ax = plt.subplots(figsize=(3.4, 3.2))       # one column wide, as the other Fig. 9 panels
+fig_e, ax = plt.subplots(figsize=(3, 4))       # one column wide, as the other Fig. 9 panels
 summary = lambda st, frame, p: by_session[st][0][frame][tracked][p]
 # bars are the standard deviation over the sittings: how much the day moves this patch, not an error on the mean
 for frame, dodge in (("Z", -0.12), ("X", 0.12)):   # a nudge apart, or the two sets of bars overlap
     curves = np.array([[summary(st, frame, p)["r"] for p in ps_e] for st in shown_days])
     ax.errorbar(np.array(ps_e) + dodge, curves.mean(axis=0), yerr=curves.std(axis=0), fmt="-o",
-                color=TILE_FRAME[frame], lw=2, ms=5, capsize=2.5, elinewidth=1, zorder=3,
-                label=f"{frame} frame")
+                color=TILE_FRAME[frame], lw=1, ms=8, capsize=2.5, elinewidth=1, zorder=3,markeredgecolor="black",
+                label=f"{frame}")
 # r runs between two fixed references, so draw them: random guessing below, the noiseless circuit above
 ideal = [summary(shown_days[-1], "Z", p)["r_ideal"] for p in ps_e]
 rand = summary(shown_days[-1], "Z", ps_e[0])["r_rand"]
@@ -1444,12 +1399,11 @@ ax.grid(alpha=0.3)
 handles, labels = ax.get_legend_handles_labels()   # the frames first, the two references after them
 order = sorted(range(len(labels)), key=lambda k: labels[k] in ("noiseless", "random"))
 ax.legend([handles[k] for k in order], [labels[k] for k in order],
-          title=f"patch @{min(tracked.data_qubits)}", fontsize=6.5, title_fontsize=7, frameon=False,
-          loc="lower left")
+          fontsize=10, frameon=True)
 if SHOW_LABELS:
     ax.set(xlabel="$p$", ylabel="$r$")
 fig_e.tight_layout()
-fig_e.savefig(FIGURES / "fig9e_one_patch_over_days.pdf", transparent=True, bbox_inches="tight")
+fig_e.savefig(FIGURES / "fig9b_one_patch_over_days.pdf", transparent=True, bbox_inches="tight")
 plt.show()
 
 print(f"patch @{min(tracked.data_qubits)} over {len(shown_days)} sittings "
@@ -1467,7 +1421,7 @@ for frame in ("Z", "X"):
     print(f"{frame:>9} " + "".join(f"{v:>16.0%}" for v in cv))
 
 # %% [markdown]
-# ### 10f. How far the benchmark still says something: $d = 3$ out to $p = 20$
+# ### How far the benchmark still says something: $d = 3$ out to $p = 20$
 #
 # The sweeps above stop at $p = 10$, where both frames still sit well above random. This panel takes the deepest run
 # on the chip - $d = 3$ only, so the depth is affordable - and follows it to $p = 20$ in both frames, every patch
@@ -1480,7 +1434,7 @@ for frame in ("Z", "X"):
 # `DEEP_RUN` names the run by its stamp; `None` takes whichever both-frames run reaches the deepest $p$.
 
 # %%
-DEEP_RUN = None                                    # e.g. "20260928_0900"; None takes the deepest both-frames run
+DEEP_RUN = "20260928_0900"                         # the run the paper draws; None takes the deepest both-frames run
 deep_candidates = {}
 for x_file in sorted((SURFACE / "mcm_x").glob("*.json")):
     z_file = SURFACE / "mcm" / x_file.name.replace("_mcm_x", "_mcm")
@@ -1502,13 +1456,13 @@ deep_patches = sorted((q for q in deep["Z"] if q in deep["X"] and q.code.info.ge
                       key=lambda q: min(q.data_qubits))
 ps_f = sorted(set.intersection(*(set(deep["Z"][q]) & set(deep["X"][q]) for q in deep_patches)))
 
-fig_f, ax = plt.subplots(figsize=(3.4, 3.2))       # one column wide, as the other Fig. 9 panels
+fig_f, ax = plt.subplots(figsize=(3, 4))       # one column wide, as the other Fig. 9 panels
 for frame in ("Z", "X"):
     for q in deep_patches:
         ax.plot(ps_f, [deep[frame][q][p]["r"] for p in ps_f], "-", color=TILE_FRAME[frame], lw=0.7, alpha=0.25,
                 zorder=1)
     med = [np.median([deep[frame][q][p]["r"] for q in deep_patches]) for p in ps_f]
-    ax.plot(ps_f, med, "-o", color=TILE_FRAME[frame], lw=2, ms=5, zorder=3, label=f"{frame} frame")
+    ax.plot(ps_f, med, "-o", color=TILE_FRAME[frame], lw=2, ms=8, zorder=3, label=f"{frame}", markeredgecolor="black")
 ideal_f = [deep["Z"][deep_patches[0]][p]["r_ideal"] for p in ps_f]
 rand_f = deep["Z"][deep_patches[0]][ps_f[0]]["r_rand"]
 band = 3 * np.median([deep["Z"][q][ps_f[0]]["r_rand_std"] for q in deep_patches])
@@ -1519,8 +1473,7 @@ ax.set_xticks([p for p in ps_f if p in (1, 3, 5, 7, 10, 15, 20)])   # the rest c
 ax.set_xticks(ps_f, minor=True)
 ax.get_xaxis().set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
 ax.grid(alpha=0.3)
-ax.legend(title=f"$d = {DISTANCE}$, {deep_stamp[4:6]}-{deep_stamp[6:8]}", fontsize=6.5, title_fontsize=7,
-          frameon=False, loc="upper right")
+ax.legend(fontsize=6.5, title_fontsize=7, frameon=True)
 if SHOW_LABELS:
     ax.set(xlabel="$p$", ylabel="$r$")
 fig_f.tight_layout()
@@ -1540,70 +1493,7 @@ for frame in ("Z", "X"):
     print(f"{frame:>11} " + "".join(f"{v:>8}" for v in alive) + f"   of {len(deep_patches)}")
 
 # %% [markdown]
-# ### 10g. The two memories against each other, day by day
-#
-# Every memory run on the standard patch set, one point per patch: what it lost holding $|0\rangle_L$ on one axis and
-# $|+\rangle_L$ on the other, after the same number of rounds. A point on the diagonal is a patch that keeps the two
-# logical states equally well; above it the $X$ memory is the weaker one, below it the $Z$ memory.
-#
-# Both axes are the same measurement on the same qubits in the same run, so the scatter around the diagonal is not
-# noise between experiments - it is the chip treating the two bases differently, which is the asymmetry the X frame
-# of the benchmark was introduced to see. Colour runs with the calendar, so a drift of the cloud off the diagonal
-# over the fortnight would show as a colour gradient.
-#
-# `ROUND_SHOWN` is the number of rounds compared.
-
-# %%
-ROUND_SHOWN = 3
-mem_runs = {}
-for path in sorted((SURFACE / "memory").glob("*.json")):
-    got = mem.load_results(RESULTS, "ibm_phoenix", files={path.name})
-    qs = [q for q in got if q.code.info.get("distance") == DISTANCE
-          and ROUND_SHOWN in got[q]["Z"] and ROUND_SHOWN in got[q]["X"]]
-    if len(qs) >= 4:
-        mem_runs[when(path).strftime("%Y%m%d_%H%M")] = (got, sorted(qs, key=lambda q: min(q.data_qubits)))
-
-fig_g, ax = plt.subplots(figsize=(3.4, 3.2))       # one column wide, as the other Fig. 9 panels
-# fourteen runs is too many for a legend, so the calendar goes on a colour bar instead
-stamps = list(mem_runs)
-elapsed = [(datetime.strptime(st, "%Y%m%d_%H%M") - datetime.strptime(stamps[0], "%Y%m%d_%H%M")).total_seconds()
-           / 86400 for st in stamps]
-cmap_g, norm_g = plt.get_cmap("viridis"), plt.Normalize(0, max(elapsed))
-for st, days in zip(stamps, elapsed):
-    got, qs = mem_runs[st]
-    ax.scatter([got[q]["Z"][ROUND_SHOWN]["rate"] for q in qs], [got[q]["X"][ROUND_SHOWN]["rate"] for q in qs],
-               color=cmap_g(norm_g(days)), marker="o", s=14, lw=0, alpha=0.85, zorder=3)
-lo = min(min(got[q][b][ROUND_SHOWN]["rate"] for q in qs for b in "ZX") for got, qs in mem_runs.values())
-hi = max(max(got[q][b][ROUND_SHOWN]["rate"] for q in qs for b in "ZX") for got, qs in mem_runs.values())
-span = [lo * 0.85, hi * 1.15]
-ax.plot(span, span, "--", color="0.5", lw=1, zorder=1)
-ax.set(xscale="log", yscale="log", xlim=span, ylim=span)
-ax.set_aspect("equal")
-for axis in (ax.get_xaxis(), ax.get_yaxis()):
-    axis.set_major_locator(LogLocator(base=10, subs=(1.0, 2.0, 5.0), numticks=12))
-    axis.set_minor_locator(LogLocator(base=10, subs=np.arange(2, 10) * 0.1, numticks=12))
-    axis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
-    axis.set_minor_formatter(NullFormatter())
-ax.grid(alpha=0.3)
-bar = fig_g.colorbar(plt.cm.ScalarMappable(norm=norm_g, cmap=cmap_g), ax=ax, fraction=0.046, pad=0.03)
-bar.set_ticks([0, max(elapsed)])
-bar.ax.set_yticklabels([f"{stamps[0][4:6]}-{stamps[0][6:8]}", f"{stamps[-1][4:6]}-{stamps[-1][6:8]}"], fontsize=6)
-bar.outline.set_visible(False)
-if SHOW_LABELS:
-    ax.set(xlabel=rf"$P_L^Z(R = {ROUND_SHOWN})$", ylabel=rf"$P_L^X(R = {ROUND_SHOWN})$")
-fig_g.tight_layout()
-fig_g.savefig(FIGURES / "fig9g_memory_x_vs_z.pdf", transparent=True, bbox_inches="tight")
-plt.show()
-
-print(f"R = {ROUND_SHOWN}, the X memory as a multiple of the Z memory on the same patch")
-print(f"{'run':>12} {'patches':>8} {'median':>8} {'range':>16} {'patches worse in X':>20}")
-for st, (got, qs) in mem_runs.items():
-    ratio = np.array([got[q]["X"][ROUND_SHOWN]["rate"] / got[q]["Z"][ROUND_SHOWN]["rate"] for q in qs])
-    print(f"{st[4:6] + '-' + st[6:8] + ' ' + st[9:11] + 'h':>12} {len(qs):>8} {np.median(ratio):>7.2f}x "
-          f"{f'{ratio.min():.2f} - {ratio.max():.2f}':>16} {f'{(ratio > 1).sum()}/{len(qs)}':>20}")
-
-# %% [markdown]
-# ### 10h. Both memories against the number of rounds
+# ### 9c. Both memories against the number of rounds
 #
 # The same runs as 10g, now against $R$ rather than against each other: for each logical state, the median over runs
 # of each run's median over the patches, with bars covering the 16th to 84th percentile of the runs. The bars are the
@@ -1621,7 +1511,21 @@ for st, (got, qs) in mem_runs.items():
 
 # %%
 ROUNDS_SHOWN = [1, 2, 3, 5, 7, 10]
-fig_h, ax = plt.subplots(figsize=(3.4, 3.2))       # one column wide, as the other Fig. 9 panels
+ROUND_SHOWN = 3
+# the memory runs the paper's Fig. 9c pools (file stamps); None takes every run in data/
+MEMORY_RUNS = ["20260914_0941", "20260918_1224", "20260921_0843", "20260922_0955", "20260922_1529", "20260923_0715",
+               "20260923_1635", "20260924_0812", "20260925_0646", "20260926_0825", "20260926_0902", "20260926_1311",
+               "20260928_0812", "20260928_0849"]
+mem_runs = {}
+for path in sorted((SURFACE / "memory").glob("*.json")):
+    got = mem.load_results(RESULTS, "ibm_phoenix", files={path.name})
+    qs = [q for q in got if q.code.info.get("distance") == DISTANCE
+          and ROUND_SHOWN in got[q]["Z"] and ROUND_SHOWN in got[q]["X"]]
+    if len(qs) >= 4:
+        mem_runs[when(path).strftime("%Y%m%d_%H%M")] = (got, sorted(qs, key=lambda q: min(q.data_qubits)))
+mem_runs = {st: got for st, got in mem_runs.items() if MEMORY_RUNS is None or st in MEMORY_RUNS}
+
+fig_h, ax = plt.subplots(figsize=(3, 4))       # one column wide, as the other Fig. 9 panels
 per_run = {basis: [] for basis in ("Z", "X")}
 for st, (got, qs) in mem_runs.items():
     usable = [q for q in qs if all(r in got[q]["Z"] and r in got[q]["X"] for r in ROUNDS_SHOWN)]
@@ -1635,7 +1539,7 @@ for basis, dodge in (("Z", 0.98), ("X", 1.02)):    # a nudge apart, or the two s
     middle = np.median(stack, axis=0)
     lo_hi = np.abs(np.percentile(stack, [16, 84], axis=0) - middle)
     ax.errorbar(np.array(ROUNDS_SHOWN) * dodge, middle, yerr=lo_hi, fmt="-o", color=TILE_FRAME[basis], lw=2,
-                ms=5, capsize=2.5, elinewidth=1, zorder=3,
+                ms=8, capsize=2.5, elinewidth=1, zorder=3,markeredgecolor="black",
                 label=rf"$|0\rangle_L$" if basis == "Z" else rf"$|+\rangle_L$")
 ax.set(xscale="log", yscale="log")
 ax.set_xticks(ROUNDS_SHOWN)
@@ -1645,11 +1549,11 @@ ax.get_xaxis().set_minor_formatter(NullFormatter())
 ax.get_yaxis().set_major_locator(LogLocator(base=10, subs=(1.0, 2.0, 5.0), numticks=12))
 ax.get_yaxis().set_minor_formatter(NullFormatter())
 ax.grid(alpha=0.3)
-ax.legend(title=f"{len(per_run['Z'])} runs", fontsize=7, title_fontsize=7, frameon=False, loc="upper left")
+ax.legend(fontsize=10, title_fontsize=7, frameon=True, loc="upper left")
 if SHOW_LABELS:
     ax.set(xlabel="$R$", ylabel="$P_L$")
 fig_h.tight_layout()
-fig_h.savefig(FIGURES / "fig9h_memory_vs_rounds.pdf", transparent=True, bbox_inches="tight")
+fig_h.savefig(FIGURES / "fig9c_memory_vs_rounds.pdf", transparent=True, bbox_inches="tight")
 plt.show()
 
 print(f"median over runs of each run's median over patches")
@@ -1667,189 +1571,8 @@ for r in ROUNDS_SHOWN:
     paired.append(np.median(got_all))
 print(f"{'paired, patch by patch':>22} " + "".join(f"{v:>9.2f}" for v in paired) + "   <- the honest comparison")
 
-
 # %% [markdown]
-# ### 10b. Table - every predictor against both memories, campaign by campaign
-#
-# The same comparison for every measurement that could stand in for the memory experiment, over all sessions that ran
-# it: the benchmark in each frame, and what the device's own calibration says about each patch (its couplers' CZ error,
-# its `sx` error, the mid-circuit readout of its ancillas, the final readout of its data, and the **round budget**, the
-# unweighted sum over one syndrome round of all the CZ and readout errors). Each entry is Spearman $\rho$ between the
-# predictor and the measured logical error rate, pooled over $p = R \ge 2$ with the patches ranked within each depth;
-# every predictor is oriented so that larger means worse, so **positive means it ranks the patches the way that memory
-# does**. The last column pair pools the sessions as well, so that a predictor that is never the best of any single
-# session but is steady across them can still show. Note that only the sessions that ran both frames are here, and
-# they are the late ones: over the whole run of campaigns, including the three that ran the $Z$ frame alone, the round
-# budget is the calibration quantity that tracks $P_L^Z$ best (section 6 of `memory_vs_benchmark.ipynb`), while within
-# these three sessions the CZ errors have gone stale and the readout and `sx` errors carry more of the ordering. The
-# cell writes `figures/paper_figures/table_predictors.tex`.
-
-# %%
-def snapshot_for(path):
-    # the newest calibration snapshot taken before that run started
-    created = json.loads(path.read_text())["run"]["created"]
-    taken = [(json.loads(s.read_text())["fetched_at"], s)
-             for s in sorted((ROOT / "data" / "calibration" / "ibm_phoenix").glob("*_calibration.json"))]
-    before = [s for t, s in taken if t <= created]
-    return json.loads(before[-1].read_text()) if before else None
-
-
-def calibration(patch, cal):
-    one, two = cal["one_qubit"], cal["two_qubit"]
-    q = lambda phys: one.get(str(phys)) or {}
-    cz = [(two.get(f"{u}-{v}") or two.get(f"{v}-{u}") or {}).get("error", np.nan) for u, v in patch.couplers]
-    anc = [q(a).get("mcm_readout_error", np.nan) for a in patch.ancillas]
-    data = [q(d).get("readout_error", np.nan) for d in patch.data_qubits]
-    sx = [q(x).get("sx_error", np.nan) for x in patch.qubits]
-    return {"CZ error": np.nanmean(cz), "worst CZ": np.nanmax(cz), "sx error": np.nanmean(sx),
-            "ancilla readout": np.nanmean(anc), "data readout": np.nanmean(data),
-            "round budget": np.nansum(cz) + np.nansum(anc) + np.nansum(data)}
-
-
-ROWS = [r"$-r_{\rm ovl}^{Z}$", r"$-r_{\rm ovl}^{X}$", "CZ error", "worst CZ", "sx error", "ancilla readout",
-        "data readout", "round budget"]
-table, pool = {}, {}                               # pool: the rank pairs behind the last column of the table
-campaign_files = one_per_day(campaigns())      # the figures use every sitting; the table, one a day
-for day_, files_ in campaign_files.items():
-    frames_, logical_, patches_, depths_ = campaign_data(day_, files_)
-    cal = snapshot_for(files_["memory"])
-    cals = {q: calibration(q, cal) for q in patches_} if cal else {}
-    deep_ = [p for p in depths_ if p >= 2]
-    for basis in ("Z", "X"):
-        column = {}
-
-        def add(name, values, basis=basis, deep_=deep_, patches_=patches_, logical_=logical_, column=column):
-            column[name] = pooled(values, basis, deep_, patches_, logical_)
-            xs, ys = pool.setdefault((name, basis), ([], []))
-            for p in deep_:                            # pooled over sessions too, ranked within (session, depth)
-                xs += list(rankdata([values(q, p) for q in patches_]))
-                ys += list(rankdata([logical_[q][basis][p]["rate"] for q in patches_]))
-
-        for frame in ("Z", "X"):
-            add(rf"$-r_{{\rm ovl}}^{{{frame}}}$", lambda q, p, f=frame: -frames_[f][q][p]["r_ovl"])
-        for name in ROWS[2:]:
-            if cals:
-                add(name, lambda q, p, n=name: cals[q][n])
-            else:
-                column[name] = np.nan
-        table[(day_, basis)] = column
-for basis in ("Z", "X"):
-    table[("pooled", basis)] = {name: (spearmanr(*pool[(name, basis)])[0] if (name, basis) in pool else np.nan)
-                                for name in ROWS}
-days = sorted({d for d, _ in table} - {"pooled"})
-columns = [(d, basis) for d in days for basis in ("Z", "X")] + [("pooled", b) for b in ("Z", "X")]
-best_in = {c: max(ROWS, key=lambda n: table[c].get(n, -np.inf) if np.isfinite(table[c].get(n, np.nan)) else -np.inf)
-           for c in columns}
-head = " & ".join([rf"\multicolumn{{2}}{{c}}{{{session_label(d, campaign_files)}}}" for d in days]
-                  + [r"\multicolumn{2}{c}{all}"])
-lines = [r"\begin{table}[t]", r"\centering", r"\small",
-         r"\caption{Spearman $\rho$ between each predictor and the measured logical error rate of the surface-code "
-         r"memory on \texttt{ibm_phoenix}, for the $d = 3$ patches of each session, pooled over the matched depths "
-         r"$p = R \ge 2$ with the patches ranked within each depth. Columns are sessions, split by the logical state "
-         r"the memory held ($Z$: $|0\rangle_L$, $X$: $|+\rangle_L$); the last pair pools all of them, ranking the "
-         r"patches within each session and depth. Rows are the LR-QAOA benchmark in each frame and "
-         r"the calibration of the same patches, the round budget being the unweighted sum over one syndrome round of "
-         r"every CZ error, every ancilla mid-circuit readout error and every data readout error. Every predictor is "
-         r"oriented so that larger means worse, so a positive $\rho$ means it ranks the patches the way that memory "
-         r"does. The best predictor of each column is in bold.}",
-         r"\label{tab:predictors}",
-         r"\begin{tabular}{l" + "cc" * len(days) + r"@{\quad}cc}", r"\toprule",
-         r"predictor & " + head + r" \\",
-         " & " + " & ".join(["$Z$ & $X$"] * (len(days) + 1)) + r" \\", r"\midrule"]
-def entry(v):
-    # no plus signs; a real minus sign rather than a hyphen
-    return "--" if not np.isfinite(v) else (f"$-${abs(v):.2f}" if v < 0 else f"{v:.2f}")
-
-
-for name in ROWS:
-    cells = []
-    for c in columns:
-        v = table[c].get(name, np.nan)
-        cell = entry(v)
-        cells.append(rf"\textbf{{{cell}}}" if name == best_in[c] and np.isfinite(v) else cell)
-    lines.append(f"{name} & " + " & ".join(cells) + r" \\")
-lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
-(FIGURES / "table_predictors.tex").write_text("\n".join(lines) + "\n")
-print("\n".join(lines))
-print(f"\nwritten to {FIGURES / 'table_predictors.tex'}")
-
-# %% [markdown]
-# ### 10i. Every predictor against both memories, in one panel
-#
-# Table 10b holds the same numbers session by session; this is the summary the table cannot be, over the sittings
-# that ran **both** frames. Each predictor gets a bar per memory: the **median** over those sittings of its Spearman
-# $\rho$ against $P_L$, with bars running to the lower and upper quartile. Eight sittings are too few for a mean and
-# a standard deviation to describe a skewed spread, and a symmetric bar would reach past $\rho = 1$ for the best
-# predictors. Every predictor is oriented so larger means worse, so a longer bar is a better predictor.
-#
-# The error bars carry the part a single-column table hides: a predictor that is strong on average but swings from
-# sitting to sitting is not one to trust on the day, and that is the difference between the benchmark's two frames
-# and the calibration.
-#
-# The panel is drawn from the **single depth** $p = R = 3$ - the one the shot-budget panel of Fig. 9c settles on -
-# because the sweep over depths is not what makes the benchmark work: every predictor does as well there as pooled
-# over all five depths, on a fifth of the shots. The cell prints both so the claim can be checked. The $Z$ frame
-# gains the most from the restriction, its deepest points being where its readout bias turns against it.
-
-# %%
-CAL_ROWS = ["CZ error", "worst CZ", "sx error", "ancilla readout", "data readout", "round budget"]
-FRAME_ROWS = {r"$-r_{\rm ovl}^{Z}$": "Z", r"$-r_{\rm ovl}^{X}$": "X"}
-both_frames = campaigns()
-ONE_DEPTH = 3                                      # the single depth the cheap protocol of Fig. 9c would run
-per_sitting = {name: {"Z": [], "X": []} for name in list(FRAME_ROWS) + CAL_ROWS}
-at_one_depth = {name: {"Z": [], "X": []} for name in list(FRAME_ROWS) + CAL_ROWS}
-for day_, files_ in both_frames.items():
-    frames_, logical_, patches_, depths_ = campaign_data(day_, files_)
-    cal = snapshot_for(files_["memory"])
-    cals = {q: calibration(q, cal) for q in patches_} if cal else {}
-    deep_ = [d for d in depths_ if d >= 2]
-    for basis in ("Z", "X"):
-        for name in list(FRAME_ROWS) + CAL_ROWS:
-            values = ((lambda q, p_, f=FRAME_ROWS[name]: -frames_[f][q][p_]["r_ovl"]) if name in FRAME_ROWS
-                      else (lambda q, p_, n=name: cals[q][n]))
-            if name in CAL_ROWS and not cals:
-                continue
-            per_sitting[name][basis].append(pooled(values, basis, deep_, patches_, logical_))
-            if ONE_DEPTH in depths_:
-                at_one_depth[name][basis].append(pooled(values, basis, [ONE_DEPTH], patches_, logical_))
-# the median and the quartiles, not the mean and its standard deviation: eight sittings are too few for a
-# symmetric spread to mean much, and the distributions are skewed
-middle_of = lambda values: np.median(values)
-quartiles_of = lambda values: np.abs(np.percentile(values, [25, 75]) - np.median(values)).reshape(2, 1)
-order = sorted(at_one_depth, key=lambda n: -np.mean([middle_of(at_one_depth[n][b]) for b in ("Z", "X")]))
-print(f"{len(both_frames)} sittings: {', '.join(session_label(d, both_frames) for d in both_frames)}\n")
-print(f"{'predictor':>18} {'vs P_L^Z, median [IQR]':>26} {'vs P_L^X, median [IQR]':>26} "
-      f"{'p=3 only: Z':>12} {'X':>6} {'worst':>7}")
-for name in order:
-    z, x = np.array(per_sitting[name]["Z"]), np.array(per_sitting[name]["X"])
-    label = name.replace(r"$-r_{\rm ovl}^{", "-r_ovl^").replace("}$", "")
-    cell = lambda v: f"{np.median(v):+.2f} [{np.percentile(v, 25):+.2f}, {np.percentile(v, 75):+.2f}]"
-    one = {b: np.median(at_one_depth[name][b]) if at_one_depth[name][b] else np.nan for b in ("Z", "X")}
-    print(f"{label:>18} {cell(z):>26} {cell(x):>26} {one['Z']:>12.2f} {one['X']:>6.2f} "
-          f"{min(z.min(), x.min()):>+7.2f}")
-
-fig_i, ax = plt.subplots(figsize=(3.4, 3.4))       # one column wide, as the other Fig. 9 panels
-spots = np.arange(len(order))
-for basis, offset, colour in (("Z", -0.2, "#2f6f9f"), ("X", 0.2, "#b8560f")):
-    middle = [middle_of(at_one_depth[n][basis]) for n in order]
-    spread = np.hstack([quartiles_of(at_one_depth[n][basis]) for n in order])
-    ax.barh(spots + offset, middle, height=0.38, xerr=spread, color=colour, alpha=0.85,
-            error_kw={"elinewidth": 0.9, "capsize": 2}, label=rf"$P_L^{basis}$")
-ax.axvline(0, color="0.4", lw=1)
-ax.set_yticks(spots, order, fontsize=7)
-ax.invert_yaxis()
-ax.set_xlim(-0.35, 1.0)
-ax.tick_params(axis="x", labelsize=7)
-ax.grid(axis="x", alpha=0.3)
-ax.legend(title=rf"$p = R = {ONE_DEPTH}$", fontsize=7, title_fontsize=7, frameon=False, loc="lower right")
-if SHOW_LABELS:
-    ax.set_xlabel(r"Spearman $\rho$ against the memory")
-fig_i.tight_layout()
-fig_i.savefig(FIGURES / "fig9i_predictor_bars.pdf", transparent=True, bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# ### 10c. Fig. 9c - how few shots the benchmark needs
+# ### Fig. 9d - how few shots the benchmark needs
 #
 # The benchmark is worth running only if it is much cheaper than the experiment it stands in for, so: how far can its
 # shots be cut before it stops ranking the patches the way the memory does? The shots actually taken (1000 per
@@ -1868,6 +1591,9 @@ plt.show()
 
 # %%
 RECOMPUTE_SHOTS = False
+# the sittings the cached curves were computed from, used on a recompute; None takes every both-frames sitting
+SHOT_SITTINGS = ["20260922_1326", "20260923_0715", "20260923_1635", "20260924_0804", "20260926_0857", "20260926_1311",
+                 "20260928_0812", "20260928_0900"]
 SHOT_GRID = [50, 100, 200, 300, 500, 700, 1000]
 TRIALS = 200
 CACHE_SHOTS = ROOT / "data" / "shot_budget" / "benchmark_shot_budget.json"
@@ -1885,7 +1611,7 @@ else:
         # per session and depth: the observed energy distribution of each patch, and its P_L^X at every R
         out = {}
         for st, files_ in sittings().items():
-            if "mcm_x" not in files_:
+            if "mcm_x" not in files_ or (SHOT_SITTINGS is not None and st not in SHOT_SITTINGS):
                 continue
             logical_ = mem.load_results(RESULTS, "ibm_phoenix", files={files_["memory"].name})
             for record in json.loads(files_["mcm_x"].read_text())["results"]:
@@ -1920,8 +1646,8 @@ else:
         return float(np.mean(got))
 
     depths_all = [2, 3, 5, 7, 10]
-    protocols = {"full sweep, p = R": (shot_cells(lambda p_: p_ in depths_all), lambda p_: [p_], len(depths_all)),
-                 "p = 3 only, every R": (shot_cells(lambda p_: p_ == 3), lambda p_: depths_all, 1)}
+    protocols = {"p = R": (shot_cells(lambda p_: p_ in depths_all), lambda p_: [p_], len(depths_all)),
+                 "p = 3": (shot_cells(lambda p_: p_ == 3), lambda p_: depths_all, 1)}
     curves = {}
     for name, (cells_, against, n_depths) in protocols.items():
         rows_ = []
@@ -1938,26 +1664,24 @@ else:
     CACHE_SHOTS.write_text(json.dumps(curves, indent=1))
     print(f"written to {CACHE_SHOTS.relative_to(ROOT)}")
 
-fig_c, ax = plt.subplots(figsize=(3.4, 3.2))       # Fig. 9c, one column wide
-shot_colour = {"full sweep, p = R": plt.get_cmap("viridis")(0.15),
-               "p = 3 only, every R": plt.get_cmap("viridis")(0.65)}
+fig_c, ax = plt.subplots(figsize=(3,4))       # Fig. 9c, one column wide
+shot_colour = {"p = R": plt.get_cmap("viridis")(0.15),
+               "p = 3": plt.get_cmap("viridis")(0.65)}
 for name, got in curves.items():
     xs = [row["total"] for row in got["points"]]
     ax.fill_between(xs, [row["lo"] for row in got["points"]], [row["hi"] for row in got["points"]],
                     color=shot_colour[name], alpha=0.18, lw=0)
-    ax.plot(xs, [row["rho"] for row in got["points"]], "-o", color=shot_colour[name], lw=1.6, ms=4, label=name)
-    ax.plot(got["measured_total"], got["measured"], "*", color=shot_colour[name], ms=11, mec="0.25", mew=0.6,
-            zorder=4)
+    ax.plot(xs, [row["rho"] for row in got["points"]], "-o", color=shot_colour[name], lw=1.6, ms=8, label=name, markeredgecolor="black")
+    ax.plot(got["measured_total"], got["measured"], "*", color=shot_colour[name], ms=10, mew=0.6,
+            zorder=4, markeredgecolor="black")
 ax.axvline(MEMORY_SHOTS, color="0.5", ls="--", lw=1)
-ax.annotate("the memory\nexperiment", (MEMORY_SHOTS, 0.97), xytext=(-4, 0), textcoords="offset points",
-            fontsize=6.5, color="0.4", ha="right", va="top")
 ax.set(xscale="log", ylim=(0.4, 1.0))
 ax.grid(alpha=0.3)
-ax.legend(fontsize=6.5, frameon=False, loc="lower right", handletextpad=0.4, labelspacing=0.3)
+ax.legend(fontsize=10, frameon=True)
 if SHOW_LABELS:
     ax.set(xlabel="shots in the benchmark", ylabel=r"Spearman $\rho$ against $P_L^X$")
 fig_c.tight_layout()
-fig_c.savefig(FIGURES / "fig9c_shot_budget.pdf", transparent=True, bbox_inches="tight")
+fig_c.savefig(FIGURES / "fig9d_shot_budget.pdf", transparent=True, bbox_inches="tight")
 plt.show()
 
 for name, got in curves.items():
@@ -1965,6 +1689,102 @@ for name, got in curves.items():
     print(f"{name:>22}: {cheapest['rho']:.2f} at {cheapest['total'] / 1000:.1f}k shots "
           f"({MEMORY_SHOTS / cheapest['total']:.0f}x cheaper than the memory), "
           f"90% of the {got['measured']:.2f} the full {got['measured_total'] / 1000:.0f}k shots give")
+
+
+# %% [markdown]
+# ### 10. Every predictor against both memories, in one panel
+#
+# Table 10b holds the same numbers session by session; this is the summary the table cannot be, over the sittings
+# that ran **both** frames. Each predictor gets a bar per memory: the **median** over those sittings of its Spearman
+# $\rho$ against $P_L$, with bars running to the lower and upper quartile. Eight sittings are too few for a mean and
+# a standard deviation to describe a skewed spread, and a symmetric bar would reach past $\rho = 1$ for the best
+# predictors. Every predictor is oriented so larger means worse, so a longer bar is a better predictor.
+#
+# The error bars carry the part a single-column table hides: a predictor that is strong on average but swings from
+# sitting to sitting is not one to trust on the day, and that is the difference between the benchmark's two frames
+# and the calibration.
+#
+# The panel is drawn from the **single depth** $p = R = 3$ - the one the shot-budget panel of Fig. 9c settles on -
+# because the sweep over depths is not what makes the benchmark work: every predictor does as well there as pooled
+# over all five depths, on a fifth of the shots. The cell prints both so the claim can be checked. The $Z$ frame
+# gains the most from the restriction, its deepest points being where its readout bias turns against it.
+
+# %%
+def snapshot_for(path):
+    # the newest calibration snapshot taken before that run started
+    created = json.loads(path.read_text())["run"]["created"]
+    taken = [(json.loads(s.read_text())["fetched_at"], s)
+             for s in sorted((ROOT / "data" / "calibration" / "ibm_phoenix").glob("*_calibration.json"))]
+    before = [s for t, s in taken if t <= created]
+    return json.loads(before[-1].read_text()) if before else None
+def calibration(patch, cal):
+    one, two = cal["one_qubit"], cal["two_qubit"]
+    q = lambda phys: one.get(str(phys)) or {}
+    cz = [(two.get(f"{u}-{v}") or two.get(f"{v}-{u}") or {}).get("error", np.nan) for u, v in patch.couplers]
+    anc = [q(a).get("mcm_readout_error", np.nan) for a in patch.ancillas]
+    data = [q(d).get("readout_error", np.nan) for d in patch.data_qubits]
+    sx = [q(x).get("sx_error", np.nan) for x in patch.qubits]
+    return {"CZ error": np.nanmean(cz), "worst CZ": np.nanmax(cz), "sx error": np.nanmean(sx),
+            "ancilla readout": np.nanmean(anc), "data readout": np.nanmean(data),
+            "round budget": np.nansum(cz) + np.nansum(anc) + np.nansum(data)}
+
+
+CAL_ROWS = ["CZ error", "data readout"]
+FRAME_ROWS = {r"$-r_{\rm ovl}^{Z}$": "Z", r"$-r_{\rm ovl}^{X}$": "X"}
+# the sittings the paper's Fig. 10 summarises; None takes every both-frames sitting
+PREDICTOR_SITTINGS = ["20260922_1326", "20260923_0715", "20260923_1635", "20260924_0804", "20260926_0857", "20260926_1311",
+                      "20260928_0812", "20260928_0900"]
+both_frames = {k: got for k, got in campaigns().items() if PREDICTOR_SITTINGS is None or k in PREDICTOR_SITTINGS}
+ONE_DEPTH = 3                                      # the single depth the cheap protocol of Fig. 9c would run
+per_sitting = {name: {"Z": [], "X": []} for name in list(FRAME_ROWS) + CAL_ROWS}
+at_one_depth = {name: {"Z": [], "X": []} for name in list(FRAME_ROWS) + CAL_ROWS}
+for day_, files_ in both_frames.items():
+    frames_, logical_, patches_, depths_ = campaign_data(day_, files_)
+    cal = snapshot_for(files_["memory"])
+    cals = {q: calibration(q, cal) for q in patches_} if cal else {}
+    deep_ = [d for d in depths_ if d >= 2]
+    for basis in ("Z", "X"):
+        for name in list(FRAME_ROWS) + CAL_ROWS:
+            values = ((lambda q, p_, f=FRAME_ROWS[name]: -frames_[f][q][p_]["r_ovl"]) if name in FRAME_ROWS
+                      else (lambda q, p_, n=name: cals[q][n]))
+            if name in CAL_ROWS and not cals:
+                continue
+            per_sitting[name][basis].append(pooled(values, basis, deep_, patches_, logical_))
+            if ONE_DEPTH in depths_:
+                at_one_depth[name][basis].append(pooled(values, basis, [ONE_DEPTH], patches_, logical_))
+# the median and the quartiles, not the mean and its standard deviation: eight sittings are too few for a
+# symmetric spread to mean much, and the distributions are skewed
+middle_of = lambda values: np.median(values)
+quartiles_of = lambda values: np.abs(np.percentile(values, [25, 75]) - np.median(values)).reshape(2, 1)
+order = sorted(at_one_depth, key=lambda n: -np.mean([middle_of(at_one_depth[n][b]) for b in ("Z", "X")]))
+print(f"{len(both_frames)} sittings: {', '.join(session_label(d, both_frames) for d in both_frames)}\n")
+print(f"{'predictor':>18} {'vs P_L^Z, median [IQR]':>26} {'vs P_L^X, median [IQR]':>26} "
+      f"{'p=3 only: Z':>12} {'X':>6} {'worst':>7}")
+for name in order:
+    z, x = np.array(per_sitting[name]["Z"]), np.array(per_sitting[name]["X"])
+    label = name.replace(r"$-r_{\rm ovl}^{", "-r_ovl^").replace("}$", "")
+    cell = lambda v: f"{np.median(v):+.2f} [{np.percentile(v, 25):+.2f}, {np.percentile(v, 75):+.2f}]"
+    one = {b: np.median(at_one_depth[name][b]) if at_one_depth[name][b] else np.nan for b in ("Z", "X")}
+    print(f"{label:>18} {cell(z):>26} {cell(x):>26} {one['Z']:>12.2f} {one['X']:>6.2f} "
+          f"{min(z.min(), x.min()):>+7.2f}")
+
+fig_i, ax = plt.subplots(figsize=(4,4))       # one column wide, as the other Fig. 9 panels
+spots = np.arange(len(order))
+for basis, offset, colour in (("Z", -0.2, "#2f6f9f"), ("X", 0.2, "#b8560f")):
+    middle = [middle_of(at_one_depth[n][basis]) for n in order]
+    spread = np.hstack([quartiles_of(at_one_depth[n][basis]) for n in order])
+    ax.bar(spots + offset, middle, width=0.35, yerr=spread, color=colour, alpha=0.85,
+           error_kw={"elinewidth": 0.9, "capsize": 4}, label=rf"$P_L^{basis}$", edgecolor="black")
+ax.set_xticks(spots, [n if n.startswith("$") else n.replace(" ", "\n") for n in order], fontsize=12)
+ax.set_ylim(0.3, 0.9)
+ax.tick_params(axis="x", labelsize=12)
+ax.grid(axis="y", alpha=0.3)
+ax.legend(fontsize=12, frameon=True, loc="upper right")
+if SHOW_LABELS:
+    ax.set_xlabel(r"Spearman $\rho$ against the memory")
+fig_i.tight_layout()
+fig_i.savefig(FIGURES / "fig10_predictor_bars.pdf", transparent=True, bbox_inches="tight")
+plt.show()
 
 # %% [markdown]
 # ## 11. Fig. 2c - where the patches sit on the chip
@@ -1994,7 +1814,9 @@ SCAN_ANCHORS = {3: [(7, 2), (7, 3), (6, 3), (0, 3), (0, 4), (7, 5), (6, 4), (2, 
 TILE = {"X": "#b3a6d6", "Z": "#9ecae1"}          # X checks purple, Z checks blue
 DATA_FILL, ANCILLA_FILL = "white", "#f7e3b0"
 
-snapshot = sorted((ROOT / "data" / "calibration" / "ibm_phoenix").glob("*_calibration.json"))[-1]
+SNAPSHOT = "20260928_1313"                       # the calibration the paper's chip is drawn from; None: the newest
+snapshot = sorted(p for p in (ROOT / "data" / "calibration" / "ibm_phoenix").glob("*_calibration.json")
+                  if SNAPSHOT is None or p.name.startswith(SNAPSHOT))[-1]
 cal = json.loads(snapshot.read_text())
 chip = nx.Graph()
 chip.add_nodes_from(int(q) for q in cal["one_qubit"])

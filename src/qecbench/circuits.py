@@ -41,12 +41,33 @@ from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from .lrqaoa import angles
 
 KINDS = ("mcm", "direct")
-FRAMES = ("Z", "X")          # the benchmark's Z...Z checks, or the same algorithm conjugated by H on the data
+# the benchmark's Z...Z checks; the same algorithm conjugated by H on the data; or every check in the basis the
+# code gives it (X...X and Z...Z together), under a Y mixer
+FRAMES = ("Z", "X", "XZ")
+READOUTS = {"Z": ("Z",), "X": ("X",), "XZ": ("Z", "X")}       # the bases the data must be read in, frame by frame
 
 
-def result_kind(kind, frame="Z"):
-    """How a result is filed: ``mcm`` in the Z frame, ``mcm_x`` in the X frame (``build_dynamic``)."""
-    return kind if frame == "Z" else f"{kind}_{frame.lower()}"
+def result_kind(kind, frame="Z", readout=None):
+    """How a result is filed: ``mcm`` in the Z frame, ``mcm_x`` in the X frame. The XZ frame is read in two bases,
+    so each readout is filed on its own, ``mcm_xz_z`` and ``mcm_xz_x``; without ``readout`` this is ``mcm_xz``,
+    the kind ``analysis.load_results`` takes to read the two as one energy."""
+    if frame == "Z":
+        return kind
+    if readout is not None:
+        if len(READOUTS[frame]) < 2 or readout not in READOUTS[frame]:
+            raise ValueError(f"the {frame} frame is read in {READOUTS[frame]}, not as a separate {readout!r} readout")
+        return f"{kind}_{frame.lower()}_{readout.lower()}"
+    return f"{kind}_{frame.lower()}"
+
+
+def check_bases(instance):
+    """The basis of each check of a code patch, in the order of its terms (``"X"`` or ``"Z"``)."""
+    from .memory import check_types                # imported here: memory builds on this module's neighbours
+
+    code = getattr(instance, "code", None)
+    if code is None:
+        raise ValueError("the XZ frame needs a code with X-type and Z-type checks, not a chain")
+    return check_types(code)
 
 
 def compact_index(batch):
@@ -88,7 +109,7 @@ def cz_rounds(batch):
 # --------------------------------------------------------------------------------------
 # Qiskit dynamic circuits (IBM, Aer)
 # --------------------------------------------------------------------------------------
-def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubits=None, frame="Z"):
+def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubits=None, frame="Z", readout=None):
     """LR-QAOA of ``batch`` as a Qiskit dynamic circuit.
 
     ``frame="X"`` (``mcm`` only) runs the same algorithm conjugated by ``H`` on every data qubit: ``X...X`` terms,
@@ -96,13 +117,25 @@ def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubi
     CZ block of each gadget wrapped as ``h(data) ... h(data)`` - so through every ancilla readout the data sit in
     the X frame, where a phase error does what a flip does in the Z frame. Noiselessly both frames give the same
     distribution of energies.
+
+    ``frame="XZ"`` (``mcm`` only, code patches with X- and Z-type checks) gives every check the basis it has in
+    the code: within a layer the ``Z...Z`` checks are applied, then the ``X...X`` checks with the data conjugated by
+    ``H``, and all the ancillas are read together, as in a round of syndrome extraction. The mixer is ``Y``, from
+    ``|+i>``: ``Y`` on a qubit anticommutes with exactly the checks that contain it, of either type, which is the
+    relation ``X`` has to the ``Z...Z`` checks of the Z frame, so noiselessly every check has the value it has
+    there. The data can be read in one basis only, so ``readout`` (``"Z"`` or ``"X"``) picks the half of the checks
+    this circuit measures; the energy needs both circuits.
     """
     if frame not in FRAMES:
         raise ValueError(f"frame must be one of {FRAMES}, not {frame!r}")
     kind = batch_kind(batch, kind)
-    x = frame == "X"
-    if x and kind != "mcm":
-        raise ValueError("the X frame is defined for the mcm circuit")
+    x, xz = frame == "X", frame == "XZ"
+    if frame != "Z" and kind != "mcm":
+        raise ValueError(f"the {frame} frame is defined for the mcm circuit")
+    if xz and readout not in READOUTS["XZ"]:
+        raise ValueError(f"the XZ frame is read in {READOUTS['XZ']}: pass readout=, not {readout!r}")
+    if not xz and readout not in (None, frame):
+        raise ValueError(f"the {frame} frame is read in {frame}, not {readout!r}")
     if qubit_index is None:
         qubit_index, layout = compact_index(batch)
         num_qubits = len(layout)
@@ -116,18 +149,29 @@ def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubi
     data = [qi[d] for inst in batch for d in inst.data_qubits]
     ancs = [qi[a] for inst in batch for a in inst.ancillas]
     rounds = cz_rounds(batch)
+    # the basis of the check each ancilla measures: one for the whole circuit, except in the XZ frame
+    basis = ({term.ancilla: b for inst in batch for term, b in zip(inst.terms, check_bases(inst))} if xz
+             else {a: frame for inst in batch for a in inst.ancillas})
 
     if not x:
         qc.h(data)                                 # X frame: H|+> = |0>, nothing to prepare
+    if xz:
+        qc.s(data)                                 # |+i>, the ground state of the Y mixer
     for layer in range(depth):
         if mcm:
             qc.h(ancs)
-            if x:
+            if xz:                                 # the Z...Z checks first, then the X...X checks in the H frame
+                for r in rounds:
+                    for d, a in r:
+                        if basis[a] == "Z":
+                            qc.cz(qi[d], qi[a])
+            if x or xz:
                 qc.h(data)
             for r in rounds:
                 for d, a in r:
-                    qc.cz(qi[d], qi[a])
-            if x:
+                    if not xz or basis[a] == "X":
+                        qc.cz(qi[d], qi[a])
+            if x or xz:
                 qc.h(data)
             for term in (t for inst in batch for t in inst.terms):
                 qc.rx(2 * term.weight * gammas[layer], qi[term.ancilla])
@@ -140,7 +184,7 @@ def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubi
                 for j, term in enumerate(inst.terms):
                     with qc.if_test((anc_regs[k][j], 1)):
                         for d in term.data:
-                            (qc.x if x else qc.z)(qi[d])
+                            (qc.x if basis[term.ancilla] == "X" else qc.z)(qi[d])
                         qc.x(qi[term.ancilla])      # ancilla back to |0> for the next layer
         else:
             if all(len(t.data) == 2 for inst in batch for t in inst.terms):
@@ -158,8 +202,8 @@ def build_dynamic(batch, depth, delta=0.5, kind=None, qubit_index=None, num_qubi
                         for u, v in reversed(ladder):
                             qc.cx(qi[u], qi[v])
         qc.barrier()
-        (qc.rz if x else qc.rx)(-2 * betas[layer], data)
-    if x:
+        (qc.ry if xz else qc.rz if x else qc.rx)(-2 * betas[layer], data)
+    if x or (xz and readout == "X"):
         qc.h(data)                                 # read the data in X
     for k, inst in enumerate(batch):
         qc.measure([qi[d] for d in inst.data_qubits], dat_regs[k])
