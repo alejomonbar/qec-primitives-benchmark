@@ -8,3 +8,4 @@ __pycache__/
 
 # experiment outputs: manifests and results are kept, scratch figures are not
 figures/scratch/
+build/*

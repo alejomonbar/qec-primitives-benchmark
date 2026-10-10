@@ -54,6 +54,31 @@ Run the tests with
 python -m pytest
 ```
 
+For local simulation with [Maestro 0.3.5](https://pypi.org/project/qoro-maestro/0.3.5/),
+install `pip install -e ".[maestro]"` and use `MaestroBackend` in the same workflow:
+
+```python
+from qecbench import Chain, Direct
+from qecbench.backends import MaestroBackend
+from qecbench.experiment import build_plan, submit, harvest
+
+backend = MaestroBackend(seed=7)  # default: a nine-qubit path
+chain = Chain((0, 1, 2))
+plan = build_plan(backend, [chain, Direct.from_chain(chain)], depths=[1, 2], shots=2000)
+manifest = submit(plan, backend)
+harvest(manifest, backend)
+```
+
+This initial adapter runs noiseless MCM and direct circuits, including Z, X and XZ
+frames where supported by the circuit builder. It translates Qiskit circuits through
+OpenQASM 3 and executes them with Maestro. Pass `graph=` for another coupling graph
+or `config=maestro.SimulatorConfig(...)` to select a simulation method and MPS settings.
+The default uses QCSim statevector up to 20 active qubits and MPS above that;
+MPS accuracy depends on truncation settings. `seed=` overrides a seed in the config.
+Results are marked simulated and saved under `maestro_simulator`.
+Aer noise models, existing vendor `local=True` paths, and reference-energy calculations
+remain separate; this adapter does not replace those simulation calls yet.
+
 ## Workflow
 
 The notebooks in `notebooks/` wrap this sequence. Each has one configuration cell, with `SUBMIT = False`
