@@ -7,17 +7,5 @@ from .iqm import FF_GROUPS, IQMBackend
 from .maestro import MaestroBackend
 from .quantinuum import QuantinuumBackend, chain_instances, code_instances
 
-__all__ = [
-    "Backend",
-    "AerBackend",
-    "MaestroBackend",
-    "SimBackend",
-    "IBMBackend",
-    "IQMBackend",
-    "FF_GROUPS",
-    "QuantinuumBackend",
-    "chain_instances",
-    "code_instances",
-]
-
-
+__all__ = ["Backend", "AerBackend", "SimBackend", "IBMBackend", "IQMBackend", "FF_GROUPS",
+           "MaestroBackend", "QuantinuumBackend", "chain_instances", "code_instances"]

@@ -54,8 +54,9 @@ Run the tests with
 python -m pytest
 ```
 
-For local simulation with [Maestro 0.3.6](https://pypi.org/project/qoro-maestro/0.3.6/),
-install `pip install -e ".[maestro]"` and use `MaestroBackend` in the same workflow:
+For local simulation with [Maestro](https://github.com/QoroQuantum/qiskit-maestro), install
+`pip install -e ".[maestro]"` (which pulls in `qiskit-maestro`) and use `MaestroBackend` in
+place of `AerBackend`:
 
 ```python
 from qecbench import Chain, Direct
@@ -69,15 +70,13 @@ manifest = submit(plan, backend)
 harvest(manifest, backend)
 ```
 
-This initial adapter runs noiseless MCM and direct circuits, including Z, X and XZ
-frames where supported by the circuit builder. It translates Qiskit circuits through
-OpenQASM 3 and executes them with Maestro. Pass `graph=` for another coupling graph
-or `config=maestro.SimulatorConfig(...)` to select a simulation method and MPS settings.
-The default uses QCSim statevector up to 20 active qubits and MPS above that;
-MPS accuracy depends on truncation settings. `seed=` overrides a seed in the config.
-Results are marked simulated and saved under `maestro_simulator`.
-Aer noise models, existing vendor `local=True` paths, and reference-energy calculations
-remain separate; this adapter does not replace those simulation calls yet.
+It takes the same `graph=`, `dialect=`, `seed=` and `rules=` as `AerBackend` and runs
+noiseless MCM and direct circuits in the Z, X and XZ frames. `method=` selects the
+simulator (default: `"statevector"` up to 20 active qubits, `"matrix_product_state"` above),
+`device="GPU"` uses Maestro's GPU plugin, and other `qiskit_maestro.MaestroBackend` options
+(`max_bond_dimension=`, `truncation_threshold=`, `maestro_options=`) pass through.
+`backend.ideal_energy(code, depth)` gives the exact LR-QAOA energy from `MaestroEstimator`.
+Aer noise models are not supported.
 
 ## Workflow
 

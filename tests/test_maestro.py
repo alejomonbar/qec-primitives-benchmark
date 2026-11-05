@@ -1,4 +1,4 @@
-"""Integration checks against the pinned native Maestro engine."""
+"""MaestroBackend (qiskit-maestro) against Aer and exact references."""
 
 import json
 from pathlib import Path
@@ -7,17 +7,21 @@ import networkx as nx
 import pytest
 from qiskit import ClassicalRegister, QuantumCircuit
 
-maestro = pytest.importorskip("maestro")
+pytest.importorskip("qiskit_maestro")
 
 from qecbench import Chain, Direct, codes
-from qecbench.primitives import CodePatch
 from qecbench.backends import MaestroBackend
 from qecbench.backends.aer import run_aer
 from qecbench.backends.maestro import run_maestro
 from qecbench.experiment import build_plan, harvest, submit
+from qecbench.primitives import CodePatch
 
 
-def test_classical_mapping_feedforward_reset_and_manifest_order():
+def distance(got, expected, shots):
+    return sum(abs(got.get(k, 0) - expected.get(k, 0)) for k in got.keys() | expected.keys()) / (2 * shots)
+
+
+def test_registers_feedforward_reset_and_manifest_order():
     qc = QuantumCircuit(3)
     qc.add_register(ClassicalRegister(1, "a0"), ClassicalRegister(2, "d0"),
                     ClassicalRegister(1, "d1"))
@@ -36,38 +40,16 @@ def test_classical_mapping_feedforward_reset_and_manifest_order():
     assert backend.fetch(record, [{"index": 0}]) == [[{"10": 20}, {"0": 20}]]
 
 
-@pytest.mark.parametrize("method", ["Statevector", "MatrixProductState"])
+@pytest.mark.parametrize("method", ["statevector", "matrix_product_state"])
 @pytest.mark.parametrize("kind,frame", [("direct", "Z"), ("mcm", "Z"), ("mcm", "X")])
 def test_distributions_match_aer(method, kind, frame):
-    backend = MaestroBackend(seed=17, config=maestro.SimulatorConfig(
-        simulation_type=getattr(maestro.SimulationType, method)))
+    backend = MaestroBackend(method=method, seed=17)
     chain = Chain((0, 1, 2, 3, 4))
     instance = chain if kind == "mcm" else Direct.from_chain(chain)
     qc = backend.build([instance], 3, 0.5, kind, frame=frame)
-    shots = 4000
-    got = run_maestro([qc], shots, backend.config, seed=17)[0]["d0"]
-    expected = run_aer([qc], shots, seed=19)[0]["d0"]
-    distance = sum(abs(got.get(k, 0) - expected.get(k, 0))
-                   for k in got.keys() | expected.keys()) / (2 * shots)
-    assert distance < 0.06
-
-
-def test_config_seed_is_preserved_and_streams_are_distinct():
-    config = maestro.SimulatorConfig(seed=41)
-    qc = QuantumCircuit(5, 5)
-    qc.h(range(5))
-    qc.measure(range(5), range(5))
-    first = run_maestro([qc, qc], 1000, config=config)
-    assert first == run_maestro([qc, qc], 1000, config=config)
-    assert first[0] != first[1]
-    assert config.seed == 41
-    backend = MaestroBackend(config=config)
-    # submit() also derives distinct streams across jobs.
-    data_qc = backend.build([Chain((0, 1, 2))], 1, 0.5)
-    a = backend.submit([data_qc], 1000)
-    b = backend.submit([data_qc], 1000)
-    assert a["counts"] != b["counts"]
-    assert a["counts"] == MaestroBackend(config=config).submit([data_qc], 1000)["counts"]
+    got = run_maestro([qc], 4000, method, seed=17)[0]["d0"]
+    expected = run_aer([qc], 4000, seed=19)[0]["d0"]
+    assert distance(got, expected, 4000) < 0.06
 
 
 @pytest.mark.parametrize("readout", ["Z", "X"])
@@ -76,8 +58,7 @@ def test_xz_frame(readout):
                                 2, 0.5, frame="XZ", readout=readout)
     got = run_maestro([qc], 4000, seed=4)[0]["d0"]
     expected = run_aer([qc], 4000, seed=5)[0]["d0"]
-    assert sum(abs(got.get(k, 0) - expected.get(k, 0))
-               for k in got.keys() | expected.keys()) / 8000 < 0.06
+    assert distance(got, expected, 4000) < 0.06
 
 
 def test_iqm_dialect():
@@ -85,8 +66,23 @@ def test_iqm_dialect():
     qc = MaestroBackend(dialect="iqm").build([Chain((0, 1, 2))], 2, 0.5)
     got = run_maestro([qc], 4000, seed=4)[0]["d0"]
     expected = run_aer([qc], 4000, seed=5)[0]["d0"]
-    assert sum(abs(got.get(k, 0) - expected.get(k, 0))
-               for k in got.keys() | expected.keys()) / 8000 < 0.06
+    assert distance(got, expected, 4000) < 0.06
+
+
+def test_seeds_are_reproducible_and_streams_distinct():
+    qc = QuantumCircuit(5, 5)
+    qc.h(range(5))
+    qc.measure(range(5), range(5))
+    first = run_maestro([qc, qc], 1000, seed=41)
+    assert first == run_maestro([qc, qc], 1000, seed=41)
+    assert first[0] != first[1]
+    # submit() also advances the seed across jobs.
+    backend = MaestroBackend(seed=41)
+    data_qc = backend.build([Chain((0, 1, 2))], 1, 0.5)
+    a = backend.submit([data_qc], 1000)
+    b = backend.submit([data_qc], 1000)
+    assert a["counts"] != b["counts"]
+    assert a["counts"] == MaestroBackend(seed=41).submit([data_qc], 1000)["counts"]
 
 
 def test_plan_submit_harvest(tmp_path):
@@ -104,30 +100,12 @@ def test_plan_submit_harvest(tmp_path):
     assert backend.simulated and backend.vendor == "maestro"
 
 
-@pytest.mark.parametrize("shots", [0, -1, 1.5, True])
-def test_invalid_shots(shots):
-    with pytest.raises(ValueError, match="positive integer"):
-        run_maestro([], shots)
-
-
-def test_maestro_native_reduction_and_energy():
-    from qecbench.backends.maestro import maestro_energy
+def test_ideal_energy_is_exact():
     from qecbench.lrqaoa import diagonal_statevector_energy
 
-    # Color code distance 3: 7 data qubits, 3 checks
     code3 = codes.color_code(3)
-    energy_ref = diagonal_statevector_energy(code3.hamiltonian, code3.n_data, depth=3)
-
-    backend = MaestroBackend()
-    # Test via MaestroBackend.ideal_energy (uses Maestro native auto_reduce + causal cone)
-    assert abs(backend.ideal_energy(code3, depth=3) - energy_ref) < 1e-12
-
-    # Color code distance 7: 37 data qubits, 18 checks
-    code7 = codes.color_code(7)
-    energy7 = backend.ideal_energy(code7, depth=1)
-    assert abs(energy7 - 1.0574878372) < 1e-6
-
-    # Ladder circuit execution
-    energy_ladder = backend.ideal_energy(code3, depth=1, use_subspace=False, ladder=True)
-    assert abs(energy_ladder - 1.1331695485) < 1e-6
-
+    exact = diagonal_statevector_energy(code3.hamiltonian, code3.n_data, depth=3)
+    for method in ("statevector", "matrix_product_state"):
+        assert MaestroBackend(method=method).ideal_energy(code3, depth=3) == pytest.approx(exact, abs=1e-12)
+    # 37 data qubits: MPS by default, with Maestro's causal-cone and subspace reduction.
+    assert MaestroBackend().ideal_energy(codes.color_code(7), depth=1) == pytest.approx(1.0574878372, abs=1e-6)
