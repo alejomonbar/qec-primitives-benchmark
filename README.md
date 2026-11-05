@@ -54,6 +54,30 @@ Run the tests with
 python -m pytest
 ```
 
+For local simulation with [Maestro](https://github.com/QoroQuantum/qiskit-maestro), install
+`pip install -e ".[maestro]"` (which pulls in `qiskit-maestro`) and use `MaestroBackend` in
+place of `AerBackend`:
+
+```python
+from qecbench import Chain, Direct
+from qecbench.backends import MaestroBackend
+from qecbench.experiment import build_plan, submit, harvest
+
+backend = MaestroBackend(seed=7)  # default: a nine-qubit path
+chain = Chain((0, 1, 2))
+plan = build_plan(backend, [chain, Direct.from_chain(chain)], depths=[1, 2], shots=2000)
+manifest = submit(plan, backend)
+harvest(manifest, backend)
+```
+
+It takes the same `graph=`, `dialect=`, `seed=` and `rules=` as `AerBackend` and runs
+noiseless MCM and direct circuits in the Z, X and XZ frames. `method=` selects the
+simulator (default: `"statevector"` up to 20 active qubits, `"matrix_product_state"` above),
+`device="GPU"` uses Maestro's GPU plugin, and other `qiskit_maestro.MaestroBackend` options
+(`max_bond_dimension=`, `truncation_threshold=`, `maestro_options=`) pass through.
+`backend.ideal_energy(code, depth)` gives the exact LR-QAOA energy from `MaestroEstimator`.
+Aer noise models are not supported.
+
 ## Workflow
 
 The notebooks in `notebooks/` wrap this sequence. Each has one configuration cell, with `SUBMIT = False`

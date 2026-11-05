@@ -17,6 +17,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+maestro = ["qiskit-maestro>=0.1.0"]
 ibm = ["qiskit-ibm-runtime>=0.40"]
 iqm = ["qiskit-braket-provider>=0.11", "amazon-braket-sdk>=1.111"]
 quantinuum = ["guppylang>=1.1", "qnexus>=0.49"]
