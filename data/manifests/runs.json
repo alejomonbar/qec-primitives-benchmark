@@ -32,7 +32,7 @@
    "local": false
   },
   "submitted": "2026-11-11T11:47:03",
-  "status": "submitted"
+  "status": "cancelled"
  },
  {
   "manifest": "data/manifests/ibm_chicago/20261111_120600_ibm_chicago_chain10-chain20-chain30-chain40-chain50-direct10-direct20-direct30-direct40-direct50.json",
@@ -68,6 +68,38 @@
    "local": false
   },
   "submitted": "2026-11-11T12:06:31",
+  "status": "collected"
+ },
+ {
+  "manifest": "data/manifests/ibm_chicago/20261111_123350_ibm_chicago_chain2-direct2.json",
+  "experiment": "chain",
+  "backend": "ibm_chicago",
+  "config": {
+   "nq": [
+    2
+   ],
+   "ps": [
+    3,
+    5,
+    7,
+    10,
+    15,
+    20
+   ],
+   "shots": 1000,
+   "delta": 0.5,
+   "direct": true,
+   "buffer": false,
+   "chains_per_length": 0,
+   "experiment": "chain",
+   "backend": "ibm_chicago",
+   "provider": {
+    "account": "mcm-primitives",
+    "max_circuits_per_job": 32
+   },
+   "local": false
+  },
+  "submitted": "2026-11-11T12:33:57",
   "status": "collected"
  }
 ]

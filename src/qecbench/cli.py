@@ -4,6 +4,11 @@
   run CONFIG.toml --dry-run     build and check only: instances, circuits, cost; nothing is sent
   status [MANIFEST ...]         job status of submitted runs   (no argument: every run not yet collected)
   collect [MANIFEST ...]        fetch finished jobs into data/results/   (no argument: every run not collected)
+  discard MANIFEST [...]        remove a run's results from data/results/ and stop tracking it
+
+A run with a cancelled job is dropped by ``collect``: its result files are removed (the jobs that did finish
+were part of an experiment that was stopped) and it is marked ``cancelled`` in the run list. A run whose jobs
+failed with an error keeps what finished, is marked ``incomplete``, and is not waited on any longer.
 
 A config is a short TOML file (examples in ``configs/``). ``experiment`` picks one of the three experiments:
 
@@ -306,7 +311,41 @@ def _manifests(files, data):
     if files:
         return [Path(f) for f in files]
     _, rows = _ledger(data)
-    return [Path(r["manifest"]) for r in rows if r["status"] != "collected"]
+    return [Path(r["manifest"]) for r in rows if r["status"] == "submitted"]
+
+
+def _mark(data, manifest, state):
+    path, rows = _ledger(data)
+    for r in rows:
+        if Path(r["manifest"]).name == Path(manifest).name:
+            r["status"] = state
+    if rows:
+        path.write_text(json.dumps(rows, indent=1, default=str))
+
+
+def run_files(data, manifest):
+    """The result files a manifest's harvest wrote: named by its creation time, and naming it inside."""
+    record = json.loads(Path(manifest).read_text())
+    stamp = datetime.fromisoformat(record["created"]).strftime("%Y%m%d_%H%M%S")
+    out = []
+    for path in sorted((Path(data) / "results" / record["backend"]).rglob(f"{stamp}_*.json")):
+        try:
+            if json.loads(path.read_text()).get("run", {}).get("manifest") == Path(manifest).name:
+                out.append(path)
+        except (ValueError, OSError):
+            continue
+    return out
+
+
+def discard(files, data, reason="discarded"):
+    """Remove the result files of these runs and mark them in the run list; the manifests are kept as a record."""
+    for m in [Path(f) for f in files]:
+        removed = run_files(data, m)
+        for path in removed:
+            path.unlink()
+        _mark(data, m, reason)
+        print(f"{m.name}: {reason}; " + (f"removed {len(removed)} result file(s): "
+                                         + ", ".join(p.name for p in removed) if removed else "no result files to remove"))
 
 
 def _backend_for(data, manifest):
@@ -357,6 +396,8 @@ def job_states(backend, record):
 
 
 FINISHED = {"DONE", "COMPLETED"}
+CANCELLED = {"CANCELLED", "CANCELED"}
+FAILED = {"ERROR", "FAILED"}
 
 
 def status(files, data):
@@ -367,9 +408,13 @@ def status(files, data):
         backend, record = _backend_for(data, m)
         states = job_states(backend, record)
         done = sum(s in FINISHED for _, s in states)
-        print(f"{m.name}: {done}/{len(states)} jobs finished")
+        cancelled = sum(s in CANCELLED for _, s in states)
+        failed = sum(s in FAILED for _, s in states)
+        print(f"{m.name}: {done}/{len(states)} jobs finished"
+              + (f", {cancelled} cancelled - collect will drop this run and its results" if cancelled else "")
+              + (f", {failed} failed - collect will keep what finished" if failed and not cancelled else ""))
         for jid, s in states:
-            if s not in FINISHED:
+            if s not in FINISHED | CANCELLED:
                 print(f"   {jid}: {s}")
 
 
@@ -377,9 +422,14 @@ def collect(files, data):
     manifests = _manifests(files, data)
     if not manifests:
         print("no submitted run waiting to be collected")
-    path, rows = _ledger(data)
     for m in manifests:
         backend, record = _backend_for(data, m)
+        states = job_states(backend, record)
+        if any(s in CANCELLED for _, s in states):
+            n = sum(s in CANCELLED for _, s in states)
+            discard([m], data, reason="cancelled")
+            print(f"   ({n} of {len(states)} jobs were cancelled, so the run is not kept)")
+            continue
         print(f"collecting {m.name}")
         if record.get("experiment") == "memory":
             from . import memory as mem
@@ -389,12 +439,12 @@ def collect(files, data):
             from .experiment import harvest
 
             harvest(m, backend, data_dir=Path(data) / "results")
-        if all(s in FINISHED for _, s in job_states(backend, record)):
-            for r in rows:
-                if Path(r["manifest"]).name == m.name:
-                    r["status"] = "collected"
-    if rows:
-        path.write_text(json.dumps(rows, indent=1, default=str))
+        if all(s in FINISHED for _, s in states):
+            _mark(data, m, "collected")
+        elif all(s in FINISHED | FAILED for _, s in states):
+            _mark(data, m, "incomplete")
+            print(f"   {sum(s in FAILED for _, s in states)} job(s) failed; the finished ones are kept, "
+                  "and the run is no longer waited on")
 
 
 # ======================================================================================
@@ -417,9 +467,11 @@ def main(argv=None):
     r.add_argument("--local", action="store_true", default=None, help="rehearse on Aer; nothing is sent")
     r.add_argument("--data-dir")
     r.add_argument("--dry-run", action="store_true", help="build and check only, print the plan and its cost")
-    for name, helptext in (("status", "job status of submitted runs"), ("collect", "fetch finished jobs")):
+    for name, helptext in (("status", "job status of submitted runs"), ("collect", "fetch finished jobs"),
+                           ("discard", "remove a run's results and stop tracking it")):
         c = sub.add_parser(name, help=helptext)
-        c.add_argument("manifests", nargs="*", help="manifest files (default: every run not yet collected)")
+        c.add_argument("manifests", nargs="+" if name == "discard" else "*",
+                       help="manifest files" + ("" if name == "discard" else " (default: every run still waiting)"))
         c.add_argument("--data-dir", default="data")
     a = ap.parse_args(argv)
     if a.cmd == "run":
@@ -430,6 +482,8 @@ def main(argv=None):
         run(cfg, dry_run=a.dry_run)
     elif a.cmd == "status":
         status(a.manifests, a.data_dir)
+    elif a.cmd == "discard":
+        discard(a.manifests, a.data_dir)
     else:
         collect(a.manifests, a.data_dir)
 

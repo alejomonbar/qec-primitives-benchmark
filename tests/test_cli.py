@@ -42,3 +42,40 @@ def test_a_simulated_memory_run_is_filed_and_collected(tmp_path):
     (saved,) = (tmp_path / "results" / "noisy_simulator" / "surface_code" / "memory").glob("*.json")
     assert len(json.loads(saved.read_text())["results"]) == 2 * 2      # 2 patches x 2 round counts
     cli.collect([], tmp_path)                                             # nothing left: a no-op
+
+
+def _local_memory_run(tmp_path, monkeypatch):
+    cfg = cli.load_config(None, experiment="memory", backend="noisy_simulator", rounds=[1], bases=["Z"],
+                          shots=100, data_dir=str(tmp_path))
+    cfg["positions"] = 1
+    monkeypatch.setattr(cli, "collect", lambda files, data: None)      # keep it waiting, as a device run would be
+    manifest = cli.run(cfg)
+    monkeypatch.undo()
+    from qecbench import memory as mem
+    from qecbench.backends import SimBackend
+
+    mem.harvest(manifest, SimBackend(), data_dir=tmp_path / "results")    # one job finished before the cancel
+    return Path(manifest)
+
+
+def _status_of(tmp_path):
+    return [r["status"] for r in json.loads((tmp_path / "manifests" / "runs.json").read_text())]
+
+
+def test_a_cancelled_run_is_dropped_with_its_results(tmp_path, monkeypatch):
+    manifest = _local_memory_run(tmp_path, monkeypatch)
+    assert cli.run_files(tmp_path, manifest) and _status_of(tmp_path) == ["submitted"]
+    monkeypatch.setattr(cli, "job_states", lambda backend, record: [("a", "DONE"), ("b", "CANCELLED")])
+    cli.collect([], tmp_path)
+    assert cli.run_files(tmp_path, manifest) == [] and _status_of(tmp_path) == ["cancelled"]
+    assert manifest.exists()                                            # the manifest stays as the record
+    cli.collect([], tmp_path)                                           # no longer waited on
+
+
+def test_a_failed_job_keeps_what_finished_and_stops_waiting(tmp_path, monkeypatch):
+    manifest = _local_memory_run(tmp_path, monkeypatch)
+    monkeypatch.setattr(cli, "job_states", lambda backend, record: [("a", "DONE"), ("b", "ERROR")])
+    cli.collect([], tmp_path)
+    assert cli.run_files(tmp_path, manifest) and _status_of(tmp_path) == ["incomplete"]
+    cli.discard([manifest], tmp_path)                                   # and by hand
+    assert cli.run_files(tmp_path, manifest) == [] and _status_of(tmp_path) == ["discarded"]
