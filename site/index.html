@@ -95,7 +95,7 @@
         <h2>QEC structures in three frames</h2>
         <p>The checks of a surface, colour or qLDPC code read as a Hamiltonian, each measured through its own ancilla: one LR-QAOA layer is one round of syndrome extraction. The <b>Z frame</b> writes every check as Z…Z, the <b>X frame</b> as X…X, and the <b>XZ frame</b> keeps each check in the basis the code gives it, as a memory experiment does, under a Y mixer. All three are the same algorithm with the same noiseless answer, so where they differ on a device, the device is telling them apart.</p>
       </div>
-      <div class="seg" id="qecCode" role="tablist" aria-label="Code"></div>
+      <div class="toolbar"><span class="seg" id="qecFamily" role="tablist" aria-label="Code family" style="margin:0"></span><span class="seg" id="qecCode" role="tablist" aria-label="Code" style="margin:0"></span></div>
       <div class="grid-2">
         <article class="panel">
           <div class="panel-head"><h3>Approximation ratio vs layers</h3><span id="qecSub">best run of each device</span></div>
@@ -109,7 +109,7 @@
           <div class="legend" id="qecLegend"></div>
         </article>
         <article class="panel">
-          <div class="panel-head"><h3>Each frame, sitting by sitting</h3><span id="qecTimeSub">r<sub>eff</sub> at p = 3, median over placements</span></div>
+          <div class="panel-head"><h3>How far the signal survives with code size</h3><span id="qecTimeSub">best r<sub>eff</sub> over depths, per device and frame</span></div>
           <div class="chart tall" id="qecTime"></div>
           <div class="legend" id="qecTimeLegend"></div>
         </article>

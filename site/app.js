@@ -260,7 +260,7 @@
     data.chains.filter(isQpu).forEach((r) => add(r, `${r.kind.toUpperCase()} chain · ${r.nq} spins`));
     data.qec.filter(isQpu).forEach((r) => add(r, `${codeLabel(r.code)} · ${r.frame} frame${r.kind === "direct" ? " (direct)" : ""}`));
     data.memory.forEach((r) => add(r, `memory · ${codeLabel(r.code)} · ${Object.keys(r.bases).map((b) => BASIS[b].label).join(", ")}`));
-    $("#feed").innerHTML = Object.values(groups).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8).map((g) =>
+    $("#feed").innerHTML = Object.values(groups).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).map((g) =>
       `<li><span class="d">${fDate(g.date)}</span><span class="n">${esc(dev(g.device).name)}</span>${[...g.lines].slice(0, 4).map((l) => `<span class="m">${esc(l)}</span>`).join("")}${g.lines.size > 4 ? `<span class="m">+ ${g.lines.size - 4} more</span>` : ""}</li>`).join("");
 
     guard("#chains", renderChains);
@@ -376,6 +376,10 @@
       const codes = [...new Set(runs.map((r) => r.code))].sort((a, b) => order(a) - order(b));
       const withFrames = codes.filter((c) => new Set(runs.filter((r) => r.code === c).map((r) => r.frame)).size > 1);
       let code = withFrames[0] || codes[0], agg = "median", sitting = null, mode = "best";
+      const FAMILY = { surface_code: "Surface code", color_code: "Colour code", qldpc: "qLDPC (bivariate bicycle)" };
+      const familyOf = (c) => runs.find((r) => r.code === c).structure;
+      const families = Object.keys(FAMILY).filter((f) => codes.some((c) => familyOf(c) === f));
+      const sizeLabel = (c) => { const m = c.match(/_d(\d+)$/); return m ? `d = ${m[1]}` : c; };
       const picker = Picker(() => draw());
       const sittingKey = (r) => `${r.device}|${r.sitting}`;
       // line style carries the frame (and the direct reference), colour carries the device
@@ -384,12 +388,22 @@
       const styleName = (r) => (r.kind === "direct" ? "direct (no ancillas)" : `${r.frame} frame`);
       const rowsOf = (r) => (agg === "best" ? r.best : r.median);
       const merit = (r) => { const v = rowsOf(r).map((q) => q.r_eff).filter((x) => x != null); return v.length ? v.reduce((a, b) => a + b) / v.length : -9; };
+      const FRAME_ORDER = ["Z", "X", "XZ"];
+      const byFrame = (a, b) => FRAME_ORDER.indexOf(a) - FRAME_ORDER.indexOf(b);
+      const BREAK = `<span style="flex-basis:100%;height:0"></span>`;          // starts a new legend line
+      const REFS = `<span><i class="noiseless"></i>noiseless</span><span><i class="hollow"></i>not above random + 3σ</span>`;
       const legendSwatch = (dash, color = "var(--muted)") => dash
         ? `<i style="height:0;background:none;border-radius:0;border-top:2px ${dash === STYLE.XZ ? "dotted" : "dashed"} ${color}"></i>`
         : `<i style="background:${color}"></i>`;
 
       function draw() {
-        seg($("#qecCode"), codes.map((c) => ({ key: c, label: codeLabel(c) })), code, (k) => { code = k; sitting = null; draw(); });
+        const family = familyOf(code);
+        seg($("#qecFamily"), families.map((f) => ({ key: f, label: FAMILY[f] })), family, (f) => {
+          code = codes.find((c) => familyOf(c) === f && withFrames.includes(c)) || codes.find((c) => familyOf(c) === f);
+          sitting = null; draw();
+        });
+        seg($("#qecCode"), codes.filter((c) => familyOf(c) === family).map((c) => ({ key: c, label: sizeLabel(c) })), code,
+            (k) => { code = k; sitting = null; draw(); });
         seg($("#qecMode"), [{ key: "best", label: "best run per device" }, { key: "sitting", label: "one sitting" }], mode, (k) => { mode = k; draw(); });
         const rs = runs.filter((r) => r.code === code);
         const multi = rs.some((r) => r.placements > 1);
@@ -403,8 +417,11 @@
         const better = (a, b) => { const [x, y] = [rank(a), rank(b)]; return x[0] !== y[0] ? x[0] > y[0] : x[1] > y[1]; };
         rs.forEach((r) => { const k = `${r.device}|${r.frame}|${r.kind}`; if (!best[k] || better(r, best[k])) best[k] = r; });
         const bestRuns = Object.values(best);
-        const devices = [...new Set(bestRuns.map((r) => r.device))]
-          .sort((a, b) => Math.max(...bestRuns.filter((r) => r.device === b).map(merit)) - Math.max(...bestRuns.filter((r) => r.device === a).map(merit)));
+        // the buttons list every device that ran a code of this family: QPUs first, then by how well they did
+        const famAll = runs.filter((r) => r.structure === family);
+        const score = (d) => Math.max(...famAll.filter((r) => r.device === d).map(merit));
+        const devices = [...new Set(famAll.map((r) => r.device))]
+          .sort((a, b) => (dev(b).kind === "qpu") - (dev(a).kind === "qpu") || score(b) - score(a));
         if (!picker.keys().some((k) => devices.includes(k))) {          // QPUs first; emulators only to fill
           const qpus = devices.filter((d) => dev(d).kind === "qpu");
           picker.set((qpus.length ? qpus : devices).slice(0, 3));
@@ -433,20 +450,22 @@
           shown.forEach((r) => series.push({ key: r.id, label: `${dev(r.device).name} · ${styleName(r)}`, color: picker.color(r.device), dash: styleOf(r), pts: curveSeries(r, null, agg) }));
           ref = shown[0] || bestRuns[0];
           $("#qecSub").textContent = "best run of each device and frame: a full depth sweep, highest mean r_eff";
-          const styles = [...new Map(bestRuns.map((r) => [styleName(r), styleOf(r)])).entries()];
+          // one line per kind of key: the devices (colour), the frames in the order Z, X, XZ (line style), the references
+          const frames = [...new Set(bestRuns.filter((r) => r.kind === "mcm").map((r) => r.frame))].sort(byFrame);
           $("#qecLegend").innerHTML = picker.keys().filter((k) => devices.includes(k)).map((k) => `<span><i style="background:${picker.color(k)}"></i>${esc(dev(k).name)}</span>`).join("")
-            + styles.map(([name, dash]) => `<span>${legendSwatch(dash)}${esc(name)}</span>`).join("")
-            + `<span><i class="noiseless"></i>noiseless</span><span><i style="background:var(--ctx)"></i>other devices</span><span><i class="hollow"></i>not above random + 3σ</span>`;
+            + `<span><i style="background:var(--ctx)"></i>other devices</span>` + BREAK
+            + frames.map((f) => `<span>${legendSwatch(STYLE[f])}${f} frame</span>`).join("")
+            + (bestRuns.some((r) => r.kind === "direct") ? `<span>${legendSwatch(STYLE.direct)}direct (no ancillas)</span>` : "") + BREAK + REFS;
         } else {
           shown = sittings[sitting];
           series = rs.filter((r) => !shown.includes(r)).map((r) => ({ key: r.id, label: `${dev(r.device).name} ${fShort(r.date)} · ${styleName(r)}`, color: null, dash: styleOf(r), pts: curveSeries(r, null, agg) }));
           shown.forEach((r) => series.push({ key: r.id, label: styleName(r), color: FRAME_COLOR[r.frame], dash: r.kind === "direct" ? STYLE.direct : null, pts: curveSeries(r, null, agg) }));
           ref = shown[0];
           $("#qecSub").textContent = `${dev(ref.device).name} · ${fDate(ref.date)} · ${ref.placements} placement${ref.placements > 1 ? "s" : ""} · ${fInt(ref.shots)} shots`;
-          const frames = [...new Set(shown.map((r) => r.frame))];
+          const frames = [...new Set(shown.map((r) => r.frame))].sort(byFrame);
           $("#qecLegend").innerHTML = frames.map((f) => `<span><i style="background:${FRAME_COLOR[f]}"></i>${f} frame</span>`).join("")
             + (shown.some((r) => r.kind === "direct") ? `<span>${legendSwatch(STYLE.direct)}direct (no ancillas)</span>` : "")
-            + `<span><i class="noiseless"></i>noiseless</span><span><i style="background:var(--ctx)"></i>other sittings</span><span><i class="hollow"></i>not above random + 3σ</span>`;
+            + `<span><i style="background:var(--ctx)"></i>other sittings</span>` + BREAK + REFS;
         }
         series.unshift(...noiseless(ref));
         const thr = ref.median[0].threshold;
@@ -457,28 +476,34 @@
           tip: (s, pt) => runTip(s.label, pt) + `<br><span class="k">${esc(dev(pt.run.device).name)} · ${fDate(pt.run.date)} ${sittingTime(pt.run.sitting)} · ${pt.run.placements} placement${pt.run.placements > 1 ? "s" : ""}</span>`,
         });
 
-        /* r_eff at p = 3 (or the first depth) per sitting, per frame, for one device */
-        const focus = mode === "best" ? (picker.keys().find((k) => devices.includes(k)) || devices[0]) : ref.device;
+        /* how far the signal survives with size: every code of the family, the best run of each device and frame */
         const P = ps.includes(3) ? 3 : ps[0];
-        $("#qecTimeSub").innerHTML = `${esc(dev(focus).name)} · r<sub>eff</sub> at p = ${P}, ${agg === "best" ? "best placement" : "median over placements"} · MCM`;
-        const stampT = (r) => Date.UTC(+r.sitting.slice(0, 4), +r.sitting.slice(4, 6) - 1, +r.sitting.slice(6, 8), +r.sitting.slice(9, 11) || 0, +r.sitting.slice(11, 13) || 0);
-        const tSeries = ["Z", "X", "XZ"].map((f) => ({
-          key: f, label: `${f} frame`, color: FRAME_COLOR[f],
-          pts: rs.filter((r) => r.frame === f && r.kind === "mcm" && r.device === focus).map((r) => {
-            const q = rowsOf(r).find((x) => x.p === P);
-            return q ? { x: stampT(r), y: q.r_eff, hollow: !(q.r_eff > 0), run: r } : null;
-          }).filter(Boolean),
-        })).filter((s) => s.pts.length);
-        const xs = tSeries.flatMap((s) => s.pts.map((p) => p.x));
-        const ticks = [];
-        if (xs.length) { const lo = Math.min(...xs), hi = Math.max(...xs), step = Math.max(1, Math.ceil((hi - lo) / 864e5 / 6)) * 864e5; for (let v = Math.floor(lo / 864e5) * 864e5; v <= hi + 864e5; v += step) ticks.push(v); }
-        $("#qecTimeLegend").innerHTML = tSeries.map((s) => `<span><i style="background:${s.color}"></i>${s.label}</span>`).join("") + `<span><i class="hollow"></i>not above random + 3σ</span><span class="kind-tag">click a point to show that sitting</span>`;
+        const famRuns = runs.filter((r) => r.structure === family);
+        const famBest = {};
+        famRuns.forEach((r) => { const k = `${r.device}|${r.code}|${r.frame}|${r.kind}`; if (!famBest[k] || better(r, famBest[k])) famBest[k] = r; });
+        const peak = (r) => rowsOf(r).filter((q) => q.r_eff != null).reduce((a, q) => (!a || q.r_eff > a.r_eff ? q : a), null);
+        const groupsF = {};
+        Object.values(famBest).forEach((r) => { const k = `${r.device}|${r.frame}|${r.kind}`; (groupsF[k] = groupsF[k] || []).push(r); });
+        const sSeries = Object.entries(groupsF).map(([k, rsF]) => {
+          const r0 = rsF[0];
+          return { key: r0.device, label: `${dev(r0.device).name} · ${styleName(r0)}`, color: mode === "best" ? picker.color(r0.device) : (r0.device === ref.device ? FRAME_COLOR[r0.frame] : null),
+                   dash: styleOf(r0), pts: rsF.map((r) => { const q = peak(r); return q ? { x: r.n_data, y: q.r_eff, p: q.p, hollow: !(q.r_eff > 0), run: r } : null; }).filter(Boolean) };
+        }).filter((x) => x.pts.length);
+        const sizes = [...new Set(famRuns.map((r) => r.n_data))].sort((a, b) => a - b);
+        $("#qecTimeSub").innerHTML = `${esc(FAMILY[family])} · best r<sub>eff</sub> over depths (${agg === "best" ? "best placement" : "median over placements"}) · click a point for that code`;
+        $("#qecTimeLegend").innerHTML = (mode === "best"
+            ? picker.keys().filter((k) => famRuns.some((r) => r.device === k)).map((k) => `<span><i style="background:${picker.color(k)}"></i>${esc(dev(k).name)}</span>`).join("")
+            : [...new Set(sSeries.filter((x) => x.color).map((x) => x.pts[0].run.frame))].sort(byFrame).map((f) => `<span><i style="background:${FRAME_COLOR[f]}"></i>${f} frame</span>`).join(""))
+          + `<span><i style="background:var(--ctx)"></i>other devices</span>` + BREAK
+          + [...new Set(famRuns.filter((r) => r.kind === "mcm").map((r) => r.frame))].sort(byFrame).map((f) => `<span>${legendSwatch(STYLE[f])}${f} frame</span>`).join("")
+          + (famRuns.some((r) => r.kind === "direct") ? `<span>${legendSwatch(STYLE.direct)}direct (no ancillas)</span>` : "")
+          + `<span><i class="hollow"></i>not above random + 3σ</span>`;
         lineChart($("#qecTime"), {
-          series: tSeries, xTicks: ticks, xFmt: (v) => { const d = new Date(v); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; },
-          xLabel: "sitting", yLabel: `r_eff at p = ${P}`, refs: [{ y: 0, label: "random + 3σ" }],
-          aria: `Effective ratio at p = ${P} for each frame over sittings, ${codeLabel(code)}`,
-          tip: (s, pt) => `<b>${esc(s.label)}</b> · ${esc(dev(pt.run.device).name)}<br>${fDate(pt.run.date)} ${sittingTime(pt.run.sitting)}<br><span class="k">r<sub>eff</sub> =</span> ${f3(pt.y)} ${ok(pt.y)}<br><span class="k">click to show this sitting</span>`,
-          onPoint: (s, pt) => { mode = "sitting"; sitting = sittingKey(pt.run); draw(); },
+          series: sSeries, xLog: sizes[sizes.length - 1] / sizes[0] >= 4, xTicks: sizes, xLabel: "data qubits of the code",
+          yLabel: "best r_eff", refs: [{ y: 0, label: "random + 3σ" }],
+          aria: `Best effective ratio against code size, ${FAMILY[family]}`,
+          tip: (sr, pt) => `<b>${esc(codeLabel(pt.run.code))}</b> · ${pt.x} data qubits, ${pt.run.checks} checks<br>${esc(sr.label)}<br><span class="k">best r<sub>eff</sub>:</span> ${f3(pt.y)} at p = ${pt.p} ${ok(pt.y)}<br><span class="k">${fDate(pt.run.date)} · ${pt.run.placements} placement${pt.run.placements > 1 ? "s" : ""} · ${fInt(pt.run.shots)} shots</span>`,
+          onPoint: (sr, pt) => { code = pt.run.code; sitting = null; draw(); },
         });
 
         const table = $("#qecTable");

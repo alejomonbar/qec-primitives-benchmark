@@ -262,3 +262,6 @@ table.data.lt th { position: static; }
 .chart .row-label { fill: var(--ink); font-size: 12.5px; }
 .chart .row-sub { fill: var(--faint); font-size: 11px; }
 .legend i.dot2 { width: 14px; height: 0; background: none !important; border-top: 2px dotted var(--muted); border-radius: 0; }
+
+/* latest results: one row, scrolling sideways when there is no room */
+.feed { grid-auto-flow: column; grid-auto-columns: minmax(210px, 1fr); grid-template-columns: none; overflow-x: auto; padding-bottom: 4px; }
