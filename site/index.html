@@ -66,7 +66,7 @@
       </div>
       <div class="grid-2">
         <article class="panel">
-          <div class="panel-head"><h3>Longest chain above random</h3><span>MCM, spins N, per device</span></div>
+          <div class="panel-head"><h3>Longest chain above random</h3><span>MCM, chains of 10 spins and more, per device</span></div>
           <div class="toolbar"><label class="check"><input type="checkbox" id="chainEmu"> include emulators</label></div>
           <div class="lb" id="chainLb" role="list"></div>
           <div class="legend" id="chainLbLegend"></div>
@@ -79,6 +79,12 @@
           <div class="legend" id="chainLegend"></div>
         </article>
       </div>
+      <article class="panel" id="tripletPanel" style="margin-top:20px">
+        <div class="panel-head"><h3>Triplets: every data–ancilla–data triple of a chip</h3><span>N = 2 · one gadget per triple · distribution of r over the triples of each campaign</span></div>
+        <div class="toolbar"><span class="seg" id="tripletDepth" role="tablist" aria-label="Depth" style="margin:0"></span><span class="seg" id="tripletKind" role="tablist" aria-label="Kind" style="margin:0"></span></div>
+        <div class="chart tall" id="tripletChart"></div>
+        <div class="legend" id="tripletLegend"></div>
+      </article>
       <div class="table-wrap"><table class="data" id="chainTable"></table></div>
     </div>
   </section>
@@ -92,11 +98,13 @@
       <div class="seg" id="qecCode" role="tablist" aria-label="Code"></div>
       <div class="grid-2">
         <article class="panel">
-          <div class="panel-head"><h3>Approximation ratio vs layers</h3><span id="qecSub">one sitting highlighted, the others faint</span></div>
+          <div class="panel-head"><h3>Approximation ratio vs layers</h3><span id="qecSub">best run of each device</span></div>
           <div class="toolbar">
-            <label>Sitting <select id="qecSitting"></select></label>
+            <span class="seg" id="qecMode" role="tablist" aria-label="Show" style="margin:0"></span>
+            <label id="qecSittingBox" hidden>Sitting <select id="qecSitting"></select></label>
             <span class="seg" id="qecAgg" role="tablist" aria-label="Over placements" style="margin:0"></span>
           </div>
+          <div class="chips" id="qecChips" aria-label="Highlight devices"></div>
           <div class="chart tall" id="qecChart"></div>
           <div class="legend" id="qecLegend"></div>
         </article>

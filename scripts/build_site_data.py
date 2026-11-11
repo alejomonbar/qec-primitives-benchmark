@@ -66,7 +66,7 @@ def summary_point(p, s):
             "r_ovl": num(s.get("r_ovl")), "threshold": num(thr), "r_eff": num((s["r"] - thr) / (1 - thr))}
 
 
-def aggregate(instances, kind_label):
+def aggregate(instances, kind_label, keep_all=False):
     """Many placements of one problem in one run -> per depth the median and the best placement.
 
     The best placement is the one with the highest mean ``r_eff`` over the depths they all share.
@@ -84,7 +84,10 @@ def aggregate(instances, kind_label):
     first = next(iter(instances.values()))
     shots = int(first[min(first)]["shots"])
     above = [q["p"] for q in pts[best] if q["r_eff"] is not None and q["r_eff"] > 0]
-    return {"kind": kind_label, "placements": len(instances), "shots": shots, "median": median, "best": pts[best],
+    every = {}
+    if keep_all and len(instances) > 1:                 # every placement's r, for a distribution (triplets)
+        every = {"every": {str(p): [num(by[p]["r"], 4) for by in instances.values() if p in by] for p in depths}}
+    return {"kind": kind_label, "placements": len(instances), "shots": shots, "median": median, "best": pts[best], **every,
             "best_qubits": sorted(int(q) for q in getattr(best, "qubits", ()))[:60],
             "deepest_p_above_random": max(above) if above else None,
             "best_r_eff": num(max(q["r_eff"] for q in pts[best]))}
@@ -127,7 +130,7 @@ def build_chains(backends):
                 for inst, by in got.items():
                     by_n.setdefault(inst.n_data, {})[inst] = by
                 for n, insts in by_n.items():
-                    run = aggregate(insts, kind)
+                    run = aggregate(insts, kind, keep_all=(n == 2))
                     out.append({"id": f"{b}/{stamp_of(name)}/{kind}/{n}", "device": b, "nq": n, "date": date_of(name),
                                 "file": name, **run})
     return out

@@ -2,6 +2,7 @@
   "exclude": ["ibm_phoenix_sim", "iqm_emerald_sim", "iqm_garnet_sim"],
   "devices": {
     "ibm_boston":     {"name": "IBM Boston",     "vendor": "IBM",        "kind": "qpu",      "modality": "superconducting"},
+    "ibm_chicago":    {"name": "IBM Chicago",    "vendor": "IBM",        "kind": "qpu",      "modality": "superconducting"},
     "ibm_fez":        {"name": "IBM Fez",        "vendor": "IBM",        "kind": "qpu",      "modality": "superconducting"},
     "ibm_kingston":   {"name": "IBM Kingston",   "vendor": "IBM",        "kind": "qpu",      "modality": "superconducting"},
     "ibm_marrakesh":  {"name": "IBM Marrakesh",  "vendor": "IBM",        "kind": "qpu",      "modality": "superconducting"},

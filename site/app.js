@@ -91,7 +91,7 @@
         el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v) }, grid);
         el("text", { x: m.l - 8, y: Y(v) + 4, "text-anchor": "end" }, axis).textContent = cfg.yFmt ? cfg.yFmt(v) : (cfg.yLog ? String(+v.toPrecision(2)) : v.toFixed(2));
       });
-      let xt = cfg.xTicks || (cfg.xLog ? logTicks(x0 * 1.15, x1 / 1.15) : niceTicks(x0, x1, Math.max(3, Math.round((W - m.l - m.r) / 80))));
+      let xt = cfg.xTicks ? cfg.xTicks.filter((v) => v >= x0 && v <= x1) : (cfg.xLog ? logTicks(x0 * 1.15, x1 / 1.15) : niceTicks(x0, x1, Math.max(3, Math.round((W - m.l - m.r) / 80))));
       if (cfg.xInteger) xt = xt.filter((v) => Number.isInteger(v));
       xt.forEach((v) => {
         el("line", { x1: X(v), x2: X(v), y1: m.t, y2: H - m.b }, grid);
@@ -111,7 +111,7 @@
           const b = pts.filter((p) => p.lo != null && p.hi != null);
           if (b.length > 1) el("path", { class: "iqr", fill: col, d: b.map((p, i) => `${i ? "L" : "M"}${X(p.x)},${Y(p.hi)}`).join("") + [...b].reverse().map((p) => `L${X(p.x)},${Y(p.lo)}`).join("") + "Z" }, g);
         }
-        if (pts.length > 1) el("path", { d: pts.map((p, i) => `${i ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join(""), fill: "none", stroke: col, "stroke-width": emph ? 2 : 1.2, "stroke-dasharray": s.dash ? "5 4" : "none", "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+        if (pts.length > 1) el("path", { d: pts.map((p, i) => `${i ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join(""), fill: "none", stroke: col, "stroke-width": emph ? 2 : 1.2, "stroke-dasharray": s.dash === true ? "5 4" : s.dash || "none", "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
         pts.forEach((p) => {
           const cx = X(p.x), cy = Y(p.y);
           if ((emph && !s.noDots) || pts.length === 1) {
@@ -240,7 +240,7 @@
     /* key figures */
     const used = new Set([...data.chains, ...data.qec, ...data.memory].map((r) => r.device).filter((d) => dev(d).kind === "qpu"));
     $("#kQpu").textContent = used.size;
-    const longest = data.chains.filter((r) => r.kind === "mcm" && isQpu(r) && r.best_r_eff > 0).sort((a, b) => b.nq - a.nq)[0];
+    const longest = data.chains.filter((r) => r.kind === "mcm" && r.nq > 2 && isQpu(r) && r.best_r_eff > 0).sort((a, b) => b.nq - a.nq)[0];
     if (longest) { $("#kChain").textContent = longest.nq + " spins"; $("#kChainLbl").textContent = `longest MCM chain above random (${dev(longest.device).name})`; }
     const codes = new Set(data.qec.filter(isQpu).map((r) => r.code));
     $("#kCodes").textContent = codes.size;
@@ -261,6 +261,7 @@
       `<li><span class="d">${fDate(g.date)}</span><span class="n">${esc(dev(g.device).name)}</span>${[...g.lines].slice(0, 4).map((l) => `<span class="m">${esc(l)}</span>`).join("")}${g.lines.size > 4 ? `<span class="m">+ ${g.lines.size - 4} more</span>` : ""}</li>`).join("");
 
     guard("#chains", renderChains);
+    guard("#chains", renderTriplets);
     guard("#qec", renderQec);
     guard("#memory", renderMemory);
 
@@ -268,7 +269,7 @@
     function renderChains() {
       const emu = $("#chainEmu"), direct = $("#chainDirect");
       const picker = Picker(() => draw());
-      const pool = () => data.chains.filter((r) => isQpu(r) || (emu.checked && dev(r.device).kind === "emulator"));
+      const pool = () => data.chains.filter((r) => r.nq > 2 && (isQpu(r) || (emu.checked && dev(r.device).kind === "emulator")));
       // per device, kind and length: the run whose best placement got furthest above random
       const bestOf = (runs) => {
         const out = {};
@@ -342,7 +343,7 @@
           tip: (s, p) => `<b>${esc(s.label)}</b> · N = ${p.x}<br><span class="k">best r<sub>eff</sub>:</span> ${f3(p.y)} ${ok(p.y)}<br><span class="k">deepest p above random:</span> ${p.run.deepest_p_above_random ?? "–"}<br><span class="k">placements:</span> ${p.run.placements} · <span class="k">shots:</span> ${fInt(p.run.shots)}<br><span class="k">${count(p.run)} run${count(p.run) > 1 ? "s" : ""} of this length; the best shown · ${fDate(p.run.date)}</span>`,
         });
 
-        const all = pool().sort((a, b) => b.nq - a.nq || (b.best_r_eff ?? -9) - (a.best_r_eff ?? -9));
+        const all = data.chains.filter((r) => isQpu(r) || (emu.checked && dev(r.device).kind === "emulator")).sort((a, b) => b.nq - a.nq || (b.best_r_eff ?? -9) - (a.best_r_eff ?? -9));
         const table = $("#chainTable");
         table.innerHTML = `<thead><tr><th>Device</th><th>Kind</th><th>Spins N</th><th>Placements</th><th>Best r<sub>eff</sub></th><th>Deepest p above random</th><th>Depths</th><th>Shots</th><th>Date</th></tr></thead><tbody>`
           + all.map((r, i) => `<tr data-i="${i}"><td>${esc(dev(r.device).name)}</td><td>${r.kind.toUpperCase()}</td><td>${r.nq}</td><td>${r.placements}</td><td>${f3(r.best_r_eff)}</td><td>${r.deepest_p_above_random ?? "none"}</td><td>${r.best.map((q) => q.p).join(", ")}</td><td>${fInt(r.shots)}</td><td>${fDate(r.date)}</td></tr>`).join("") + "</tbody>";
@@ -362,18 +363,45 @@
       const order = (c) => { const m = c.match(/^(surface|color)_d(\d+)$/); return m ? (m[1] === "surface" ? 0 : 1) * 100 + +m[2] : 200 + (+c.replace(/\D/g, "") || 0); };
       const codes = [...new Set(runs.map((r) => r.code))].sort((a, b) => order(a) - order(b));
       const withFrames = codes.filter((c) => new Set(runs.filter((r) => r.code === c).map((r) => r.frame)).size > 1);
-      let code = withFrames[0] || codes[0], agg = "median", sitting = null;
+      let code = withFrames[0] || codes[0], agg = "median", sitting = null, mode = "best";
+      const picker = Picker(() => draw());
       const sittingKey = (r) => `${r.device}|${r.sitting}`;
+      // line style carries the frame (and the direct reference), colour carries the device
+      const STYLE = { Z: null, X: "7 4", XZ: "2 3", direct: "9 3 2 3" };
+      const styleOf = (r) => (r.kind === "direct" ? STYLE.direct : STYLE[r.frame]);
+      const styleName = (r) => (r.kind === "direct" ? "direct (no ancillas)" : `${r.frame} frame`);
+      const rowsOf = (r) => (agg === "best" ? r.best : r.median);
+      const merit = (r) => { const v = rowsOf(r).map((q) => q.r_eff).filter((x) => x != null); return v.length ? v.reduce((a, b) => a + b) / v.length : -9; };
+      const legendSwatch = (dash, color = "var(--muted)") => dash
+        ? `<i style="height:0;background:none;border-radius:0;border-top:2px ${dash === STYLE.XZ ? "dotted" : "dashed"} ${color}"></i>`
+        : `<i style="background:${color}"></i>`;
 
       function draw() {
         seg($("#qecCode"), codes.map((c) => ({ key: c, label: codeLabel(c) })), code, (k) => { code = k; sitting = null; draw(); });
+        seg($("#qecMode"), [{ key: "best", label: "best run per device" }, { key: "sitting", label: "one sitting" }], mode, (k) => { mode = k; draw(); });
         const rs = runs.filter((r) => r.code === code);
+        const multi = rs.some((r) => r.placements > 1);
+        const aggHost = $("#qecAgg");
+        aggHost.hidden = !multi;
+        seg(aggHost, [{ key: "median", label: "median" }, { key: "best", label: "best placement" }], agg, (k) => { agg = k; draw(); });
+
+        /* best run of each device, per frame and kind */
+        const best = {};
+        const rank = (r) => [Math.min(rowsOf(r).length, 3), merit(r)];          // a sweep of 3+ depths first
+        const better = (a, b) => { const [x, y] = [rank(a), rank(b)]; return x[0] !== y[0] ? x[0] > y[0] : x[1] > y[1]; };
+        rs.forEach((r) => { const k = `${r.device}|${r.frame}|${r.kind}`; if (!best[k] || better(r, best[k])) best[k] = r; });
+        const bestRuns = Object.values(best);
+        const devices = [...new Set(bestRuns.map((r) => r.device))]
+          .sort((a, b) => Math.max(...bestRuns.filter((r) => r.device === b).map(merit)) - Math.max(...bestRuns.filter((r) => r.device === a).map(merit)));
+        if (!picker.keys().some((k) => devices.includes(k))) {          // QPUs first; emulators only to fill
+          const qpus = devices.filter((d) => dev(d).kind === "qpu");
+          picker.set((qpus.length ? qpus : devices).slice(0, 3));
+        }
+
+        /* the sittings, for the one-sitting view */
         const sittings = {};
         rs.forEach((r) => { const k = sittingKey(r); (sittings[k] = sittings[k] || []).push(r); });
-        const keys = Object.keys(sittings).sort((a, b) => {
-          const fa = new Set(sittings[a].map((r) => r.frame)).size, fb = new Set(sittings[b].map((r) => r.frame)).size;
-          return sittings[b][0].sitting.localeCompare(sittings[a][0].sitting) || fb - fa;
-        });
+        const keys = Object.keys(sittings).sort((a, b) => sittings[b][0].sitting.localeCompare(sittings[a][0].sitting));
         if (!sitting || !sittings[sitting]) sitting = keys.find((k) => new Set(sittings[k].map((r) => r.frame)).size === 3) || keys[0];
         const sel = $("#qecSitting");
         sel.innerHTML = keys.map((k) => {
@@ -382,67 +410,147 @@
           return `<option value="${esc(k)}"${k === sitting ? " selected" : ""}>${esc(dev(s.device).name)} · ${fDate(s.date)} ${sittingTime(s.sitting)} · ${esc(what)}</option>`;
         }).join("");
         sel.onchange = () => { sitting = sel.value; draw(); };
-        const multi = sittings[sitting].some((r) => r.placements > 1);
-        const aggHost = $("#qecAgg");
-        aggHost.hidden = !multi;
-        seg(aggHost, [{ key: "median", label: "median" }, { key: "best", label: "best placement" }], agg, (k) => { agg = k; draw(); });
+        $("#qecSittingBox").hidden = mode !== "sitting";
+        $("#qecChips").hidden = mode !== "best";
 
-        const mine = sittings[sitting];
-        const series = rs.filter((r) => !mine.includes(r)).map((r) => ({ key: r.id, label: `${dev(r.device).name} ${fShort(r.date)} · ${r.frame}`, color: null, dash: r.kind === "direct", pts: curveSeries(r, null, agg) }));
-        mine.forEach((r) => series.push({ key: r.id, label: `${r.frame} frame${r.kind === "direct" ? " (direct)" : ""}`, color: FRAME_COLOR[r.frame], dash: r.kind === "direct", pts: curveSeries(r, null, agg) }));
-        const ref = mine[0];
+        let series, shown, ref;
+        if (mode === "best") {
+          renderChips($("#qecChips"), devices.map((d) => ({ key: d, label: dev(d).name + (dev(d).kind !== "qpu" ? " (emulator)" : "") })), picker);
+          shown = bestRuns.filter((r) => picker.has(r.device));
+          series = bestRuns.filter((r) => !picker.has(r.device)).map((r) => ({ key: r.id, label: `${dev(r.device).name} · ${styleName(r)}`, color: null, dash: styleOf(r), pts: curveSeries(r, null, agg) }));
+          shown.forEach((r) => series.push({ key: r.id, label: `${dev(r.device).name} · ${styleName(r)}`, color: picker.color(r.device), dash: styleOf(r), pts: curveSeries(r, null, agg) }));
+          ref = shown[0] || bestRuns[0];
+          $("#qecSub").textContent = "best run of each device and frame: a full depth sweep, highest mean r_eff";
+          const styles = [...new Map(bestRuns.map((r) => [styleName(r), styleOf(r)])).entries()];
+          $("#qecLegend").innerHTML = picker.keys().filter((k) => devices.includes(k)).map((k) => `<span><i style="background:${picker.color(k)}"></i>${esc(dev(k).name)}</span>`).join("")
+            + styles.map(([name, dash]) => `<span>${legendSwatch(dash)}${esc(name)}</span>`).join("")
+            + `<span><i class="noiseless"></i>noiseless</span><span><i style="background:var(--ctx)"></i>other devices</span><span><i class="hollow"></i>not above random + 3σ</span>`;
+        } else {
+          shown = sittings[sitting];
+          series = rs.filter((r) => !shown.includes(r)).map((r) => ({ key: r.id, label: `${dev(r.device).name} ${fShort(r.date)} · ${styleName(r)}`, color: null, dash: styleOf(r), pts: curveSeries(r, null, agg) }));
+          shown.forEach((r) => series.push({ key: r.id, label: styleName(r), color: FRAME_COLOR[r.frame], dash: r.kind === "direct" ? STYLE.direct : null, pts: curveSeries(r, null, agg) }));
+          ref = shown[0];
+          $("#qecSub").textContent = `${dev(ref.device).name} · ${fDate(ref.date)} · ${ref.placements} placement${ref.placements > 1 ? "s" : ""} · ${fInt(ref.shots)} shots`;
+          const frames = [...new Set(shown.map((r) => r.frame))];
+          $("#qecLegend").innerHTML = frames.map((f) => `<span><i style="background:${FRAME_COLOR[f]}"></i>${f} frame</span>`).join("")
+            + (shown.some((r) => r.kind === "direct") ? `<span>${legendSwatch(STYLE.direct)}direct (no ancillas)</span>` : "")
+            + `<span><i class="noiseless"></i>noiseless</span><span><i style="background:var(--ctx)"></i>other sittings</span><span><i class="hollow"></i>not above random + 3σ</span>`;
+        }
         series.unshift(...noiseless(ref));
         const thr = ref.median[0].threshold;
-        $("#qecSub").textContent = `${dev(ref.device).name} · ${fDate(ref.date)} · ${ref.placements} placement${ref.placements > 1 ? "s" : ""} · ${fInt(ref.shots)} shots`;
-        const frames = [...new Set(mine.map((r) => r.frame))];
-        $("#qecLegend").innerHTML = frames.map((f) => `<span><i style="background:${FRAME_COLOR[f]}"></i>${f} frame</span>`).join("")
-          + (mine.some((r) => r.kind === "direct") ? `<span><i class="dash" style="border-top-color:var(--muted)"></i>direct (no ancillas)</span>` : "")
-          + `<span><i class="noiseless"></i>noiseless</span><span><i style="background:var(--ctx)"></i>other sittings</span><span><i class="hollow"></i>not above random + 3σ</span>`;
         const ps = [...new Set(rs.flatMap((r) => r.median.map((q) => q.p)))].sort((a, b) => a - b);
         lineChart($("#qecChart"), {
           series, xTicks: ps, xLabel: "LR-QAOA layers p (rounds of syndrome extraction)", yLabel: "approximation ratio r",
-          refs: thr != null ? [{ y: thr, label: "random + 3σ" }] : [], aria: `r versus layers for ${codeLabel(code)}`,
-          tip: (s, pt) => runTip(s.label, pt) + `<br><span class="k">${esc(dev(pt.run.device).name)} · ${fDate(pt.run.date)}</span>`,
+          refs: thr != null ? [{ y: thr, label: `random + 3σ (${fInt(ref.shots)} shots)` }] : [], aria: `r versus layers for ${codeLabel(code)}`,
+          tip: (s, pt) => runTip(s.label, pt) + `<br><span class="k">${esc(dev(pt.run.device).name)} · ${fDate(pt.run.date)} ${sittingTime(pt.run.sitting)} · ${pt.run.placements} placement${pt.run.placements > 1 ? "s" : ""}</span>`,
         });
 
-        /* r_eff at p = 3 (or the first depth) per sitting, per frame */
+        /* r_eff at p = 3 (or the first depth) per sitting, per frame, for one device */
+        const focus = mode === "best" ? (picker.keys().find((k) => devices.includes(k)) || devices[0]) : ref.device;
         const P = ps.includes(3) ? 3 : ps[0];
-        $("#qecTimeSub").innerHTML = `${esc(dev(ref.device).name)} · r<sub>eff</sub> at p = ${P}, ${agg === "best" ? "best placement" : "median over placements"} · MCM`;
+        $("#qecTimeSub").innerHTML = `${esc(dev(focus).name)} · r<sub>eff</sub> at p = ${P}, ${agg === "best" ? "best placement" : "median over placements"} · MCM`;
         const stampT = (r) => Date.UTC(+r.sitting.slice(0, 4), +r.sitting.slice(4, 6) - 1, +r.sitting.slice(6, 8), +r.sitting.slice(9, 11) || 0, +r.sitting.slice(11, 13) || 0);
         const tSeries = ["Z", "X", "XZ"].map((f) => ({
           key: f, label: `${f} frame`, color: FRAME_COLOR[f],
-          pts: rs.filter((r) => r.frame === f && r.kind === "mcm" && r.device === ref.device).map((r) => {
-            const q = (agg === "best" ? r.best : r.median).find((x) => x.p === P);
+          pts: rs.filter((r) => r.frame === f && r.kind === "mcm" && r.device === focus).map((r) => {
+            const q = rowsOf(r).find((x) => x.p === P);
             return q ? { x: stampT(r), y: q.r_eff, hollow: !(q.r_eff > 0), run: r } : null;
           }).filter(Boolean),
         })).filter((s) => s.pts.length);
         const xs = tSeries.flatMap((s) => s.pts.map((p) => p.x));
-        const span = xs.length ? Math.max(...xs) - Math.min(...xs) : 0;
-        const dayTicks = () => {
-          if (!xs.length) return [];
-          const lo = Math.min(...xs), hi = Math.max(...xs), step = Math.max(1, Math.ceil(span / 864e5 / 6)) * 864e5, out = [];
-          for (let v = Math.floor(lo / 864e5) * 864e5; v <= hi + 864e5; v += step) out.push(v);
-          return out;
-        };
-        $("#qecTimeLegend").innerHTML = tSeries.map((s) => `<span><i style="background:${s.color}"></i>${s.label}</span>`).join("") + `<span><i class="hollow"></i>not above random + 3σ</span>`;
+        const ticks = [];
+        if (xs.length) { const lo = Math.min(...xs), hi = Math.max(...xs), step = Math.max(1, Math.ceil((hi - lo) / 864e5 / 6)) * 864e5; for (let v = Math.floor(lo / 864e5) * 864e5; v <= hi + 864e5; v += step) ticks.push(v); }
+        $("#qecTimeLegend").innerHTML = tSeries.map((s) => `<span><i style="background:${s.color}"></i>${s.label}</span>`).join("") + `<span><i class="hollow"></i>not above random + 3σ</span><span class="kind-tag">click a point to show that sitting</span>`;
         lineChart($("#qecTime"), {
-          series: tSeries, xTicks: dayTicks(), xFmt: (v) => { const d = new Date(v); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; },
+          series: tSeries, xTicks: ticks, xFmt: (v) => { const d = new Date(v); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; },
           xLabel: "sitting", yLabel: `r_eff at p = ${P}`, refs: [{ y: 0, label: "random + 3σ" }],
           aria: `Effective ratio at p = ${P} for each frame over sittings, ${codeLabel(code)}`,
           tip: (s, pt) => `<b>${esc(s.label)}</b> · ${esc(dev(pt.run.device).name)}<br>${fDate(pt.run.date)} ${sittingTime(pt.run.sitting)}<br><span class="k">r<sub>eff</sub> =</span> ${f3(pt.y)} ${ok(pt.y)}<br><span class="k">click to show this sitting</span>`,
-          onPoint: (s, pt) => { sitting = sittingKey(pt.run); draw(); },
+          onPoint: (s, pt) => { mode = "sitting"; sitting = sittingKey(pt.run); draw(); },
         });
 
         const table = $("#qecTable");
         const sorted = [...rs].sort((a, b) => b.sitting.localeCompare(a.sitting) || ["Z", "X", "XZ"].indexOf(a.frame) - ["Z", "X", "XZ"].indexOf(b.frame));
         table.innerHTML = `<thead><tr><th>Device</th><th>Sitting</th><th>Frame</th><th>Kind</th><th>Placements</th><th>Data qubits</th><th>r<sub>eff</sub> at p = ${P}</th><th>Best r<sub>eff</sub></th><th>Deepest p above random</th><th>Shots</th></tr></thead><tbody>`
           + sorted.map((r) => {
-            const q = r.median.find((x) => x.p === P), on = mine.includes(r);
-            return `<tr class="${on ? "sel" : ""}" data-k="${esc(sittingKey(r))}"><td>${on ? `<i style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${FRAME_COLOR[r.frame]}"></i>` : ""}${esc(dev(r.device).name)}</td><td>${fDate(r.date)} ${sittingTime(r.sitting)}</td><td>${r.frame}</td><td>${r.kind.toUpperCase()}</td><td>${r.placements}</td><td>${r.n_data}</td><td>${f3(q ? q.r_eff : null)}</td><td>${f3(r.best_r_eff)}</td><td>${r.deepest_p_above_random ?? "none"}</td><td>${fInt(r.shots)}</td></tr>`;
+            const q = r.median.find((x) => x.p === P), on = shown.includes(r);
+            const dot = on ? (mode === "best" ? picker.color(r.device) : FRAME_COLOR[r.frame]) : null;
+            return `<tr class="${on ? "sel" : ""}" data-k="${esc(sittingKey(r))}"><td>${dot ? `<i style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${dot}"></i>` : ""}${esc(dev(r.device).name)}</td><td>${fDate(r.date)} ${sittingTime(r.sitting)}</td><td>${r.frame}</td><td>${r.kind.toUpperCase()}</td><td>${r.placements}</td><td>${r.n_data}</td><td>${f3(q ? q.r_eff : null)}</td><td>${f3(r.best_r_eff)}</td><td>${r.deepest_p_above_random ?? "none"}</td><td>${fInt(r.shots)}</td></tr>`;
           }).join("") + "</tbody>";
-        table.querySelectorAll("tbody tr").forEach((tr) => { tr.style.cursor = "pointer"; tr.addEventListener("click", () => { sitting = tr.dataset.k; draw(); }); });
+        table.querySelectorAll("tbody tr").forEach((tr) => { tr.style.cursor = "pointer"; tr.addEventListener("click", () => { mode = "sitting"; sitting = tr.dataset.k; draw(); }); });
       }
       draw();
+    }
+
+    /* ---------- triplets: distribution of r over every triple of a campaign ---------- */
+    function renderTriplets() {
+      const camps = data.chains.filter((r) => r.nq === 2 && r.every && isQpu(r));
+      if (!camps.length) { $("#tripletPanel").hidden = true; return; }
+      const kinds = [...new Set(camps.map((r) => r.kind))];
+      const depths = [...new Set(camps.flatMap((r) => Object.keys(r.every).map(Number)))].sort((a, b) => a - b);
+      let depth = depths.includes(3) ? 3 : depths[0], kind = "mcm";
+      const host = $("#tripletChart");
+      const pct = (v, q) => { const s = [...v].sort((a, b) => a - b), i = (s.length - 1) * q, lo = Math.floor(i); return s[lo] + (s[Math.min(lo + 1, s.length - 1)] - s[lo]) * (i - lo); };
+
+      function draw() {
+        seg($("#tripletDepth"), depths.map((p) => ({ key: String(p), label: `p = ${p}` })), String(depth), (k) => { depth = +k; draw(); });
+        const kHost = $("#tripletKind");
+        kHost.hidden = kinds.length < 2;
+        seg(kHost, kinds.map((k) => ({ key: k, label: k === "mcm" ? "MCM" : "direct" })), kind, (k) => { kind = k; draw(); });
+        const rows = camps.filter((r) => r.kind === kind && r.every[String(depth)]).map((r) => {
+          const v = r.every[String(depth)].filter((x) => x != null), q = r.median.find((x) => x.p === depth) || {};
+          return { r, v, med: pct(v, 0.5), q25: pct(v, 0.25), q75: pct(v, 0.75), lo: pct(v, 0.05), hi: pct(v, 0.95), thr: q.threshold, ideal: q.r_ideal };
+        }).sort((a, b) => b.med - a.med);
+        host.style.height = Math.max(220, 60 + rows.length * 44) + "px";
+        host.innerHTML = "";
+        const W = host.clientWidth, H = host.clientHeight;
+        if (!W || !rows.length) return;
+        const m = { t: 10, r: 18, b: 40, l: 170 };
+        const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Distribution of r over every triplet at p = ${depth}` }, host);
+        const all = rows.flatMap((x) => x.v).concat(rows.map((x) => x.thr), rows.map((x) => x.ideal)).filter((v) => v != null);
+        let x0 = Math.min(...all), x1 = Math.max(...all); const pad = (x1 - x0) * 0.04; x0 -= pad; x1 += pad;
+        const X = (v) => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+        const band = (H - m.t - m.b) / rows.length, Yc = (i) => m.t + band * (i + 0.5);
+        const grid = el("g", { class: "grid" }, svg), axis = el("g", { class: "axis" }, svg);
+        niceTicks(x0, x1, Math.max(3, Math.round((W - m.l - m.r) / 90))).forEach((v) => {
+          el("line", { x1: X(v), x2: X(v), y1: m.t, y2: H - m.b }, grid);
+          el("text", { x: X(v), y: H - m.b + 17, "text-anchor": "middle" }, axis).textContent = v.toFixed(2);
+        });
+        el("text", { x: (m.l + W - m.r) / 2, y: H - 6, "text-anchor": "middle", class: "title" }, axis).textContent = `approximation ratio r at p = ${depth}`;
+        const thr = rows[0].thr, ideal = rows[0].ideal;
+        if (thr != null) el("line", { x1: X(thr), x2: X(thr), y1: m.t, y2: H - m.b, class: "ref" }, svg);
+        if (ideal != null) el("line", { x1: X(ideal), x2: X(ideal), y1: m.t, y2: H - m.b, stroke: "var(--faint)", "stroke-dasharray": "2 3", "stroke-width": 1.5 }, svg);
+        const hits = [];
+        rows.forEach((row, i) => {
+          const y = Yc(i), col = modColor(row.r.device), h = Math.min(18, band * 0.45);
+          el("text", { x: m.l - 10, y: y - 2, "text-anchor": "end", class: "row-label" }, svg).textContent = dev(row.r.device).name;
+          el("text", { x: m.l - 10, y: y + 12, "text-anchor": "end", class: "row-sub" }, svg).textContent = `${fShort(row.r.date)} ${row.r.date.slice(0, 4)} · ${row.v.length} triplets`;
+          row.v.forEach((v, j) => el("circle", { cx: X(v), cy: y + ((j * 7919) % 100 / 100 - 0.5) * h * 1.6, r: 2, fill: col, opacity: 0.35 }, svg));
+          el("line", { x1: X(row.lo), x2: X(row.hi), y1: y, y2: y, stroke: "var(--ink)", "stroke-width": 1.2 }, svg);
+          el("rect", { x: X(row.q25), y: y - h / 2, width: Math.max(1, X(row.q75) - X(row.q25)), height: h, fill: col, "fill-opacity": 0.25, stroke: col, class: "box", rx: 2 }, svg);
+          el("line", { x1: X(row.med), x2: X(row.med), y1: y - h / 2, y2: y + h / 2, stroke: "var(--ink)", "stroke-width": 2.5 }, svg);
+          hits.push({ y, row });
+        });
+        const labels = el("g", {}, svg);
+        if (thr != null) el("text", { x: X(thr) + 4, y: m.t + 10, class: "ref-label" }, labels).textContent = "random + 3σ";
+        if (ideal != null) el("text", { x: X(ideal) - 4, y: m.t + 10, "text-anchor": "end", class: "ref-label" }, labels).textContent = "noiseless";
+        svg.addEventListener("pointermove", (ev) => {
+          const b = svg.getBoundingClientRect(), my = (ev.clientY - b.top) * H / b.height;
+          const h = hits.find((x) => Math.abs(x.y - my) < band / 2);
+          if (!h) { hideTip(); return; }
+          const { row } = h, above = row.thr != null ? row.v.filter((v) => v > row.thr).length : null;
+          showTip(`<b>${esc(dev(row.r.device).name)}</b> · ${fDate(row.r.date)}<br><span class="k">${row.v.length} triplets at p = ${depth}, ${fInt(row.r.shots)} shots each</span>`
+            + `<br><span class="k">median r:</span> ${f3(row.med)} · <span class="k">quartiles:</span> ${f3(row.q25)} – ${f3(row.q75)}`
+            + `<br><span class="k">best triplet:</span> ${f3(Math.max(...row.v))}`
+            + (above != null ? `<br><span class="k">above random + 3σ:</span> ${above} of ${row.v.length}` : ""), ev.clientX, ev.clientY);
+        });
+        svg.addEventListener("pointerleave", hideTip);
+        $("#tripletLegend").innerHTML = `<span><i class="dot" style="background:var(--sc)"></i>superconducting</span><span><i class="dot" style="background:var(--ion)"></i>trapped ion</span>`
+          + `<span>box: quartiles · bar: median · line: 5th–95th percentile · dots: one per triplet</span><span><i class="dash" style="border-top-color:var(--faint)"></i>random + 3σ</span><span><i class="dot2"></i>noiseless</span>`;
+      }
+      draw();
+      let w = host.clientWidth;
+      new ResizeObserver(() => { if (host.clientWidth !== w) { w = host.clientWidth; draw(); } }).observe(host);
     }
 
     /* ---------- surface-code memory ---------- */
