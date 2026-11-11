@@ -8,3 +8,6 @@ __pycache__/
 
 # experiment outputs: manifests and results are kept, scratch figures are not
 figures/scratch/
+
+# the website data is rebuilt from data/results/ by scripts/build_site_data.py (locally and in CI)
+site/data/
