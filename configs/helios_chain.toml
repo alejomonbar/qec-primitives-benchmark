@@ -1,0 +1,12 @@
+# 1D chains on Quantinuum Helios through Nexus (run qnx.login() once). The plan asks Nexus for the
+# HQC cost before anything runs; if the estimate is not back yet, run the same command again.
+experiment = "chain"
+backend    = "Helios-1"
+nq         = [20, 30, 40, 50]
+ps         = [3, 5, 10]
+shots      = 50
+direct     = false
+
+[provider]
+project     = "Helios-Samples"
+cost_margin = 3                         # HQC on top of each program's prediction

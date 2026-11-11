@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QEC Primitives Benchmark</title>
+<meta name="description" content="How well quantum processors run the primitives quantum error correction is built on: mid-circuit measurement and feed-forward on 1D chains, QEC check Hamiltonians in three frames, and surface-code memory experiments. Results update from the data repository.">
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="stylesheet" href="style.css?v=dev">
+</head>
+<body>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="QEC Primitives Benchmark, home">
+      <img src="assets/logo.svg" width="30" height="30" alt="">
+      <span>QEC Primitives <b>Benchmark</b></span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#chains">MCM chains</a>
+      <a href="#qec">QEC structures</a>
+      <a href="#memory">QEC memory</a>
+      <a href="#method" class="opt">Method</a>
+      <a href="#data" class="opt">Data</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Open benchmark · updated with every new result</p>
+        <h1>How well do quantum processors run the primitive error correction is built on?</h1>
+        <p class="lede">Quantum error correction rests on one operation: <b>measure an ancilla mid-circuit and feed the outcome forward</b>. We test it three ways on the same devices: as the gadget inside a linear-ramp QAOA on <b>1D chains</b> of growing length, on the <b>check Hamiltonians of QEC codes</b> written in three frames, and as a real <b>surface-code memory</b> of |0⟩<sub>L</sub> and |+⟩<sub>L</sub>.</p>
+        <div class="btns">
+          <a class="btn solid" href="#chains">See the results</a>
+          <a class="btn" href="https://github.com/alejomonbar/qec-primitives-benchmark">Data &amp; code</a>
+        </div>
+      </div>
+      <div class="figures" aria-live="polite">
+        <div class="fig"><b id="kQpu">–</b><span>devices benchmarked</span></div>
+        <div class="fig"><b id="kChain">–</b><span id="kChainLbl">longest MCM chain above random</span></div>
+        <div class="fig"><b id="kCodes">–</b><span id="kCodesLbl">QEC structures benchmarked</span></div>
+        <div class="fig"><b id="kMem">–</b><span id="kMemLbl">surface-code memory sittings</span></div>
+        <div class="src" id="kSrc">Loading results…</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="latest">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Latest results</h2>
+        <p>Newest first. New result files in the repository show up here automatically.</p>
+      </div>
+      <ol class="feed" id="feed"></ol>
+    </div>
+  </section>
+
+  <section class="section" id="chains">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Mid-circuit measurement on 1D chains</h2>
+        <p>An Ising chain of <i>N</i> spins whose every coupling is applied through an ancilla: entangle, rotate, measure it mid-circuit, correct the two neighbours by feed-forward. Longer chains mean more gadgets per layer; deeper circuits mean more layers. The direct reference applies the same couplings with two-qubit gates and no ancilla.</p>
+      </div>
+      <div class="grid-2">
+        <article class="panel">
+          <div class="panel-head"><h3>Longest chain above random</h3><span>MCM, spins N, per device</span></div>
+          <div class="toolbar"><label class="check"><input type="checkbox" id="chainEmu"> include emulators</label></div>
+          <div class="lb" id="chainLb" role="list"></div>
+          <div class="legend" id="chainLbLegend"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><h3>Effective approximation ratio vs chain length</h3><span>r<sub>eff</sub> = 0 is random + 3σ · best placement and depth · click a point for r vs p</span></div>
+          <div class="toolbar"><label class="check"><input type="checkbox" id="chainDirect"> show the direct reference (dashed)</label></div>
+          <div class="chips" id="chainChips" aria-label="Highlight devices"></div>
+          <div class="chart" id="chainChart"></div>
+          <div class="legend" id="chainLegend"></div>
+        </article>
+      </div>
+      <div class="table-wrap"><table class="data" id="chainTable"></table></div>
+    </div>
+  </section>
+
+  <section class="section alt" id="qec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>QEC structures in three frames</h2>
+        <p>The checks of a surface, colour or qLDPC code read as a Hamiltonian, each measured through its own ancilla: one LR-QAOA layer is one round of syndrome extraction. The <b>Z frame</b> writes every check as Z…Z, the <b>X frame</b> as X…X, and the <b>XZ frame</b> keeps each check in the basis the code gives it, as a memory experiment does, under a Y mixer. All three are the same algorithm with the same noiseless answer, so where they differ on a device, the device is telling them apart.</p>
+      </div>
+      <div class="seg" id="qecCode" role="tablist" aria-label="Code"></div>
+      <div class="grid-2">
+        <article class="panel">
+          <div class="panel-head"><h3>Approximation ratio vs layers</h3><span id="qecSub">one sitting highlighted, the others faint</span></div>
+          <div class="toolbar">
+            <label>Sitting <select id="qecSitting"></select></label>
+            <span class="seg" id="qecAgg" role="tablist" aria-label="Over placements" style="margin:0"></span>
+          </div>
+          <div class="chart tall" id="qecChart"></div>
+          <div class="legend" id="qecLegend"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><h3>Each frame, sitting by sitting</h3><span id="qecTimeSub">r<sub>eff</sub> at p = 3, median over placements</span></div>
+          <div class="chart tall" id="qecTime"></div>
+          <div class="legend" id="qecTimeLegend"></div>
+        </article>
+      </div>
+      <div class="table-wrap"><table class="data" id="qecTable"></table></div>
+    </div>
+  </section>
+
+  <section class="section" id="memory">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Surface-code memory: |0⟩<sub>L</sub> and |+⟩<sub>L</sub></h2>
+        <p>The code run for real: prepare a logical state, repeat <i>R</i> rounds of syndrome extraction with the true X and Z checks, read the data, decode. |0⟩<sub>L</sub> is lost to bit flips, |+⟩<sub>L</sub> to phase flips. Shown is the logical error probability <i>P</i><sub>L</sub>, the median over the patches of a sitting, on the same patches as the LR-QAOA runs above.</p>
+      </div>
+      <div class="seg" id="memCode" role="tablist" aria-label="Code"></div>
+      <div class="grid-2">
+        <article class="panel">
+          <div class="panel-head"><h3>Logical error probability vs rounds</h3><span>median over patches, band: interquartile range</span></div>
+          <div class="toolbar"><label>Sitting <select id="memSitting"></select></label></div>
+          <div class="chart tall" id="memChart"></div>
+          <div class="legend" id="memLegend"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><h3>Logical error per round, sitting by sitting</h3><span>ε<sub>L</sub> from P<sub>L</sub>(R) = ½[1 − A(1 − 2ε<sub>L</sub>)<sup>R</sup>]</span></div>
+          <div class="chart tall" id="memTime"></div>
+          <div class="legend" id="memTimeLegend"></div>
+        </article>
+      </div>
+      <div class="table-wrap"><table class="data" id="memTable"></table></div>
+    </div>
+  </section>
+
+  <section class="section alt" id="method">
+    <div class="wrap method">
+      <div class="sec-head"><h2>Method</h2></div>
+      <div class="grid-2 prose">
+        <div>
+          <p>Every LR-QAOA benchmark here uses fixed angles on a linear ramp (γ rises and β falls over <i>p</i> layers, slope Δ/<i>p</i>, Δ = 0.5), so it runs identically on every device. Each term of the Hamiltonian is applied by the mid-circuit-measurement gadget: the ancilla is entangled with the term's data qubits, rotated, measured, and its outcome corrects the data by feed-forward.</p>
+          <p>Noiselessly the approximation ratio <i>r</i> grows with <i>p</i>; on a device noise pulls it back towards random guessing. A device that holds <i>r</i> above random at larger <i>N</i> and deeper <i>p</i> runs the primitive better.</p>
+          <p>The memory experiment is decoded with minimum-weight perfect matching on the detector error model of the same circuit. On IQM only the last round's syndrome is returned, and such runs are decoded from that record; they are marked in the table.</p>
+        </div>
+        <div>
+          <dl>
+            <dt>Approximation ratio <i>r</i></dt><dd>(E<sub>max</sub> − ⟨E⟩) / (E<sub>max</sub> − E<sub>opt</sub>): 1 is the optimum, ½ is a uniformly random sampler for these problems.</dd>
+            <dt>Random + 3σ</dt><dd>The exact mean of <i>r</i> for random bitstrings plus three times its shot-noise spread at the shots taken.</dd>
+            <dt>Effective ratio <i>r</i><sub>eff</sub></dt><dd>(<i>r</i> − t) / (1 − t), with t = random + 3σ. Above 0: better than random guessing by more than 3σ.</dd>
+            <dt>Noiseless line</dt><dd>The exact <i>r</i> of the same circuit without noise, where it can be computed.</dd>
+            <dt>Logical error probability <i>P</i><sub>L</sub></dt><dd>The fraction of shots the decoder gets wrong after <i>R</i> rounds.</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="data">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Data</h2>
+        <p>Every number on this page is computed from the result files in <code>data/results/</code> on each push, with the same loaders the notebooks use. Nothing here is typed in by hand.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Add a result</h3>
+          <p>Run a notebook and harvest it: the run file lands in <code>data/results/&lt;device&gt;/&lt;structure&gt;/&lt;kind&gt;/</code>. A new device gets a line in <code>scripts/site_devices.json</code>. Push to <code>main</code> and the page rebuilds.</p>
+        </div>
+        <div class="card">
+          <h3>Download</h3>
+          <p>All processed runs in one file: <a href="data/results.json" download>results.json</a>. Raw shots, notebooks and code are on <a href="https://github.com/alejomonbar/qec-primitives-benchmark">GitHub</a>.</p>
+        </div>
+        <div class="card">
+          <h3>Preview locally</h3>
+          <p><code>python scripts/build_site_data.py</code><br><code>python -m http.server -d site 8000</code></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span id="buildInfo"></span>
+    <span>J. A. Montañez-Barrera and K. Michielsen, Jülich Supercomputing Centre</span>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<div class="pop" id="pop" role="dialog" aria-labelledby="popTitle" hidden>
+  <button class="pop-x" type="button" id="popClose" aria-label="Close">×</button>
+  <h4 id="popTitle"></h4>
+  <div class="pop-sub" id="popSub"></div>
+  <div class="chart pop-chart" id="popChart"></div>
+  <div class="legend" id="popLegend"></div>
+  <div class="pop-foot" id="popFoot"></div>
+</div>
+<script src="data/results.js?v=dev"></script>
+<script src="app.js?v=dev"></script>
+</body>
+</html>

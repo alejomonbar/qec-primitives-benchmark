@@ -70,3 +70,20 @@ def test_validate_catches_overlap_and_missing_coupler(garnet):
     problems = validate_batch([Chain((1, 2, 5)), Chain((5, 6, 7)), Chain((1, 3, 8))], garnet)
     assert any("used by both" in p for p in problems)
     assert any("not coupled" in p for p in problems)
+
+
+def test_a_chain_the_size_of_the_chip_is_found_or_refused_without_hanging():
+    import time
+
+    import networkx as nx
+
+    from qecbench.layout import select_chains, serpentine_chains
+
+    G = nx.convert_node_labels_to_integers(nx.grid_2d_graph(6, 5), ordering="sorted")   # 30 qubits, row by row
+    t = time.monotonic()
+    longest = select_chains(G, 15)                           # 29 of 30 qubits: only a snake reaches it
+    assert time.monotonic() - t < 30 and longest
+    for chain in longest:
+        assert len(set(chain.qubits)) == 29 and all(G.has_edge(a, b) for a, b in zip(chain.qubits, chain.qubits[1:]))
+    assert select_chains(G, 16) == []                        # 31 qubits on a 30-qubit chip
+    assert serpentine_chains(nx.cycle_graph(7), 2) == []     # not a square lattice: no snake to offer

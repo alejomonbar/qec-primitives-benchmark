@@ -1,0 +1,11 @@
+# Surface-code memory of |0>_L (basis Z) and |+>_L (basis X) on the same fixed patch set.
+experiment = "memory"
+backend    = "ibm_phoenix"
+code       = "surface"
+d          = [3, 5]
+rounds     = [1, 2, 3, 5, 7, 10]
+bases      = ["Z", "X"]
+shots      = 4000
+
+[provider]
+account = "mcm-primitives"

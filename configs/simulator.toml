@@ -1,0 +1,9 @@
+# No account needed: a synthetic chip with uniform depolarizing noise. Change experiment to try each one:
+#   python -m qecbench run configs/simulator.toml
+#   python -m qecbench run configs/simulator.toml --experiment qec --frames Z X XZ --ps 1 2 3
+#   python -m qecbench run configs/simulator.toml --experiment memory --rounds 1 3 5
+experiment = "chain"
+backend    = "noisy_simulator"
+nq         = [2, 3]
+ps         = [1, 2, 3]
+shots      = 500

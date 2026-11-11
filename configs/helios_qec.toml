@@ -1,0 +1,11 @@
+# QEC structures on Helios, MCM and direct: codes are logical (all-to-all), checks run in parallel batches.
+experiment = "qec"
+backend    = "Helios-1"
+code       = "color"                    # surface | color | qldpc (then d = ["BB18", "BB30"])
+d          = [5, 7]
+ps         = [3, 5, 10]
+shots      = 20
+direct     = true
+
+[provider]
+project = "Helios-Samples"

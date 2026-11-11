@@ -42,6 +42,20 @@ depolarizing-noise study that defines `κ` and `λ_eff` (`notebooks/noise_study.
 To run the benchmark on a new device, start from the notebook of its vendor; to redraw a figure, run its section
 of `paper_figures.ipynb`, which needs no account.
 
+## Website
+
+`site/` is a static results page with three sections: MCM on 1D chains against chain length, the QEC check
+Hamiltonians in the Z, X and XZ frames, and surface-code memory of `|0>_L` and `|+>_L`.
+`scripts/build_site_data.py` reads `data/results/` with the package's own loaders and writes
+`site/data/results.json`. The workflow `.github/workflows/site.yml` reruns it and publishes the page to GitHub
+Pages on every push to `main` that touches the results, the site or the package (one-time setup: *Settings →
+Pages → Source: GitHub Actions*). A new device needs a line in `scripts/site_devices.json` (name, vendor, QPU or
+emulator); without it the build warns and lists it with an unknown vendor. Preview locally with
+
+```bash
+python scripts/build_site_data.py && python -m http.server -d site 8000     # open http://localhost:8000
+```
+
 ## Install
 
 ```bash
@@ -87,6 +101,52 @@ harvest(manifest, backend)                                          # data/resul
 results   = load_results("data/results", backend.name, kind="mcm")  # {Chain: {depth: {r, r_err, r_ideal, r_ovl, ...}}}
 ```
 
+### From the command line
+
+The same experiments run from a short config file (examples in `configs/`), without a notebook:
+
+```bash
+python -m qecbench run configs/ibm_chain.toml --dry-run    # build and check only: instances, circuits, cost
+python -m qecbench run configs/ibm_chain.toml --local      # rehearse on Aer with the device's own noise
+python -m qecbench run configs/ibm_chain.toml              # submit; prints the manifest
+python -m qecbench status                                  # job status of every run not yet collected
+python -m qecbench collect                                 # fetch finished jobs into data/results/
+```
+
+```toml
+experiment = "chain"          # chain | qec | memory
+backend    = "ibm_boston"     # ibm_* | iqm_* | Helios-1 | Helios-1E | H2-* | noisy_simulator
+nq         = [10, 20, 30]     # chain: spins per chain, a list is a sweep in one plan
+ps         = [3, 5, 10]       # LR-QAOA layers
+shots      = 1000
+direct     = true             # chain / qec: also the ancilla-free reference
+
+[provider]
+account = "mcm-primitives"    # IBM: saved QiskitRuntimeService account (Quantinuum: project, cost_margin)
+```
+
+* `experiment = "chain"`: MCM on 1D chains of `nq` spins. The default is the smallest run that still shows the
+  whole curve: one chain per length (`chains_per_length = 1`, the best calibrated), `nq = [10, 20, 40, 60]`,
+  `ps = [3, 10, 20, 40]`, 16 circuits. On every IBM chip measured so far MCM chains peak at p = 2-3 and reach
+  random between p = 15 and 50, so these depths catch the peak, the decay and the crossing. `chains_per_length =
+  0` covers every ancilla-capable qubit instead (a chip survey), and `direct = true` adds the ancilla-free
+  reference. A chain close to the size of the chip is searched for at most `search_seconds` (120); on a square
+  lattice the snake through its rows is used when the search finds nothing, and a length that cannot be placed is
+  left out with a message. On IQM the MCM kind needs `nq = 2` (one feed-forward controller per qubit). Local
+  simulations keep to qubits 0-19 unless `allowed_qubits` is set.
+* `experiment = "qec"`: the check Hamiltonian of `code` (`surface`, `color`, `qldpc`) at distances `d` (or
+  `d = ["BB18"]`), in `frames` (`Z`, `X`, `XZ`; IBM and the simulator). On IBM the patches are the fixed patch
+  set on `ibm_phoenix` (`anchors = "scan"`), given `anchors`, or `positions` spread over the calibrated error
+  budget; patches over `max_coupler_error` / `max_readout_error` are left out with a message. Not on IQM.
+* `experiment = "memory"`: the surface-code memory over `rounds`, in `bases` Z (`|0>_L`) and X (`|+>_L`), on
+  IBM, IQM (last-round syndrome only) or the simulator.
+
+Flags override the file (`--backend`, `--nq`, `--code`, `--d`, `--frames`, `--ps`, `--rounds`, `--bases`,
+`--shots`, `--experiment`), or replace it. Results go to `data/results/` exactly as the notebooks write them, so
+the notebooks and the website read them unchanged; every run is listed in `data/manifests/runs.json`. A local
+run is collected at once. On Helios the plan waits for the Nexus cost estimate before anything runs; if it is not
+back yet, run the same command again.
+
 | notebook | what it does |
 |---|---|
 | `benchmark_ibm.ipynb` | triplets or chains on any IBM backend; section 8 reloads the earlier `ibm_phoenix` triplet campaign |
@@ -95,6 +155,7 @@ results   = load_results("data/results", backend.name, kind="mcm")  # {Chain: {d
 | `benchmark_codes_quantinuum.ipynb` | any QEC structure (surface, colour, qLDPC or a loaded Hamiltonian) on Helios-1 / Helios-1E, checks measured in batches that use the operation zones in parallel |
 | `benchmark_codes_ibm.ipynb` | surface-code patches on a square-lattice IBM chip, by default the fixed patch set the memory experiment also runs, in one or more frames (`FRAMES`, see *QEC structures*), scored against their calibrated error |
 | `benchmark_qec_memory.ipynb` | rotated surface-code memory experiment (Z and X basis, `R` rounds) on the same patches as the LR-QAOA benchmark: detectors, `pymatching` decoding, logical error probability and error per round |
+| `benchmark_qec_memory_iqm.ipynb` | the same memory experiment on IQM Emerald (9 placements of `d = 3`; Garnet holds none). Mid-circuit outcomes are not returned on IQM, so only the last round's syndrome and the data are read and the decoder is built for that record (`memory.iqm_memory_circuit`, `history="last"`); section 3 checks on stored IBM runs that this record ranks patches as the full one does |
 | `bias_study.ipynb` | not a benchmark: the readout bias of the Z-frame runs, per depth, per qubit and across days, and what it does to `r` |
 | `paper_figures.ipynb` | every device-data figure of the paper, redrawn from `data/` (see *Paper figures*) |
 | `noise_study.ipynb` | not a benchmark: depolarizing simulation of 1D chains giving `κ_r = κ_0/N_q`, `κ_ρ` and device `λ_eff` (see *Noise study*) |

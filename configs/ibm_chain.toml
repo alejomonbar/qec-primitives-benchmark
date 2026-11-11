@@ -1,0 +1,16 @@
+# MCM on 1D chains on an IBM device: the r vs p curve of one chain per length.
+# 4 lengths x 4 depths = 16 circuits. They catch the peak (p = 3), the decay, and where the curve reaches
+# random (p = 20-40) on every IBM chip measured so far; one chain per length, the best calibrated.
+#   python -m qecbench run configs/ibm_chain.toml --dry-run     # chains, circuits, QPU seconds
+#   python -m qecbench run configs/ibm_chain.toml --local       # rehearse with the device's own noise
+experiment        = "chain"
+backend           = "ibm_boston"
+nq                = [10, 20, 30, 40, 50]    # spins per chain
+ps                = [3, 5, 7, 10, 15, 20]
+shots             = 1000
+chains_per_length = 0                   # 0 = cover every ancilla-capable qubit (a chip survey)
+direct            = true               # true adds the ancilla-free version of each chain (doubles it)
+
+[provider]
+account = "mcm-primitives"              # name of the saved QiskitRuntimeService account
+max_circuits_per_job = 32               # the whole run in one job (one queue wait); 8 splits it if error 6073 appears

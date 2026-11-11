@@ -1,0 +1,73 @@
+[
+ {
+  "manifest": "data/manifests/ibm_chicago/20261111_114620_ibm_chicago_chain10-chain20-chain30-chain40-chain50-direct10-direct20-direct30-direct40-direct50.json",
+  "experiment": "chain",
+  "backend": "ibm_chicago",
+  "config": {
+   "nq": [
+    10,
+    20,
+    30,
+    40,
+    50,
+    60
+   ],
+   "ps": [
+    3,
+    5,
+    10,
+    15,
+    20
+   ],
+   "shots": 1000,
+   "delta": 0.5,
+   "direct": true,
+   "buffer": false,
+   "experiment": "chain",
+   "backend": "ibm_chicago",
+   "provider": {
+    "account": "mcm-primitives",
+    "max_circuits_per_job": 8
+   },
+   "local": false
+  },
+  "submitted": "2026-11-11T11:47:03",
+  "status": "submitted"
+ },
+ {
+  "manifest": "data/manifests/ibm_chicago/20261111_120600_ibm_chicago_chain10-chain20-chain30-chain40-chain50-direct10-direct20-direct30-direct40-direct50.json",
+  "experiment": "chain",
+  "backend": "ibm_chicago",
+  "config": {
+   "nq": [
+    10,
+    20,
+    30,
+    40,
+    50
+   ],
+   "ps": [
+    3,
+    5,
+    7,
+    10,
+    15,
+    20
+   ],
+   "shots": 1000,
+   "delta": 0.5,
+   "direct": true,
+   "buffer": false,
+   "chains_per_length": 0,
+   "experiment": "chain",
+   "backend": "ibm_chicago",
+   "provider": {
+    "account": "mcm-primitives",
+    "max_circuits_per_job": 32
+   },
+   "local": false
+  },
+  "submitted": "2026-11-11T12:06:31",
+  "status": "collected"
+ }
+]

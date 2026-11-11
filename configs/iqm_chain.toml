@@ -1,0 +1,8 @@
+# Triplets on IQM through Amazon Braket (AWS credentials in the environment, region eu-north-1).
+# The MCM gadget needs n = 2 on IQM: one feed-forward controller per qubit. Longer chains run direct only.
+experiment = "chain"
+backend    = "iqm_emerald"
+nq         = [2]
+ps         = [3, 6, 9, 12]
+shots      = 500
+direct     = true

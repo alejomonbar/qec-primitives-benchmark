@@ -1,0 +1,15 @@
+# The surface-code check Hamiltonian on IBM in the three frames, on the fixed patch set
+# (the one the memory experiment runs too). Z, X and XZ go into the same jobs.
+experiment = "qec"
+backend    = "ibm_phoenix"
+code       = "surface"
+d          = [3]
+frames     = ["Z", "X", "XZ"]
+ps         = [1, 2, 3, 5, 7, 10]
+shots      = 1000
+# anchors  = "scan"                     # default on ibm_phoenix: the 2026-09-14 patch set
+# positions = 11                        # elsewhere: this many placements spread over the error budget
+
+[provider]
+account = "mcm-primitives"
+max_circuits_per_job = 256

@@ -119,3 +119,65 @@ def test_loading_reads_the_harvested_rate_and_re_decodes_only_when_asked(tmp_pat
     assert {R: s["rate"] for R, s in again["Z"].items()} == stored           # decoding again reproduces them
     (other,) = mem.load_results(tmp_path / "r", backend.name, files=files, p_2q_model=0.3).values()
     assert set(other["Z"]) == set(stored)                                    # other weights: decoded, may differ
+
+
+# -- IQM: only the last round's syndrome comes back ---------------------------------------
+@pytest.mark.parametrize("rounds", [1, 3, 5])
+def test_last_round_record_keeps_the_distance(rounds):
+    code = codes.surface_code(3)
+    for basis in mem.BASES:
+        assert mem.code_distance(code, rounds, basis, history="last") == 3
+
+
+@pytest.mark.parametrize("basis", ["Z", "X"])
+def test_last_round_detectors_match_stim(basis):
+    code, R = codes.surface_code(3), 3
+    circuit = mem.stim_circuit(code, R, basis, p_2q=0.01, history="last")
+    raw = circuit.compile_sampler().sample(400)
+    dets, obs = circuit.compile_m2d_converter().convert(measurements=raw, separate_observables=True)
+    raw, m = raw.astype(np.uint8), code.n_checks
+    last = raw[:, (R - 1) * m:R * m].reshape(-1, 1, m)          # the record IQM returns
+    ours, logical = mem.detection_events(last, raw[:, R * m:], code, basis)
+    assert (ours == dets).all() and (logical == obs[:, 0]).all()
+
+
+def _emerald_patch():
+    from qecbench.backends import IQMBackend
+
+    backend = IQMBackend("iqm_emerald", local=True)
+    return backend, surface_code_placements(backend.coupling_graph(), codes.surface_code(3))[0]
+
+
+def test_iqm_memory_circuit_is_native_and_silent_without_noise():
+    from qiskit_aer import AerSimulator
+
+    from qecbench.circuits import iqm_to_dynamic
+
+    backend, patch = _emerald_patch()
+    labels = backend.qubit_labels()
+    for basis, R in (("Z", 2), ("X", 2)):
+        qc = mem.iqm_memory_circuit(patch, R, basis, qubit_index={q: i for i, q in enumerate(labels)},
+                                    num_qubits=len(labels))
+        assert set(qc.count_ops()) == {"r", "cz", "measure", "MeasureFF", "CCPRx"}
+        assert qc.count_ops()["cz"] == 24 * R and qc.count_ops()["MeasureFF"] == 8 * (R - 1)
+        counts = {}
+        for shot in AerSimulator().run(iqm_to_dynamic(qc), shots=40, memory=True, seed_simulator=2).result().get_memory():
+            c, s = (reg[::-1] for reg in shot.split()[:2])
+            counts[f"{s} {c}"] = counts.get(f"{s} {c}", 0) + 1
+        rate, _, fired = mem.logical_error_rate(counts, patch.code, R, basis, history="last")
+        assert rate == 0 and fired == 0
+
+
+def test_local_iqm_memory_loop(tmp_path):
+    backend, patch = _emerald_patch()
+    plan = mem.plan(backend, [patch], rounds=[1, 3], bases=["Z"], shots=500)
+    assert plan["history"] == "last" and len(plan["native"]) == 2 and plan["estimate"]["unit"] == "USD"
+    manifest = mem.submit(plan, backend, manifest_dir=tmp_path / "m", noise_model=mem.uniform_noise_model(1e-3, 1e-2, 2e-2),
+                          seed=3)
+    saved = mem.harvest(manifest, backend, data_dir=tmp_path / "r")
+    record = json.loads(Path(saved).read_text())["results"][0]
+    assert record["parameters"]["history"] == "last" and record["shots_packed"]["bits_per_shot"] == 17
+    harvested = mem.load_results(tmp_path / "r", backend.name)
+    again = mem.load_results(tmp_path / "r", backend.name, decode_again=True)
+    assert harvested[patch]["Z"][3]["rate"] == again[patch]["Z"][3]["rate"]
+    assert 0 < harvested[patch]["Z"][1]["rate"] < harvested[patch]["Z"][3]["rate"] < 0.5

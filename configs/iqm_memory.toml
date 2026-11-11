@@ -1,0 +1,10 @@
+# Surface-code memory on IQM Emerald. Only the last round's syndrome comes back on IQM, and the decoder
+# is built for that record. Every circuit is a Braket task: the plan prints the cost first.
+experiment = "memory"
+backend    = "iqm_emerald"
+code       = "surface"
+d          = [3]
+positions  = 3                          # placements, spread over the calibrated error budget
+rounds     = [1, 2, 3, 5]
+bases      = ["Z", "X"]
+shots      = 2000

@@ -176,7 +176,7 @@ def ancilla_coverage(instances) -> Counter:
 
 
 def select_chains(G, n_data=2, allowed_qubits=None, ancillas=None, cost=None, buffer=False,
-                  restarts=None, seed=0, verbose=False):
+                  restarts=None, seed=0, verbose=False, time_limit=120.0):
     """Chains covering every ancilla-capable qubit, chosen so the packing is tightest.
 
     ``n_data = 2``: one triplet per candidate ancilla (``unique_ancilla_triples``).  A
@@ -189,8 +189,18 @@ def select_chains(G, n_data=2, allowed_qubits=None, ancillas=None, cost=None, bu
     candidate that no chain of this length can reach is reported and skipped.
 
     ``restarts`` randomised orderings are tried; the one packing into fewest circuits wins.
+
+    ``time_limit`` (seconds) bounds the search for long chains: a chain close to the size of the chip is a
+    near-Hamiltonian path, which a search can chase for ever. The restarts stop when it runs out (the best so
+    far wins), a cover stops with the chains it has, and a length no chain can be found for gives ``[]`` -
+    after a few anchors fail in a row with nothing found - instead of hanging. ``None`` removes the limit.
     """
+    import time
+
+    deadline = None if time_limit is None else time.monotonic() + time_limit
     H = region(G, allowed_qubits)
+    if 2 * n_data - 1 > H.number_of_nodes():
+        return []
     cands = ancilla_candidates(H, ancillas=ancillas)
     cost = cost or (lambda chain: 0.0)
     rng = random.Random(seed)
@@ -221,13 +231,17 @@ def select_chains(G, n_data=2, allowed_qubits=None, ancillas=None, cost=None, bu
         orders = [None] * (8 if restarts is None else max(1, restarts))
 
         def build(_):
-            return _cover(H, n_data, cands, cost, rng)
+            return _cover(H, n_data, cands, cost, rng, deadline=deadline)
 
     best, best_score, unreachable = None, None, []
-    for order in orders:
+    for k, order in enumerate(orders):
+        if k and deadline is not None and time.monotonic() > deadline:
+            break                                   # out of time: the best of the restarts so far
         result = build(order)
         chains, missed = (result, []) if n_data == 2 else result
         s = score(chains)
+        if not chains:                              # the search found nothing: try the lattice's own snakes
+            return serpentine_chains(H, n_data)
         if best_score is None or s < best_score:
             best, best_score, unreachable = chains, s, missed
     if verbose:
@@ -241,10 +255,53 @@ def select_chains(G, n_data=2, allowed_qubits=None, ancillas=None, cost=None, bu
     return best
 
 
-def _cover(H, n_data, cands, cost, rng, attempts=24):
+def serpentine_chains(G, n_data):
+    """Chains cut from the boustrophedon paths of a square-lattice chip, row by row and column by column.
+
+    A chain close to the size of the chip is a near-Hamiltonian path, which a random search rarely finds; on a
+    square lattice the snake through its rows is one. Each snake is split where a coupler is missing, and
+    every stretch long enough gives non-overlapping chains of ``2 n_data - 1`` qubits. ``[]`` off a lattice.
+    """
+    coords = square_lattice_coordinates(G)
+    if coords is None:
+        return []
+    length = 2 * n_data - 1
+    rows = sorted({r for r, _ in coords.values()})
+    cols = sorted({c for _, c in coords.values()})
+    at = {rc: q for q, rc in coords.items()}
+    snakes = []
+    for major, minor, key in ((rows, cols, lambda a, b: (a, b)), (cols, rows, lambda a, b: (b, a))):
+        snake = []
+        for i, a in enumerate(major):
+            line = [at[key(a, b)] for b in minor if key(a, b) in at]
+            snake += line if i % 2 == 0 else line[::-1]
+        snakes.append(snake)
+    found = set()
+    for snake in snakes:
+        stretch = [snake[0]]
+        for q in snake[1:] + [None]:
+            if q is not None and G.has_edge(stretch[-1], q):
+                stretch.append(q)
+                continue
+            for start in range(0, len(stretch) - length + 1, length):
+                found.add(Chain(tuple(stretch[start:start + length])))
+            stretch = [q] if q is not None else []
+    return sorted(found)
+
+
+def _cover(H, n_data, cands, cost, rng, attempts=24, deadline=None, give_up=3):
+    """Greedy cover of the candidate ancillas. Stops at ``deadline`` with the chains found so far, and after
+    ``give_up`` anchors in a row get no chain while none has been found at all (the length does not fit)."""
+    import time
+
     length = 2 * n_data - 1
     load, uncovered, chains, unreachable = Counter(), set(cands), [], []
     while uncovered:
+        if deadline is not None and time.monotonic() > deadline:
+            unreachable += sorted(uncovered)        # not reached in time
+            break
+        if not chains and len(unreachable) >= give_up:
+            return [], sorted(cands)
         anchor = min(uncovered, key=lambda a: (H.degree(a), rng.random()))
         best = None
         for _ in range(attempts):

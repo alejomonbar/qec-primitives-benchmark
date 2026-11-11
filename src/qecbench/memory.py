@@ -51,6 +51,18 @@ ancillas and couplers. A result stores every raw shot, the registers ``s0 .. s{R
 written bit 0 first, packed eight bits to a byte (``pack_shots``), so it can be decoded again with any decoder.
 (As text, counts of shot strings, the 228 circuits of one position scan at 4000 shots take 85 MB; packed, 13.)
 
+Syndrome history
+----------------
+On IBM every round's syndrome is read out (``history="full"``). On IQM through Amazon Braket a mid-circuit
+measurement (``measure_ff``) only drives feed-forward - its outcome is never returned - and a qubit can be read
+out once, at the end. There every round still measures and resets the ancillas (the reset is ``cc_prx``
+controlled by the ancilla's own ``measure_ff``), but only the **last** round's syndrome is read, together with
+the data (``history="last"``). The detectors are then the stored-basis checks of the last round and the final
+data checks against them, and the decoder is built from the same reduced record (``stim_circuit(...,
+history="last")``). It sees the net error of the rounds before, not when each happened, so ``P_L`` comes out
+higher than with the full record; re-decoding IBM runs both ways ranks their patches the same (Spearman 0.9 -
+1.0 over four runs of 11 patches). ``iqm_memory_circuit`` builds the experiment in IQM natives.
+
 The experiment itself - plan, submit, harvest, load - is ``plan``, ``submit``, ``harvest`` and ``load_results``.
 Circuits contain only Clifford gates, resets and measurements, so a local run uses Aer's stabilizer simulator
 and is fast at any distance, under the uniform model of ``SimBackend`` or a Pauli model built from a device's
@@ -69,6 +81,14 @@ import numpy as np
 Z_ORDER = [(+1, +1), (-1, +1), (+1, -1), (-1, -1)]
 X_ORDER = [(+1, +1), (+1, -1), (-1, +1), (-1, -1)]
 BASES = ("Z", "X")
+HISTORIES = ("full", "last")        # every round's syndrome read out, or only the last round's (IQM)
+
+
+def stored_rounds(rounds: int, history: str = "full") -> int:
+    """How many rounds of syndrome a shot holds."""
+    if history not in HISTORIES:
+        raise ValueError(f"history must be one of {HISTORIES}, not {history!r}")
+    return rounds if history == "full" else 1
 
 
 # ======================================================================================
@@ -141,8 +161,13 @@ def cx_schedule(code) -> tuple[list, ...]:
 # ======================================================================================
 # Reference circuit (stim): distance and decoder
 # ======================================================================================
-def stim_circuit(code, rounds: int, basis: str = "Z", p_2q: float = 1e-3, p_1q=None, p_spam=None, p_meas=None):
-    """The memory experiment with circuit-level noise, detectors in the order of ``detection_events``."""
+def stim_circuit(code, rounds: int, basis: str = "Z", p_2q: float = 1e-3, p_1q=None, p_spam=None, p_meas=None,
+                 history: str = "full"):
+    """The memory experiment with circuit-level noise, detectors in the order of ``detection_events``.
+
+    ``history="last"`` keeps only the detectors a last-round-only record allows (see *Syndrome history*): the
+    noise and the measurements of every round are the same.
+    """
     import stim
 
     p_1q = p_2q / 10 if p_1q is None else p_1q
@@ -176,7 +201,10 @@ def stim_circuit(code, rounds: int, basis: str = "Z", p_2q: float = 1e-3, p_1q=N
         c.append("MR", anc)
         c.append("X_ERROR", anc, p_spam)
         for k in range(m):
-            if r == 0:
+            if history == "last":
+                if r == rounds - 1 and types[k] == basis:
+                    c.append("DETECTOR", [stim.target_rec(k - m)])
+            elif r == 0:
                 if types[k] == basis:
                     c.append("DETECTOR", [stim.target_rec(k - m)])
             else:
@@ -193,22 +221,22 @@ def stim_circuit(code, rounds: int, basis: str = "Z", p_2q: float = 1e-3, p_1q=N
     return c
 
 
-def code_distance(code, rounds: int = 1, basis: str = "Z") -> int:
+def code_distance(code, rounds: int = 1, basis: str = "Z", history: str = "full") -> int:
     """Graphlike distance stim finds for the memory circuit; ``d`` for a correct schedule."""
-    dem = stim_circuit(code, rounds, basis).detector_error_model(decompose_errors=True)
+    dem = stim_circuit(code, rounds, basis, history=history).detector_error_model(decompose_errors=True)
     return len(dem.shortest_graphlike_error())
 
 
-def decoder(code, rounds: int, basis: str = "Z", p_2q: float = 3e-3):
+def decoder(code, rounds: int, basis: str = "Z", p_2q: float = 3e-3, history: str = "full"):
     """``pymatching`` decoder from the detector error model of ``stim_circuit`` (cached per code, rounds, basis)."""
-    return _decoder(code, int(rounds), basis, float(p_2q))
+    return _decoder(code, int(rounds), basis, float(p_2q), history)
 
 
 @lru_cache(maxsize=64)
-def _decoder(code, rounds, basis, p_2q):
+def _decoder(code, rounds, basis, p_2q, history):
     import pymatching
 
-    dem = stim_circuit(code, rounds, basis, p_2q).detector_error_model(decompose_errors=True)
+    dem = stim_circuit(code, rounds, basis, p_2q, history=history).detector_error_model(decompose_errors=True)
     return pymatching.Matching.from_detector_error_model(dem)
 
 
@@ -255,13 +283,85 @@ def memory_circuit(code, rounds: int, basis: str = "Z"):
     return qc
 
 
+def iqm_memory_circuit(patch, rounds: int, basis: str = "Z", qubit_index=None, num_qubits=None):
+    """The memory experiment of ``memory_circuit`` in IQM natives, for a verbatim Braket task.
+
+    Gates are ``r`` (``prx``) and ``cz``; a ``CX`` is ``H CZ H`` on its target, ``H = R(pi, 0) R(pi/2, pi/2)``,
+    and Hadamards that meet on a qubit cancel. Rounds ``0 .. R-2`` read the ancillas with ``MeasureFF`` and
+    reset them with ``CCPRx(pi, 0)`` controlled by their own outcome - each ancilla is its own and only
+    controller, as IQM requires. The last round's ancillas and the data are read by ordinary measurements
+    into ``s`` (bit ``k`` = check ``k``) and ``c`` (bit ``i`` = data qubit ``i``): the ``history="last"`` record.
+
+    ``qubit_index`` maps physical labels to circuit indices (``IQMBackend.qubit_labels``); without it the
+    circuit is on the compact qubits of ``memory_circuit``.
+    """
+    from math import pi
+
+    from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
+    from qiskit.circuit.library import RGate
+    from qiskit_braket_provider.providers.braket_instructions import CCPRx, MeasureFF
+
+    code = patch.code
+    types, order = check_types(code), cx_schedule(code)
+    n, m = code.n_data, code.n_checks
+    if qubit_index is None:
+        qubit_index, num_qubits = {q: i for i, q in enumerate(patch.qubits)}, len(patch.qubits)
+    data = [qubit_index[q] for q in patch.data_qubits]
+    anc = [qubit_index[a] for a in patch.ancillas]
+    syn, out = ClassicalRegister(m, "s"), ClassicalRegister(n, "c")
+    qc = QuantumCircuit(QuantumRegister(num_qubits, "q"), syn, out)
+    pending = set()                          # qubits owing a Hadamard, applied only when something else follows
+
+    def hadamard(qubits):
+        pending.symmetric_difference_update(qubits)
+
+    def flush(qubits):
+        for q in qubits:
+            if q in pending:
+                qc.append(RGate(pi / 2, pi / 2), [q])
+                qc.append(RGate(pi, 0.0), [q])
+                pending.discard(q)
+
+    if basis == "X":
+        hadamard(data)
+    key = 0
+    for r in range(rounds):
+        hadamard([anc[k] for k in range(m) if types[k] == "X"])
+        for step in range(4):
+            for k in range(m):
+                d = order[k][step]
+                if d is None:
+                    continue
+                target = data[d] if types[k] == "X" else anc[k]       # X check: ancilla -> data; Z: data -> ancilla
+                hadamard([target])
+                flush([data[d], anc[k]])
+                qc.cz(data[d], anc[k])
+                hadamard([target])
+        hadamard([anc[k] for k in range(m) if types[k] == "X"])
+        flush(anc)
+        if r < rounds - 1:
+            for a in anc:
+                qc.append(MeasureFF(key), [a])
+                qc.append(CCPRx(pi, 0.0, key), [a])                  # active reset by its own outcome
+                key += 1
+        else:
+            qc.measure(anc, syn)
+    if basis == "X":
+        hadamard(data)
+    flush(data)
+    qc.measure(data, out)
+    return qc
+
+
 def shot_key(syndromes, data) -> str:
     """The stored form of one shot: registers ``s0 .. s{R-1} c``, each written bit 0 first."""
     return " ".join(["".join(map(str, s)) for s in syndromes] + ["".join(map(str, data))])
 
 
-def shots_from_counts(counts, rounds: int, n_checks: int, n_data: int):
-    """``(syndromes (S, R, m), data (S, n))`` as uint8 arrays from counts of ``shot_key`` strings."""
+def shots_from_counts(counts, rounds: int, n_checks: int, n_data: int, history: str = "full"):
+    """``(syndromes (S, R, m), data (S, n))`` as uint8 arrays from counts of ``shot_key`` strings
+    (``R`` = 1 with ``history="last"``)."""
+    rounds = stored_rounds(rounds, history)
     keys = list(counts)
     reps = np.array([counts[k] for k in keys])
     rows = np.array([np.frombuffer(k.replace(" ", "").encode(), dtype=np.uint8) - 48 for k in keys], dtype=np.uint8)
@@ -294,10 +394,11 @@ def pack_shots(syndromes, data) -> dict:
             "data": base64.b64encode(np.packbits(bits, axis=1).tobytes()).decode()}
 
 
-def unpack_shots(packed, rounds: int, n_checks: int, n_data: int):
+def unpack_shots(packed, rounds: int, n_checks: int, n_data: int, history: str = "full"):
     """Inverse of ``pack_shots``: ``(syndromes (S, R, m), data (S, n))``."""
     import base64
 
+    rounds = stored_rounds(rounds, history)
     nbits = packed["bits_per_shot"]
     if nbits != rounds * n_checks + n_data:
         raise ValueError(f"shots have {nbits} bits, expected {rounds} x {n_checks} + {n_data}")
@@ -309,20 +410,28 @@ def unpack_shots(packed, rounds: int, n_checks: int, n_data: int):
 def record_shots(record, code):
     """``(syndromes, data)`` of a stored memory result, packed or as counts."""
     params = record["parameters"]
+    history = params.get("history", "full")
     if "shots_packed" in record:
-        return unpack_shots(record["shots_packed"], params["rounds"], code.n_checks, code.n_data)
-    return shots_from_counts(record["samples"], params["rounds"], code.n_checks, code.n_data)
+        return unpack_shots(record["shots_packed"], params["rounds"], code.n_checks, code.n_data, history)
+    return shots_from_counts(record["samples"], params["rounds"], code.n_checks, code.n_data, history)
 
 
-def logical_error_rate(counts, code, rounds: int, basis: str = "Z", p_2q: float = 3e-3):
+def logical_error_rate(counts, code, rounds: int, basis: str = "Z", p_2q: float = 3e-3, history: str = "full"):
     """Decode shots given as counts: ``(logical error rate, its shot noise, fraction of detectors that fired)``."""
-    return decode(*shots_from_counts(counts, rounds, code.n_checks, code.n_data), code, rounds, basis, p_2q)
+    return decode(*shots_from_counts(counts, rounds, code.n_checks, code.n_data, history), code, rounds, basis,
+                  p_2q, history)
 
 
-def decode(syndromes, data, code, rounds: int, basis: str = "Z", p_2q: float = 3e-3):
-    """Decode shots given as arrays: ``(logical error rate, its shot noise, fraction of detectors that fired)``."""
+def decode(syndromes, data, code, rounds: int, basis: str = "Z", p_2q: float = 3e-3, history: str = "full"):
+    """Decode shots given as arrays: ``(logical error rate, its shot noise, fraction of detectors that fired)``.
+
+    With ``history="last"`` the syndromes hold one round, the last of ``rounds``; ``detection_events`` then gives
+    the detectors of that reduced record, matched by a decoder built for it.
+    """
+    if np.asarray(syndromes).shape[1] != stored_rounds(rounds, history):
+        raise ValueError(f"{np.asarray(syndromes).shape[1]} syndrome rounds for R = {rounds}, history {history!r}")
     events, observable = detection_events(syndromes, data, code, basis)
-    predicted = decoder(code, rounds, basis, p_2q).decode_batch(events).reshape(-1)
+    predicted = decoder(code, rounds, basis, p_2q, history).decode_batch(events).reshape(-1)
     rate = float(np.mean(predicted != observable))
     return rate, float(np.sqrt(max(rate * (1 - rate), 1e-12) / len(observable))), float(events.mean())
 
@@ -356,7 +465,8 @@ def calibrated_noise_model(patch, cal, default_2q: float = 1e-2, default_1q: flo
     Depolarizing error on every CNOT from the calibrated two-qubit error of its coupler, on ``H`` from the
     ``sx`` error of the qubit, and readout error from the mid-circuit readout of the ancillas and the final
     readout of the data. Idling and crosstalk are left out, so it is optimistic; it is Clifford, so the
-    stabilizer simulator runs it at any distance.
+    stabilizer simulator runs it at any distance. An IQM calibration gives fidelities instead (``fCZ``,
+    ``f1Q_simultaneous_RB``, ``fRO``), used as one minus the error.
     """
     from qiskit_aer.noise import NoiseModel, ReadoutError, depolarizing_error
 
@@ -366,14 +476,17 @@ def calibrated_noise_model(patch, cal, default_2q: float = 1e-2, default_1q: flo
     model = NoiseModel(basis_gates=["cx", "h", "measure", "reset", "barrier"])
     for u, v in patch.couplers:
         entry = two.get(f"{u}-{v}") or two.get(f"{v}-{u}") or {}
-        p = entry.get("error") or default_2q
+        p = entry.get("error") or (1 - entry["fCZ"] if entry.get("fCZ") else None) or default_2q
         for a, b in ((u, v), (v, u)):
             model.add_quantum_error(depolarizing_error(min(p, 0.75), 2), ["cx"], [index[a], index[b]])
     ancillas = set(patch.ancillas)
     for phys, i in index.items():
-        p1 = q(phys).get("sx_error") or default_1q
+        f1 = q(phys).get("f1Q_simultaneous_RB")
+        p1 = q(phys).get("sx_error") or (1 - f1 if f1 else None) or default_1q
         model.add_quantum_error(depolarizing_error(min(p1, 0.75), 1), ["h"], [i])
-        ro = (q(phys).get("mcm_readout_error") if phys in ancillas else None) or q(phys).get("readout_error") or default_readout
+        f_ro = q(phys).get("fRO")
+        ro = ((q(phys).get("mcm_readout_error") if phys in ancillas else None) or q(phys).get("readout_error")
+              or (1 - f_ro if f_ro else None) or default_readout)
         model.add_readout_error(ReadoutError([[1 - ro, ro], [ro, 1 - ro]]), [i])
     return model
 
@@ -390,21 +503,53 @@ def uniform_noise_model(p_1q: float, p_2q: float, readout: float):
 # Experiment: plan -> submit (manifest) -> harvest -> load
 # ======================================================================================
 def _is_device(backend):
-    return hasattr(backend, "backend") and not getattr(backend, "local", True)
+    return not getattr(backend, "local", True) and hasattr(backend, "backend")
+
+
+def _is_iqm(backend):
+    return getattr(backend, "vendor", None) == "iqm"
+
+
+def history_of(backend) -> str:
+    """The syndrome record a backend returns: only the last round on IQM, every round elsewhere."""
+    return "last" if _is_iqm(backend) else "full"
 
 
 def plan(backend, patches, rounds, bases=BASES, shots: int = 4000, p_2q_model: float = 3e-3):
-    """Every (patch, basis, rounds) circuit. On a device, each is transpiled onto the patch's own qubits and
-    refused if the transpiler needed any coupler outside the patch."""
+    """Every (patch, basis, rounds) circuit. On an IBM device, each is transpiled onto the patch's own qubits and
+    refused if the transpiler needed any coupler outside the patch.
+
+    On IQM (``IQMBackend``) the circuits are ``iqm_memory_circuit`` in IQM natives, one Braket task each, and
+    only the last round's syndrome is recorded (``history="last"``). A local IQM backend simulates
+    ``memory_circuit`` on the stabilizer simulator instead - the same experiment gate for gate - and keeps the
+    same reduced record, so a rehearsal decodes exactly as the device run will.
+    """
     from qiskit import transpile
 
-    tasks, circuits = [], []
+    if _is_iqm(backend):
+        G = backend.coupling_graph()
+        groups = {q: g for g, qs in (backend.feedforward_groups() or {}).items() for q in qs}
+        labels = backend.qubit_labels()
+        index = {q: i for i, q in enumerate(labels)}
+    tasks, circuits, native = [], [], []
     for patch in patches:
         if patch.kind != "mcm" or patch.logical:
             raise ValueError(f"{patch}: a memory experiment needs a physical mcm placement (one ancilla per check)")
         verify_code(patch.code)
+        if _is_iqm(backend):
+            missing = [c for c in patch.couplers if not G.has_edge(*c)]
+            outside = [a for a in patch.ancillas if groups and a not in groups]
+            if missing or outside:
+                raise ValueError(f"{patch}: couplers {missing[:3]} not on {backend.name}; ancillas {outside[:3]} "
+                                 "outside every feed-forward group")
         for basis in bases:
             for R in rounds:
+                if _is_iqm(backend):
+                    nat = iqm_memory_circuit(patch, R, basis, qubit_index=index, num_qubits=len(labels))
+                    native.append(nat)
+                    tasks.append({"instance": patch, "basis": basis, "rounds": R})
+                    circuits.append(nat if _is_device(backend) else memory_circuit(patch.code, R, basis))
+                    continue
                 qc = memory_circuit(patch.code, R, basis)
                 if _is_device(backend):
                     qc = transpile(qc, backend=backend.backend, initial_layout=list(patch.qubits),
@@ -417,8 +562,11 @@ def plan(backend, patches, rounds, bases=BASES, shots: int = 4000, p_2q_model: f
                 tasks.append({"instance": patch, "basis": basis, "rounds": R})
                 circuits.append(qc)
     out = {"backend": backend.name, "tasks": tasks, "circuits": circuits, "shots": shots, "rounds": list(rounds),
-           "bases": list(bases), "p_2q_model": p_2q_model, "estimate": None}
-    if _is_device(backend) and hasattr(backend, "circuit_seconds"):
+           "bases": list(bases), "p_2q_model": p_2q_model, "estimate": None, "history": history_of(backend)}
+    if _is_iqm(backend):
+        out["native"] = native                     # what the device runs, also when the plan is simulated
+        out["estimate"] = backend.estimate({"circuits": circuits, "shots": shots})
+    elif _is_device(backend) and hasattr(backend, "circuit_seconds"):
         seconds = [backend.circuit_seconds(qc) * shots for qc in circuits]
         out["estimate"] = {"unit": "QPU s", "total": sum(seconds), "per_circuit": seconds,
                            "note": "gate and readout durations only; the wait between shots is not included"}
@@ -432,9 +580,12 @@ def print_plan(memory_plan):
     print(f"Patches  : {len(patches)} ({', '.join(sorted({p.code.name for p in patches}))})")
     print(f"Sweep    : rounds {memory_plan['rounds']}, bases {memory_plan['bases']}, {memory_plan['shots']} shots each")
     print(f"Circuits : {len(tasks)}")
+    if memory_plan.get("history", "full") == "last":
+        print("Syndrome : last round only (mid-circuit outcomes are not returned on this device)")
     est = memory_plan.get("estimate")
     if est:
-        print(f"Estimate : {est['total']:.1f} {est['unit']} ({est['note']})")
+        note = est.get("note") or "; ".join(est.get("notes", []))
+        print(f"Estimate : {est['total']:.1f} {est['unit']} ({note})")
 
 
 def submit(memory_plan, backend, manifest_dir="data/manifests", noise_model=None, seed=None, job_size: int = 100):
@@ -446,16 +597,22 @@ def submit(memory_plan, backend, manifest_dir="data/manifests", noise_model=None
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = Path(manifest_dir) / backend.name / f"{stamp}_{backend.name}_surface_code_memory.json"
     path.parent.mkdir(parents=True, exist_ok=True)
+    history = memory_plan.get("history", "full")
+    if _is_iqm(backend):
+        job_size = 1                                   # one circuit per Braket task
     manifest = {"backend": backend.name, "created": datetime.now().isoformat(), "experiment": "memory",
                 "shots": memory_plan["shots"], "rounds": memory_plan["rounds"], "bases": memory_plan["bases"],
-                "p_2q_model": memory_plan["p_2q_model"], "simulated": not _is_device(backend),
+                "p_2q_model": memory_plan["p_2q_model"], "history": history, "simulated": not _is_device(backend),
                 "noise_model": None if _is_device(backend) else _noise_text(backend, noise_model), "jobs": []}
     circuits, tasks = memory_plan["circuits"], memory_plan["tasks"]
     for start in range(0, len(circuits), job_size):
         chunk = list(range(start, min(start + job_size, len(circuits))))
         record = {"tasks": [{"index": k, "basis": tasks[i]["basis"], "rounds": tasks[i]["rounds"],
                              "instance": tasks[i]["instance"].to_dict()} for k, i in enumerate(chunk)]}
-        if _is_device(backend):
+        if _is_device(backend) and _is_iqm(backend):
+            record["job_id"] = backend.submit([circuits[i] for i in chunk], memory_plan["shots"])["job_id"]
+            print(f"  task {len(manifest['jobs']) + 1}/{len(circuits)} -> {record['job_id']}")
+        elif _is_device(backend):
             from qiskit_ibm_runtime import SamplerV2
 
             job = SamplerV2(mode=backend.backend).run([circuits[i] for i in chunk], shots=memory_plan["shots"])
@@ -463,9 +620,10 @@ def submit(memory_plan, backend, manifest_dir="data/manifests", noise_model=None
             print(f"  job {len(manifest['jobs']) + 1}: {len(chunk)} circuits -> {record['job_id']}")
         else:
             record["job_id"] = f"{backend.name}_{datetime.now():%Y%m%d_%H%M%S_%f}"
-            record["counts"] = [_simulate(circuits[i], memory_plan["shots"],
-                                          noise_model(tasks[i]["instance"]) if callable(noise_model) else noise_model,
-                                          None if seed is None else seed + i) for i in chunk]
+            record["counts"] = [_keep_history(_simulate(circuits[i], memory_plan["shots"],
+                                                        noise_model(tasks[i]["instance"]) if callable(noise_model)
+                                                        else noise_model, None if seed is None else seed + i),
+                                              history) for i in chunk]
             print(f"  simulated {len(chunk)} circuits -> {record['job_id']}")
         manifest["jobs"].append(record)
         path.write_text(json.dumps(manifest, indent=1))
@@ -473,6 +631,36 @@ def submit(memory_plan, backend, manifest_dir="data/manifests", noise_model=None
 
     print(f"manifest: {short_path(path)}")
     return str(path)
+
+
+def _keep_history(counts, history):
+    """Shots of a full record cut to the record a ``history`` keeps: the last round's syndrome and the data."""
+    if history == "full":
+        return counts
+    out = {}
+    for key, k in counts.items():
+        short = " ".join(key.split(" ")[-2:])
+        out[short] = out.get(short, 0) + k
+    return out
+
+
+def _braket_counts(task_arn, patch):
+    """A finished IQM task as counts of ``shot_key`` strings (last-round syndrome, then data), or None."""
+    from braket.aws import AwsQuantumTask
+
+    task = AwsQuantumTask(arn=task_arn)
+    state = task.state()
+    if state != "COMPLETED":
+        print(f"  {task_arn}: {state}")
+        return None
+    result = task.result()
+    order = [int(q) for q in result.measured_qubits]
+    syn, dat = [order.index(a) for a in patch.ancillas], [order.index(d) for d in patch.data_qubits]
+    counts = {}
+    for bits, k in result.measurement_counts.items():
+        key = "".join(bits[i] for i in syn) + " " + "".join(bits[i] for i in dat)
+        counts[key] = counts.get(key, 0) + int(k)
+    return counts
 
 
 def _noise_text(backend, noise_model):
@@ -512,10 +700,15 @@ def harvest(manifest_path, backend, data_dir="data/results", service=None):
 
     manifest = json.loads(Path(manifest_path).read_text())
     stamp = datetime.fromisoformat(manifest["created"]).strftime("%Y%m%d_%H%M%S")
+    history = manifest.get("history", "full")
     records = []
     for job in manifest["jobs"]:
         if "counts" in job:
             per_task = job["counts"]
+        elif _is_iqm(backend):
+            per_task = [_braket_counts(job["job_id"], from_dict(t["instance"])) for t in job["tasks"]]
+            if any(c is None for c in per_task):
+                continue
         else:
             if service is None:
                 service = getattr(backend, "service", None)
@@ -530,6 +723,7 @@ def harvest(manifest_path, backend, data_dir="data/results", service=None):
             records.append(memory_record(counts, patch, task["rounds"], task["basis"], manifest, job["job_id"]))
     header = {k: manifest.get(k) for k in ("backend", "created", "experiment", "shots", "rounds", "bases",
                                            "p_2q_model", "simulated", "noise_model")}
+    header["history"] = history
     header["manifest"] = Path(manifest_path).name
     path = Path(data_dir) / manifest["backend"] / "surface_code" / "memory" / \
         f"{stamp}_{manifest['backend']}_surface_code_memory.json"
@@ -542,8 +736,9 @@ def memory_record(counts, patch, rounds, basis, manifest, job_id, extra=None):
     """One stored memory result: raw shots (packed), the decoded logical error rate and where it came from."""
     from .analysis import public_job_id
 
-    syndromes, data = shots_from_counts(counts, rounds, patch.code.n_checks, patch.code.n_data)
-    rate, err, fired = decode(syndromes, data, patch.code, rounds, basis, manifest["p_2q_model"])
+    history = manifest.get("history", "full")
+    syndromes, data = shots_from_counts(counts, rounds, patch.code.n_checks, patch.code.n_data, history)
+    rate, err, fired = decode(syndromes, data, patch.code, rounds, basis, manifest["p_2q_model"], history)
     return {
         "metadata": {"timestamp": datetime.now().isoformat(), "experiment_type": "surface_code_memory",
                      "backend": manifest["backend"], "task_id": public_job_id(job_id), "package": "qecbench",
@@ -551,11 +746,15 @@ def memory_record(counts, patch, rounds, basis, manifest, job_id, extra=None):
         "parameters": {"kind": f"memory_{basis.lower()}", "basis": basis, "rounds": rounds, "depth": rounds,
                        "shots": int(sum(counts.values())), "p_2q_model": manifest["p_2q_model"],
                        "data_qubits": list(patch.data_qubits), "ancillary_qubits": list(patch.ancillas),
-                       "registers": "s0 .. s{R-1} c, each written bit 0 first (bit k of s_r = check k)"},
+                       "history": history,
+                       "registers": ("s0 .. s{R-1} c, each written bit 0 first (bit k of s_r = check k)"
+                                     if history == "full" else
+                                     "s c: the last round's syndrome (bit k = check k), then the data, bit 0 first")},
         "shots_packed": pack_shots(syndromes, data),
         "benchmark": {"family": "code", "instance": patch.to_dict(), "qubits": list(patch.qubits),
                       "logical_error_rate": rate, "logical_error_rate_err": err, "detection_fraction": fired,
-                      "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)",
+                      "decoder": "pymatching on the stim detector error model (p_2q_model sets the weights)"
+                                 + ("" if history == "full" else ", built for the last-round-only record"),
                       **(extra or {})},
     }
 
@@ -585,7 +784,7 @@ def load_results(data_dir, backend_name, files=None, p_2q_model=None, bases=None
             if again:
                 p = p_2q_model or params["p_2q_model"]
                 rate, err, fired = decode(*record_shots(record, patch.code), patch.code, params["rounds"],
-                                          params["basis"], p)
+                                          params["basis"], p, params.get("history", "full"))
             else:
                 b = record["benchmark"]
                 rate, err, fired = b["logical_error_rate"], b["logical_error_rate_err"], b["detection_fraction"]
