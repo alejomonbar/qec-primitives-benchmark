@@ -93,6 +93,31 @@ def aggregate(instances, kind_label, keep_all=False):
             "best_r_eff": num(max(q["r_eff"] for q in pts[best]))}
 
 
+KAPPA_0 = json.loads((ROOT / "data" / "noise_study" / "kappa_fits.json").read_text())["kappa_0"]["value"]
+LAMBDA_WINDOW = {"mcm": (3, 10), "direct": (3, 10 ** 6)}       # the depths the paper's lambda_eff fits use
+
+
+def lambda_eff(run, n):
+    """Per-edge ``lambda_eff`` of a chain run (its best placement), as in the paper: ``r_ovl = 2^(-kappa N_edges p
+    lambda)`` with ``kappa = kappa_0 / N``, over p = 3-10 for MCM and p >= 3 past the plateau for direct."""
+    from qecbench.noise_study import decaying_part, fit_lambda_eff
+
+    lo, hi = LAMBDA_WINDOW[run["kind"]]
+    pts = [(q["p"], q["r_ovl"]) for q in run["best"] if q["r_ovl"] is not None and q["r_ovl"] > 0 and lo <= q["p"] <= hi]
+    if len(pts) < 2 or n < 2:
+        return None
+    ps, ovl = np.array([x for x, _ in pts], float), np.array([y for _, y in pts], float)
+    if run["kind"] == "direct":
+        ps, ovl = decaying_part(ps, ovl)
+    if len(ps) < 2:
+        return None
+    try:
+        fit = fit_lambda_eff(ps, ovl, n - 1, KAPPA_0 / n)
+    except (RuntimeError, ValueError):
+        return None
+    return {"value": num(fit["lambda_eff"], 7), "stderr": num(fit["stderr"], 7), "depths": [int(x) for x in ps]}
+
+
 def files_in(folder):
     return sorted(p.name for p in folder.glob("*.json")) if folder.is_dir() else []
 
@@ -132,7 +157,7 @@ def build_chains(backends):
                 for n, insts in by_n.items():
                     run = aggregate(insts, kind, keep_all=(n == 2))
                     out.append({"id": f"{b}/{stamp_of(name)}/{kind}/{n}", "device": b, "nq": n, "date": date_of(name),
-                                "file": name, **run})
+                                "file": name, **run, "lambda_eff": lambda_eff(run, n)})
     return out
 
 

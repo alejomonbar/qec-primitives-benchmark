@@ -40,7 +40,7 @@
       </div>
       <div class="figures" aria-live="polite">
         <div class="fig"><b id="kQpu">–</b><span>devices benchmarked</span></div>
-        <div class="fig"><b id="kChain">–</b><span id="kChainLbl">longest MCM chain above random</span></div>
+        <div class="fig"><b id="kChain">–</b><span id="kChainLbl">largest QEC structure above random</span></div>
         <div class="fig"><b id="kCodes">–</b><span id="kCodesLbl">QEC structures benchmarked</span></div>
         <div class="fig"><b id="kMem">–</b><span id="kMemLbl">surface-code memory sittings</span></div>
         <div class="src" id="kSrc">Loading results…</div>
@@ -66,7 +66,7 @@
       </div>
       <div class="grid-2">
         <article class="panel">
-          <div class="panel-head"><h3>Longest chain above random</h3><span>MCM, chains of 10 spins and more, per device</span></div>
+          <div class="panel-head"><h3>Effective error per gadget, λ<sub>eff</sub></h3><span>MCM, per edge, median over chain lengths · lower is better</span></div>
           <div class="toolbar"><label class="check"><input type="checkbox" id="chainEmu"> include emulators</label></div>
           <div class="lb" id="chainLb" role="list"></div>
           <div class="legend" id="chainLbLegend"></div>
@@ -81,7 +81,7 @@
       </div>
       <article class="panel" id="tripletPanel" style="margin-top:20px">
         <div class="panel-head"><h3>Triplets: every data–ancilla–data triple of a chip</h3><span>N = 2 · one gadget per triple · distribution of r over the triples of each campaign</span></div>
-        <div class="toolbar"><span class="seg" id="tripletDepth" role="tablist" aria-label="Depth" style="margin:0"></span><span class="seg" id="tripletKind" role="tablist" aria-label="Kind" style="margin:0"></span></div>
+        <div class="toolbar"><span class="seg" id="tripletDepth" role="tablist" aria-label="Depth" style="margin:0"></span><span class="seg" id="tripletKind" role="tablist" aria-label="Kind" style="margin:0"></span><label class="check"><input type="checkbox" id="tripletAll"> every campaign (not only each device's best)</label></div>
         <div class="chart tall" id="tripletChart"></div>
         <div class="legend" id="tripletLegend"></div>
       </article>

@@ -240,8 +240,11 @@
     /* key figures */
     const used = new Set([...data.chains, ...data.qec, ...data.memory].map((r) => r.device).filter((d) => dev(d).kind === "qpu"));
     $("#kQpu").textContent = used.size;
-    const longest = data.chains.filter((r) => r.kind === "mcm" && r.nq > 2 && isQpu(r) && r.best_r_eff > 0).sort((a, b) => b.nq - a.nq)[0];
-    if (longest) { $("#kChain").textContent = longest.nq + " spins"; $("#kChainLbl").textContent = `longest MCM chain above random (${dev(longest.device).name})`; }
+    const largest = data.qec.filter((r) => r.kind === "mcm" && isQpu(r) && r.best_r_eff > 0).sort((a, b) => b.n_data - a.n_data || b.best_r_eff - a.best_r_eff)[0];
+    if (largest) {
+      $("#kChain").textContent = `${largest.n_data} q`;
+      $("#kChainLbl").textContent = `largest QEC structure above random: ${codeLabel(largest.code)}, ${largest.checks} checks measured mid-circuit each round (${dev(largest.device).name})`;
+    }
     const codes = new Set(data.qec.filter(isQpu).map((r) => r.code));
     $("#kCodes").textContent = codes.size;
     $("#kCodesLbl").textContent = `QEC structures benchmarked on QPUs (${new Set(data.qec.filter((r) => isQpu(r)).map((r) => r.frame)).size} frames)`;
@@ -300,21 +303,29 @@
         const mcm = runs.filter((r) => r.kind === "mcm");
         const byDev = {};
         mcm.forEach((r) => (byDev[r.device] = byDev[r.device] || []).push(r));
-        const rows = Object.entries(byDev).map(([d, rs]) => {
-          const pass = rs.filter((r) => r.best_r_eff > 0).sort((a, b) => b.nq - a.nq)[0];
-          return { d, rs, pass, n: pass ? pass.nq : 0 };
-        }).sort((a, b) => b.n - a.n || dev(a.d).name.localeCompare(dev(b.d).name));
-        const maxN = Math.max(...rows.map((r) => r.n), 1);
+        const med = (v) => { const s = [...v].sort((a, b) => a - b), k = s.length >> 1; return s.length % 2 ? s[k] : (s[k - 1] + s[k]) / 2; };
+        // per length the lowest lambda_eff of the device's runs, then the median over its lengths
+        const lamOf = (rs) => {
+          const perLen = {};
+          rs.filter((r) => r.lambda_eff).forEach((r) => { const v = r.lambda_eff.value; if (perLen[r.nq] == null || v < perLen[r.nq]) perLen[r.nq] = v; });
+          return { perLen, value: Object.keys(perLen).length ? med(Object.values(perLen)) : null };
+        };
+        const directOf = (d) => lamOf(runs.filter((r) => r.kind === "direct" && r.device === d)).value;
+        const rows = Object.entries(byDev).map(([d, rs]) => ({ d, rs, ...lamOf(rs), pass: rs.filter((r) => r.best_r_eff > 0).sort((a, b) => b.nq - a.nq)[0] }))
+          .sort((a, b) => (a.value ?? 9) - (b.value ?? 9));
+        const maxL = Math.max(...rows.map((r) => r.value || 0), 1e-9);
+        const fL = (v) => (v == null ? "–" : v.toExponential(1).replace("e-", "×10⁻").replace(/⁻(\d)/, (m, x) => "⁻" + "⁰¹²³⁴⁵⁶⁷⁸⁹"[x]));
         const lb = $("#chainLb"); lb.innerHTML = "";
         rows.forEach((row) => {
-          const meta = dev(row.d), col = modColor(row.d);
+          const meta = dev(row.d), col = modColor(row.d), dl = directOf(row.d);
           const div = document.createElement("div");
           div.className = "lb-row"; div.setAttribute("role", "listitem"); div.tabIndex = 0;
-          div.innerHTML = `<span class="lb-name">${esc(meta.name)}${meta.kind !== "qpu" ? " <span class='kind-tag'>emulator</span>" : ""}</span><span class="lb-track">${row.n ? `<span class="lb-bar" style="width:${(row.n / maxN) * 82}%;background:${col}"></span>` : ""}<span class="lb-val">${row.n ? row.n + " spins" : "none above random"}</span></span>`;
-          const r = row.pass;
-          const html = `<b>${esc(meta.name)}</b><br>` + (r
-            ? `<span class="k">Longest chain above random:</span> ${r.nq} spins<br><span class="k">Best r<sub>eff</sub>:</span> ${f3(r.best_r_eff)}<br><span class="k">Deepest p above random:</span> ${r.deepest_p_above_random ?? "–"}<br><span class="k">Shots:</span> ${fInt(r.shots)} · ${fDate(r.date)}<br><span class="k">Click for r vs p</span>`
-            : `No length above random. Lengths tried: ${row.rs.map((x) => x.nq).sort((a, b) => a - b).join(", ")}`);
+          div.innerHTML = `<span class="lb-name">${esc(meta.name)}${meta.kind !== "qpu" ? " <span class='kind-tag'>emulator</span>" : ""}</span><span class="lb-track">${row.value != null ? `<span class="lb-bar" style="width:${(row.value / maxL) * 82}%;background:${col}"></span>` : ""}<span class="lb-val">${row.value != null ? fL(row.value) : "no fit"}</span></span>`;
+          const lens = Object.entries(row.perLen).sort((a, b) => a[0] - b[0]).map(([n, v]) => `N = ${n}: ${fL(v)}`).join("<br>");
+          const html = `<b>${esc(meta.name)}</b><br><span class="k">MCM λ<sub>eff</sub> per edge (median over lengths):</span> ${fL(row.value)}`
+            + (dl ? `<br><span class="k">direct reference:</span> ${fL(dl)} · <span class="k">an MCM edge costs</span> ${(row.value / dl).toFixed(1)}× a direct one` : "")
+            + (lens ? `<br>${lens}` : "") + (row.pass ? `<br><span class="k">longest chain above random:</span> ${row.pass.nq} spins` : "")
+            + `<br><span class="k">click for the r vs p of its longest chain</span>`;
           div.addEventListener("pointermove", (ev) => showTip(html, ev.clientX, ev.clientY));
           div.addEventListener("pointerleave", hideTip);
           const target = row.pass || [...row.rs].sort((a, b) => b.nq - a.nq)[0];
@@ -322,9 +333,10 @@
           div.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); const b = div.getBoundingClientRect(); showRun(target, col, b.right, b.top + b.height / 2); } });
           lb.appendChild(div);
         });
-        $("#chainLbLegend").innerHTML = `<span><i class="dot" style="background:var(--sc)"></i>superconducting</span><span><i class="dot" style="background:var(--ion)"></i>trapped ion</span>`;
+        $("#chainLbLegend").innerHTML = `<span><i class="dot" style="background:var(--sc)"></i>superconducting</span><span><i class="dot" style="background:var(--ion)"></i>trapped ion</span>`
+          + `<span class="kind-tag">r_ovl = 2^(−κ (N−1) p λ), κ = κ₀/N, κ₀ = 3.69; fitted over p = 3–10</span>`;
 
-        if (!picker.keys().length) picker.set(rows.filter((r) => r.n).slice(0, 3).map((r) => r.d));
+        if (!picker.keys().length) picker.set(rows.filter((r) => r.value != null).slice(0, 3).map((r) => r.d));
         const shown = runs.filter((r) => r.kind === "mcm" || direct.checked);
         const series = [];
         Object.keys(byDev).forEach((d) => ["mcm", "direct"].forEach((kind) => {
@@ -489,6 +501,10 @@
       const kinds = [...new Set(camps.map((r) => r.kind))];
       const depths = [...new Set(camps.flatMap((r) => Object.keys(r.every).map(Number)))].sort((a, b) => a - b);
       let depth = depths.includes(3) ? 3 : depths[0], kind = "mcm";
+      const PALETTE = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--c4)", "var(--c5)", "var(--c6)", "var(--c7)", "var(--c8)"];
+      const tripletDevices = [...new Set(camps.map((r) => r.device))].sort((a, b) => dev(a).name.localeCompare(dev(b).name));
+      const colOf = (d) => PALETTE[tripletDevices.indexOf(d) % PALETTE.length];     // follows the device
+      $("#tripletAll").addEventListener("change", () => draw());
       const host = $("#tripletChart");
       const pct = (v, q) => { const s = [...v].sort((a, b) => a - b), i = (s.length - 1) * q, lo = Math.floor(i); return s[lo] + (s[Math.min(lo + 1, s.length - 1)] - s[lo]) * (i - lo); };
 
@@ -497,7 +513,14 @@
         const kHost = $("#tripletKind");
         kHost.hidden = kinds.length < 2;
         seg(kHost, kinds.map((k) => ({ key: k, label: k === "mcm" ? "MCM" : "direct" })), kind, (k) => { kind = k; draw(); });
-        const rows = camps.filter((r) => r.kind === kind && r.every[String(depth)]).map((r) => {
+        let pool = camps.filter((r) => r.kind === kind && r.every[String(depth)]);
+        if (!$("#tripletAll").checked) {                    // each device's campaign with the highest median
+          const bestOf = {};
+          const medAt = (r) => pct(r.every[String(depth)].filter((x) => x != null), 0.5);
+          pool.forEach((r) => { if (!bestOf[r.device] || medAt(r) > medAt(bestOf[r.device])) bestOf[r.device] = r; });
+          pool = Object.values(bestOf);
+        }
+        const rows = pool.map((r) => {
           const v = r.every[String(depth)].filter((x) => x != null), q = r.median.find((x) => x.p === depth) || {};
           return { r, v, med: pct(v, 0.5), q25: pct(v, 0.25), q75: pct(v, 0.75), lo: pct(v, 0.05), hi: pct(v, 0.95), thr: q.threshold, ideal: q.r_ideal };
         }).sort((a, b) => b.med - a.med);
@@ -522,7 +545,7 @@
         if (ideal != null) el("line", { x1: X(ideal), x2: X(ideal), y1: m.t, y2: H - m.b, stroke: "var(--faint)", "stroke-dasharray": "2 3", "stroke-width": 1.5 }, svg);
         const hits = [];
         rows.forEach((row, i) => {
-          const y = Yc(i), col = modColor(row.r.device), h = Math.min(18, band * 0.45);
+          const y = Yc(i), col = colOf(row.r.device), h = Math.min(18, band * 0.45);
           el("text", { x: m.l - 10, y: y - 2, "text-anchor": "end", class: "row-label" }, svg).textContent = dev(row.r.device).name;
           el("text", { x: m.l - 10, y: y + 12, "text-anchor": "end", class: "row-sub" }, svg).textContent = `${fShort(row.r.date)} ${row.r.date.slice(0, 4)} · ${row.v.length} triplets`;
           row.v.forEach((v, j) => el("circle", { cx: X(v), cy: y + ((j * 7919) % 100 / 100 - 0.5) * h * 1.6, r: 2, fill: col, opacity: 0.35 }, svg));
@@ -545,7 +568,7 @@
             + (above != null ? `<br><span class="k">above random + 3σ:</span> ${above} of ${row.v.length}` : ""), ev.clientX, ev.clientY);
         });
         svg.addEventListener("pointerleave", hideTip);
-        $("#tripletLegend").innerHTML = `<span><i class="dot" style="background:var(--sc)"></i>superconducting</span><span><i class="dot" style="background:var(--ion)"></i>trapped ion</span>`
+        $("#tripletLegend").innerHTML = [...new Set(rows.map((x) => x.r.device))].map((d) => `<span><i class="dot" style="background:${colOf(d)}"></i>${esc(dev(d).name)}</span>`).join("")
           + `<span>box: quartiles · bar: median · line: 5th–95th percentile · dots: one per triplet</span><span><i class="dash" style="border-top-color:var(--faint)"></i>random + 3σ</span><span><i class="dot2"></i>noiseless</span>`;
       }
       draw();

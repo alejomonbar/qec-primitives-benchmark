@@ -101,5 +101,45 @@
   },
   "submitted": "2026-11-11T12:33:57",
   "status": "collected"
+ },
+ {
+  "manifest": "data/manifests/ibm_chicago/20261111_135143_ibm_chicago_surface_d3.json",
+  "experiment": "qec",
+  "backend": "ibm_chicago",
+  "config": {
+   "code": "surface",
+   "d": [
+    3,
+    5
+   ],
+   "ps": [
+    1,
+    2,
+    3,
+    5,
+    7,
+    10
+   ],
+   "shots": 1000,
+   "delta": 0.5,
+   "frames": [
+    "Z",
+    "X",
+    "XZ"
+   ],
+   "direct": false,
+   "positions": 11,
+   "max_coupler_error": 0.3,
+   "max_readout_error": 0.3,
+   "experiment": "qec",
+   "backend": "ibm_chicago",
+   "provider": {
+    "account": "mcm-primitives",
+    "max_circuits_per_job": 256
+   },
+   "local": false
+  },
+  "submitted": "2026-11-11T13:51:48",
+  "status": "collected"
  }
 ]
