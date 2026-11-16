@@ -178,5 +178,42 @@
   },
   "submitted": "2026-11-11T14:14:31",
   "status": "collected"
+ },
+ {
+  "manifest": "data/manifests/ibm_chicago/20261116_120931_ibm_chicago_surface_code_memory.json",
+  "experiment": "memory",
+  "backend": "ibm_chicago",
+  "config": {
+   "code": "surface",
+   "d": [
+    3,
+    5
+   ],
+   "rounds": [
+    1,
+    2,
+    3,
+    5,
+    7,
+    10
+   ],
+   "bases": [
+    "Z",
+    "X"
+   ],
+   "shots": 4000,
+   "p_2q_model": 0.003,
+   "positions": 11,
+   "max_coupler_error": 0.3,
+   "max_readout_error": 0.3,
+   "experiment": "memory",
+   "backend": "ibm_chicago",
+   "provider": {
+    "account": "mcm-primitives"
+   },
+   "local": false
+  },
+  "submitted": "2026-11-16T12:09:34",
+  "status": "collected"
  }
 ]
