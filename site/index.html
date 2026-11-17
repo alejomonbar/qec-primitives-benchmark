@@ -128,8 +128,8 @@
       <div class="chips" id="memChips" aria-label="Devices"></div>
       <div class="grid-2">
         <article class="panel">
-          <div class="panel-head"><h3>Logical error probability vs rounds</h3><span>median over patches, band: interquartile range</span></div>
-          <div class="toolbar"><label>Sitting <select id="memSitting"></select></label></div>
+          <div class="panel-head"><h3>Logical error probability vs rounds</h3><span id="memSub">best sitting of each device · median over patches, band: interquartile range</span></div>
+          <div class="toolbar"><span class="seg" id="memMode" role="tablist" aria-label="Show" style="margin:0"></span><label id="memSittingBox" hidden>Sitting <select id="memSitting"></select></label></div>
           <div class="chart tall" id="memChart"></div>
           <div class="legend" id="memLegend"></div>
         </article>
