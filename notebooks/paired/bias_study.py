@@ -7,7 +7,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.19.5
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: .venv (3.12.12)
 #     language: python
 #     name: python3
 # ---
@@ -448,7 +448,7 @@ print(f"{'runs raised':>14} " + "".join((f"{sum(1 for v in across[d] if v > 0)}/
 # %% [markdown]
 # ## 9. What the run says
 #
-# Fill this in from the cells above; the numbers that mattered when this notebook was written were:
+# The numbers that mattered when this notebook was written were:
 #
 # * the noiseless marginals are $1/2$ to $10^{-15}$, so every departure measured here is noise;
 # * the $Z$ frame is biased toward $|0\rangle$ by about an eighth of a shot and varies five times more between

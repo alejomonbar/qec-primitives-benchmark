@@ -75,7 +75,7 @@
       const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": cfg.aria || "" }, host);
       const all = cfg.series.flatMap((s) => s.pts.filter((p) => p.y != null));
       if (!all.length) { el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", class: "empty" }, svg).textContent = "No runs to show"; return; }
-      const ys = all.flatMap((p) => [p.y, p.lo, p.hi]).filter((v) => v != null && (!cfg.yLog || v > 0));
+      const ys = all.flatMap((p) => [p.y, p.lo, p.hi, p.elo, p.ehi]).filter((v) => v != null && (!cfg.yLog || v > 0));
       let [x0, x1] = cfg.xDomain || [Math.min(...all.map((p) => p.x)), Math.max(...all.map((p) => p.x))];
       let [y0, y1] = cfg.yDomain || [Math.min(...ys), Math.max(...ys)];
       (cfg.refs || []).forEach((r) => { y0 = Math.min(y0, r.y); y1 = Math.max(y1, r.y); });
@@ -111,11 +111,23 @@
           const b = pts.filter((p) => p.lo != null && p.hi != null);
           if (b.length > 1) el("path", { class: "iqr", fill: col, d: b.map((p, i) => `${i ? "L" : "M"}${X(p.x)},${Y(p.hi)}`).join("") + [...b].reverse().map((p) => `L${X(p.x)},${Y(p.lo)}`).join("") + "Z" }, g);
         }
-        if (pts.length > 1) el("path", { d: pts.map((p, i) => `${i ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join(""), fill: "none", stroke: col, "stroke-width": emph ? 2 : 1.2, "stroke-dasharray": s.dash === true ? "5 4" : s.dash || "none", "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+        if (pts.length > 1 && !s.noLine) el("path", { d: pts.map((p, i) => `${i ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join(""), fill: "none", stroke: col, "stroke-width": emph ? 2 : 1.2, "stroke-dasharray": s.dash === true ? "5 4" : s.dash || "none", "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
         pts.forEach((p) => {
           const cx = X(p.x), cy = Y(p.y);
-          if ((emph && !s.noDots) || pts.length === 1) {
-            el("circle", { cx, cy, r: emph ? 4.5 : 3, fill: p.hollow ? "var(--card)" : col, stroke: p.hollow ? col : "var(--card)", "stroke-width": 2 }, g);
+          if (p.elo != null && p.ehi != null) {               // error bar, with caps
+            const y0e = Y(Math.max(p.elo, cfg.yLog ? 1e-12 : -Infinity)), y1e = Y(p.ehi);
+            [[cx, y0e, cx, y1e], [cx - 3.5, y0e, cx + 3.5, y0e], [cx - 3.5, y1e, cx + 3.5, y1e]].forEach(([a, b, c, d]) =>
+              el("line", { x1: a, y1: b, x2: c, y2: d, stroke: col, "stroke-width": emph ? 1.3 : 1, opacity: emph ? 0.9 : 0.6 }, g));
+          }
+          if ((emph && !s.noDots) || pts.length === 1 || s.noLine) {
+            const r = emph ? 4.5 : 3;
+            if ((p.marker || s.marker) === "plus") {         // a "+" marker, for |+>_L
+              const k = r + 1.5;
+              el("line", { x1: cx - k, y1: cy, x2: cx + k, y2: cy, stroke: col, "stroke-width": emph ? 2.5 : 1.6, "stroke-linecap": "round" }, g);
+              el("line", { x1: cx, y1: cy - k, x2: cx, y2: cy + k, stroke: col, "stroke-width": emph ? 2.5 : 1.6, "stroke-linecap": "round" }, g);
+            } else {
+              el("circle", { cx, cy, r, fill: p.hollow ? "var(--card)" : col, stroke: p.hollow ? col : "var(--card)", "stroke-width": 2 }, g);
+            }
           }
           if (!s.noHit) hit.push({ cx, cy, s, p, emph });
         });
@@ -607,10 +619,16 @@
       if (!runs.length) { $("#memory").hidden = true; return; }
       const codes = [...new Set(runs.map((r) => r.code))].sort();
       let code = codes[0], pick = null;
+      const picker = Picker(() => { pick = null; draw(); });
 
       function draw() {
         seg($("#memCode"), codes.map((c) => ({ key: c, label: codeLabel(c) })), code, (k) => { code = k; pick = null; draw(); });
-        const rs = runs.filter((r) => r.code === code).sort((a, b) => b.sitting.localeCompare(a.sitting) || a.device.localeCompare(b.device));
+        const all = runs.filter((r) => r.code === code);
+        const devices = [...new Set(all.map((r) => r.device))].sort((a, b) => dev(a).name.localeCompare(dev(b).name));
+        if (!picker.keys().some((k) => devices.includes(k))) picker.set(devices.slice(0, 3));
+        renderChips($("#memChips"), devices.map((d) => ({ key: d, label: dev(d).name })), picker);
+        const rs = all.filter((r) => picker.has(r.device)).sort((a, b) => b.sitting.localeCompare(a.sitting) || a.device.localeCompare(b.device));
+        if (!rs.length) { $("#memChart").innerHTML = $("#memTime").innerHTML = ""; return; }
         if (!pick || !rs.find((r) => r.id === pick)) pick = (rs.find((r) => Object.keys(r.bases).length === 2 && r.bases.Z.R.length > 2) || rs[0]).id;
         const sel = $("#memSitting");
         sel.innerHTML = rs.map((r) => `<option value="${esc(r.id)}"${r.id === pick ? " selected" : ""}>${esc(dev(r.device).name)} · ${fDate(r.date)} ${sittingTime(r.sitting)} · ${r.patches} patches${r.history === "last" ? " · last-round record" : ""}</option>`).join("");
@@ -621,10 +639,15 @@
         rs.filter((r) => r !== mine).forEach((r) => Object.entries(r.bases).forEach(([b, v]) => series.push({
           key: r.id + b, label: `${BASIS[b].label} · ${dev(r.device).name} ${fShort(r.date)}`, color: null,
           pts: v.R.map((R, i) => ({ x: R, y: v.median[i], run: r, basis: b, i })) })));
+        const devCol = picker.color(mine.device);          // the device's colour, as in the chart beside it
         Object.entries(mine.bases).forEach(([b, v]) => series.push({
-          key: mine.id + b, label: BASIS[b].label, color: BASIS[b].color, band: true,
+          key: mine.id + b, label: BASIS[b].label, color: devCol, band: true, dash: b === "X" ? "6 4" : null, marker: b === "X" ? "plus" : null,
           pts: v.R.map((R, i) => ({ x: R, y: v.median[i], lo: v.q25[i], hi: v.q75[i], run: mine, basis: b, i })) }));
-        $("#memLegend").innerHTML = Object.keys(mine.bases).map((b) => `<span><i style="background:${BASIS[b].color}"></i>${BASIS[b].label} (${b} memory)</span>`).join("")
+        const plusIcon = (c) => `<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1v10M1 6h10" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
+        $("#memLegend").innerHTML = `<span><i class="dot" style="background:${devCol}"></i>${esc(dev(mine.device).name)}</span><span style="flex-basis:100%;height:0"></span>`
+          + Object.keys(mine.bases).sort().reverse().map((b) => b === "Z"
+            ? `<span><i style="background:${devCol}"></i><i class="dot" style="background:${devCol}"></i>|0⟩L (Z memory)</span>`
+            : `<span><i style="height:0;background:none;border-radius:0;border-top:2px dashed ${devCol}"></i>${plusIcon(devCol)}|+⟩L (X memory)</span>`).join("")
           + `<span><i class="iqr" style="background:var(--muted)"></i>interquartile range over ${mine.patches} patches</span><span><i style="background:var(--ctx)"></i>other sittings</span>`;
         const Rs = [...new Set(rs.flatMap((r) => Object.values(r.bases).flatMap((v) => v.R)))].sort((a, b) => a - b);
         lineChart($("#memChart"), {
@@ -635,20 +658,28 @@
             + `<br><span class="k">${esc(dev(pt.run.device).name)} · ${fDate(pt.run.date)} · ${fInt(v.shots)} shots per patch</span>`; },
         });
 
-        /* epsilon_L per sitting */
+        /* epsilon_L per sitting: one colour per device, o for |0>_L and + for |+>_L, the fit error as bars */
         const tOf = (r) => Date.UTC(+r.sitting.slice(0, 4), +r.sitting.slice(4, 6) - 1, +r.sitting.slice(6, 8), +r.sitting.slice(9, 11) || 0, +r.sitting.slice(11, 13) || 0);
-        const tSeries = ["Z", "X"].map((b) => ({
-          key: b, label: BASIS[b].label, color: BASIS[b].color,
-          pts: rs.filter((r) => r.bases[b] && r.bases[b].eps_round != null && r.bases[b].R.length > 2).map((r) => ({ x: tOf(r), y: r.bases[b].eps_round, run: r, basis: b })),
-        })).filter((s) => s.pts.length);
+        const eligible = (r, b) => r.bases[b] && r.bases[b].eps_round != null && r.bases[b].R.length > 2;
+        const tSeries = [];
+        picker.keys().filter((d) => devices.includes(d)).forEach((d) => ["Z", "X"].forEach((b) => {
+          const pts = rs.filter((r) => r.device === d && eligible(r, b)).map((r) => {
+            const v = r.bases[b], e = v.eps_err || 0;
+            return { x: tOf(r), y: v.eps_round, elo: v.eps_round - e, ehi: v.eps_round + e, err: v.eps_err, run: r, basis: b };
+          });
+          if (pts.length) tSeries.push({ key: d + b, label: `${dev(d).name} · ${BASIS[b].label}`, color: picker.color(d), noLine: true, marker: b === "X" ? "plus" : null, pts });
+        }));
         const xs = tSeries.flatMap((s) => s.pts.map((p) => p.x));
         const ticks = [];
         if (xs.length) { const lo = Math.min(...xs), hi = Math.max(...xs), step = Math.max(1, Math.ceil((hi - lo) / 864e5 / 6)) * 864e5; for (let v = Math.floor(lo / 864e5) * 864e5; v <= hi + 864e5; v += step) ticks.push(v); }
-        $("#memTimeLegend").innerHTML = tSeries.map((s) => `<span><i style="background:${s.color}"></i>${s.label}</span>`).join("") + `<span class="kind-tag">sittings with at least three round counts · click a point to show it</span>`;
+        const plus = (c) => `<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1v10M1 6h10" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
+        $("#memTimeLegend").innerHTML = picker.keys().filter((d) => devices.includes(d)).map((d) => `<span><i class="dot" style="background:${picker.color(d)}"></i>${esc(dev(d).name)}</span>`).join("")
+          + `<span style="flex-basis:100%;height:0"></span><span><i class="dot" style="background:var(--muted)"></i>|0⟩L (Z memory)</span><span>${plus("var(--muted)")}|+⟩L (X memory)</span>`
+          + `<span class="kind-tag">sittings with at least three round counts · click a point to show it</span>`;
         lineChart($("#memTime"), {
           series: tSeries, xTicks: ticks, xFmt: (v) => { const d = new Date(v); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; },
           xLabel: "sitting", yLabel: "logical error per round ε_L", aria: `Logical error per round over sittings, ${codeLabel(code)}`,
-          tip: (s, pt) => `<b>${esc(s.label)}</b> · ${esc(dev(pt.run.device).name)}<br>${fDate(pt.run.date)} ${sittingTime(pt.run.sitting)}<br><span class="k">ε<sub>L</sub> =</span> ${f4(pt.y)} per round`,
+          tip: (s, pt) => `<b>${esc(s.label)}</b><br>${fDate(pt.run.date)} ${sittingTime(pt.run.sitting)} · ${pt.run.patches} patches<br><span class="k">ε<sub>L</sub> =</span> ${f4(pt.y)}${pt.err != null ? ` ± ${f4(pt.err)}` : ""} per round<br><span class="k">rounds ${pt.run.bases[pt.basis].R.join(", ")}</span>`,
           onPoint: (s, pt) => { pick = pt.run.id; draw(); },
         });
 

@@ -219,7 +219,7 @@ def build_memory(backends):
                     entry["bases"][basis] = {
                         "R": rs, "median": [num(v) for v in med], "q25": [num(v) for v in np.percentile(rates, 25, axis=0)],
                         "q75": [num(v) for v in np.percentile(rates, 75, axis=0)], "best": [num(v) for v in rates[best]],
-                        "eps_round": num(fit[0]), "shots": int(next(iter(patches.values()))[basis][rs[0]]["shots"])}
+                        "eps_round": num(fit[0]), "eps_err": num(fit[1]), "shots": int(next(iter(patches.values()))[basis][rs[0]]["shots"])}
                 if entry["bases"]:
                     out.append(entry)
     return out

@@ -125,6 +125,7 @@
         <p>The code run for real: prepare a logical state, repeat <i>R</i> rounds of syndrome extraction with the true X and Z checks, read the data, decode. |0⟩<sub>L</sub> is lost to bit flips, |+⟩<sub>L</sub> to phase flips. Shown is the logical error probability <i>P</i><sub>L</sub>, the median over the patches of a sitting, on the same patches as the LR-QAOA runs above.</p>
       </div>
       <div class="seg" id="memCode" role="tablist" aria-label="Code"></div>
+      <div class="chips" id="memChips" aria-label="Devices"></div>
       <div class="grid-2">
         <article class="panel">
           <div class="panel-head"><h3>Logical error probability vs rounds</h3><span>median over patches, band: interquartile range</span></div>
@@ -133,7 +134,7 @@
           <div class="legend" id="memLegend"></div>
         </article>
         <article class="panel">
-          <div class="panel-head"><h3>Logical error per round, sitting by sitting</h3><span>ε<sub>L</sub> from P<sub>L</sub>(R) = ½[1 − A(1 − 2ε<sub>L</sub>)<sup>R</sup>]</span></div>
+          <div class="panel-head"><h3>Logical error per round, sitting by sitting</h3><span>ε<sub>L</sub> from P<sub>L</sub>(R) = ½[1 − A(1 − 2ε<sub>L</sub>)<sup>R</sup>] · bars: fit error</span></div>
           <div class="chart tall" id="memTime"></div>
           <div class="legend" id="memTimeLegend"></div>
         </article>
