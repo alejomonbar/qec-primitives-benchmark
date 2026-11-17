@@ -13,4 +13,4 @@ direct            = true               # true adds the ancilla-free version of e
 
 [provider]
 account = "mcm-primitives"              # name of the saved QiskitRuntimeService account
-max_circuits_per_job = 32               # the whole run in one job (one queue wait); 8 splits it if error 6073 appears
+max_circuits_per_job = 128               # the whole run in one job (one queue wait); 8 splits it if error 6073 appears

@@ -215,5 +215,37 @@
   },
   "submitted": "2026-11-16T12:09:34",
   "status": "collected"
+ },
+ {
+  "manifest": "data/manifests/ibm_chicago/20261117_101043_ibm_chicago_chain2-direct2.json",
+  "experiment": "chain",
+  "backend": "ibm_chicago",
+  "config": {
+   "nq": [
+    2
+   ],
+   "ps": [
+    3,
+    5,
+    7,
+    10,
+    15,
+    20
+   ],
+   "shots": 1000,
+   "delta": 0.5,
+   "direct": true,
+   "buffer": false,
+   "chains_per_length": 0,
+   "experiment": "chain",
+   "backend": "ibm_chicago",
+   "provider": {
+    "account": "mcm-primitives",
+    "max_circuits_per_job": 128
+   },
+   "local": false
+  },
+  "submitted": "2026-11-17T10:10:49",
+  "status": "submitted"
  }
 ]
