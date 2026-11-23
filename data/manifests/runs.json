@@ -279,5 +279,32 @@
   },
   "submitted": "2026-11-23T15:55:18",
   "status": "collected"
+ },
+ {
+  "manifest": "/Users/alejomonbar/Documents/GitHub/qec-primitives-benchmark/data/manifests/iqm_emerald/20261123_220924_iqm_emerald_chain2.json",
+  "experiment": "chain",
+  "backend": "iqm_emerald",
+  "config": {
+   "nq": [
+    2
+   ],
+   "ps": [
+    3,
+    6,
+    9,
+    12
+   ],
+   "shots": 500,
+   "delta": 0.5,
+   "direct": false,
+   "buffer": false,
+   "chains_per_length": 1,
+   "experiment": "chain",
+   "backend": "iqm_emerald",
+   "local": false,
+   "provider": {}
+  },
+  "submitted": "2026-11-23T22:10:15",
+  "status": "collected"
  }
 ]

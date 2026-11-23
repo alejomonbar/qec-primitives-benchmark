@@ -1,0 +1,4310 @@
+{
+ "backend": "iqm_emerald",
+ "vendor": "iqm",
+ "created": "2026-11-23T22:09:24.406957",
+ "shots": 500,
+ "delta": 0.5,
+ "depths": [
+  3,
+  6,
+  9,
+  12
+ ],
+ "kinds": [
+  "mcm"
+ ],
+ "frames": [
+  "Z"
+ ],
+ "buffer": false,
+ "max_per_batch": null,
+ "estimate": {
+  "unit": "USD",
+  "total": 74.80000000000001,
+  "usd": 74.80000000000001
+ },
+ "simulated": false,
+ "noise_model": null,
+ "jobs": [
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/bfb29f23-14ba-4335-804c-c8361e60fe69",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 0,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        8
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        29,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        35,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/012559c3-c6c9-481e-b61a-9afd9c0acd72",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 1,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        1,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        21,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        49
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        47
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/46a20ed5-b0bd-4cfd-b552-bd63535714bc",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 2,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        7,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        8,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        17
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        27,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        24,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        35
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        47,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/9c90c82f-70b0-48cb-a6d8-264471b92d67",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 3,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        9,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        23,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        36
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8d899bbb-b28e-4b96-9329-9d9dc58629c9",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 4,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        3,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        34
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        49,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/91610576-0c11-4184-9f98-fb4d656f3f61",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 5,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        17,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        21,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        29
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        32,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        38,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        44,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/3af874b0-b85f-4fd0-ad3f-0f67cc6f612c",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 6,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        4,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        14,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/1017673b-bb2c-4178-8028-9e1d4350d3da",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 7,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        2,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        23
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        38,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        49,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c00fe681-4a6e-4da3-84b3-15959b93dae7",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 8,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        28,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/bdd37211-cf71-4333-bc70-894e87124356",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 9,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        34,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        44,
+        50
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/6e361d74-2a3e-4552-8963-0a40132890ec",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 10,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        40,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/624972b4-2130-4fa7-bb22-48584d78a2e6",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 11,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        43
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/804e9959-d3e3-45fc-9edc-9aed5ec93be4",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 12,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        41
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fc164c2e-3d02-4592-a59d-4fc5b9edf3e3",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 13,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/85afe69c-8af8-4fe9-a11f-eefeb94f7f8d",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 14,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/7e2ff927-a615-44c3-842d-f52bff56f0d8",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 15,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/d683ab5c-8942-4ffe-8448-0cca43e13a3d",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 3,
+     "batch": 16,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/afe62cda-a79f-49ab-ad08-e14ec0616f6c",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 0,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        8
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        29,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        35,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/cb50ffc4-cbb7-4d5e-86cb-46af7b24df83",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 1,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        1,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        21,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        49
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        47
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/cfc942da-534c-4cd2-b17c-a580ff4f8402",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 2,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        7,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        8,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        17
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        27,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        24,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        35
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        47,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/1883b190-f181-4a1b-a111-f4d0eab7d858",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 3,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        9,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        23,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        36
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/4b04df9d-b5ee-4fed-a3c1-3b7e4d0e6f06",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 4,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        3,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        34
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        49,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/5518e2c0-900b-4b11-a4e7-b2f17f2962e0",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 5,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        17,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        21,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        29
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        32,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        38,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        44,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/05a28a59-f9ae-4b58-bdca-a9ad3b3f9b29",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 6,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        4,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        14,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8a6380c2-1519-4d64-b42e-60f758f27cf3",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 7,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        2,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        23
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        38,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        49,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/9964d03a-7e07-4397-bcd6-cebf9817d46d",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 8,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        28,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/52281e59-417e-496d-b555-a541b44cff02",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 9,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        34,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        44,
+        50
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fe9e5ed0-6031-4754-ab54-9f02b0f55113",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 10,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        40,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/b95df9a2-7bc0-48af-b6d8-ff354441c336",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 11,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        43
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/d26a8059-a8c4-4f7f-8dea-9ff4755143d4",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 12,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        41
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/b8ac570a-a784-4475-baa1-91dface22b45",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 13,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8283acf5-adb9-4296-9eb3-bfa0af40c650",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 14,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/a0455740-f01f-44d0-b834-d6b834a28d35",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 15,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/c28f695e-5abe-4f9d-bbc8-80ab2051d216",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 6,
+     "batch": 16,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/df939d43-78ce-48c8-bb92-f10673839de8",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 0,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        8
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        29,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        35,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/93078a80-4625-4397-ae27-ca32e759058d",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 1,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        1,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        21,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        49
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        47
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/efb165c6-d78b-42be-b012-3cede478e70a",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 2,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        7,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        8,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        17
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        27,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        24,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        35
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        47,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/5ac8901e-9e7f-4941-b579-ed898e846664",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 3,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        9,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        23,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        36
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/2db763ef-d163-4863-852e-d48587610af6",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 4,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        3,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        34
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        49,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/59856453-7de0-44a1-a630-3578b5ede610",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 5,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        17,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        21,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        29
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        32,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        38,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        44,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/37b84896-c893-4516-9894-383e864d7f06",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 6,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        4,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        14,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/d8e93472-0426-4211-9d88-e99f5f12069b",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 7,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        2,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        23
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        38,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        49,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/a8002a39-3d4c-4a5c-b7ee-da5f09b2299f",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 8,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        28,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fd8a123e-1c87-4472-8825-d9d550b7bcb0",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 9,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        34,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        44,
+        50
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/34a8e0ce-b5ae-403f-ac23-2b475d99debc",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 10,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        40,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/e61f5a25-2556-4ba3-95bd-79ee072c23d9",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 11,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        43
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/b85d9b6b-2e10-4a73-8c99-aaafbdc91b7c",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 12,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        41
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/03afe23d-5970-4124-a6ea-7c9811ac962c",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 13,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8c3e78ca-e489-4699-a2cb-68830e1a025d",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 14,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/83405ad9-4e2f-43c7-a2b3-c3c84e46fc76",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 15,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/bff34124-9896-4096-b33f-5ab3e4bce65f",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 9,
+     "batch": 16,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/6cf388f3-f52e-4135-8f96-9f37a4e0121d",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 0,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        8
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        29,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        35,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/078a7b3a-5573-43cf-a2b6-35d3fbf23bba",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 1,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        1,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        10,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        21,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        49
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        47
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/fd9d5830-9cab-4101-ae56-f9e69b2afb59",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 2,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        7,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        8,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        17
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        27,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        24,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        35
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        47,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/594f416a-7add-440c-9221-a8b6027efbdf",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 3,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        9,
+        10,
+        18
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        11,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        23,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        37,
+        36
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/8e53d05a-88f7-4053-b95c-c215b3471f92",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 4,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        4,
+        3,
+        9
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        29,
+        30,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        34
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        49,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/3f0ed828-90f4-405d-895d-1074a43dfeb4",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 5,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        9,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        13
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        17,
+        25
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        21,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        22,
+        30,
+        29
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        32,
+        40
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        38,
+        37,
+        45
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        48
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        44,
+        43,
+        49
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/0e876a54-47e7-4326-9eb0-cca342de1101",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 6,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        3,
+        4,
+        10
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        12,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        14,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        15,
+        16,
+        24
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        17,
+        25,
+        26
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        19,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        36,
+        37,
+        38
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        41,
+        42,
+        43
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        47,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/f83e46f1-51d5-41dc-93c4-5a37ed7d864b",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 7,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        1,
+        2,
+        6
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        11,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        7,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        16,
+        24,
+        23
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        19,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        30,
+        38,
+        37
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        44
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        49,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/5b5f95d1-75cc-40d7-90b2-ecd89e3fc90f",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 8,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        5,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        20,
+        28,
+        27
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        33,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        43,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/edea7595-4828-4713-8ed9-84c899fb24d5",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 9,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        6,
+        5,
+        11
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        13,
+        12,
+        20
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        35,
+        34,
+        42
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        40,
+        41,
+        47
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        44,
+        50
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/31cd2c3b-e320-47b2-84b6-f9ae60984c4e",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 10,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        7
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        28
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        32,
+        40,
+        41
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/10cf561b-993c-42e0-a461-59a55f618cc0",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 11,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        5
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        43
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/5257e8d4-0dd9-4aff-ac05-1cdb9325d3c5",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 12,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        20,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        34,
+        42,
+        41
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/b3262cc4-2279-49bb-b4e2-3ff14e5c6ec9",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 13,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        21
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        41,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/25616cec-0693-4bd4-8447-22f0ea9b6d42",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 14,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        13,
+        14
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        43,
+        42,
+        48
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/23685564-43b6-4307-b614-73baa4beedef",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 15,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        12,
+        11,
+        19
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        42,
+        48,
+        52
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "job_id": "arn:aws:braket:eu-north-1:949872181123:quantum-task/e4dd5d35-980f-4dfd-a1d3-4a1ea8ba21ad",
+   "tasks": [
+    {
+     "kind": "mcm",
+     "frame": "Z",
+     "depth": 12,
+     "batch": 16,
+     "index": 0,
+     "instances": [
+      {
+       "family": "chain",
+       "qubits": [
+        2,
+        6,
+        12
+       ]
+      },
+      {
+       "family": "chain",
+       "qubits": [
+        33,
+        34,
+        42
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
