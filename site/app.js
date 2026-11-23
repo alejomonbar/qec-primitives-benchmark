@@ -541,22 +541,44 @@
       const PALETTE = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--c4)", "var(--c5)", "var(--c6)", "var(--c7)", "var(--c8)"];
       const tripletDevices = [...new Set(camps.map((r) => r.device))].sort((a, b) => dev(a).name.localeCompare(dev(b).name));
       const colOf = (d) => PALETTE[tripletDevices.indexOf(d) % PALETTE.length];     // follows the device
-      $("#tripletAll").addEventListener("change", () => draw());
       const host = $("#tripletChart");
+      // which campaigns are drawn: null follows the preset (each device's best at this depth, or all); a set once chips are clicked
+      let preset = "best", chosen = null, shown = new Set();
+      const sameDay = (r) => camps.filter((x) => x.device === r.device && x.kind === r.kind && x.date === r.date).length > 1;
+      const hhmm = (r) => { const t = (r.id.split("/")[1] || "").split("_")[1] || ""; return sameDay(r) && t ? ` ${t.slice(0, 2)}:${t.slice(2, 4)}` : ""; };
+      const campLabel = (r) => `${dev(r.device).name} · ${fShort(r.date)}${hhmm(r)}`;
       const pct = (v, q) => { const s = [...v].sort((a, b) => a - b), i = (s.length - 1) * q, lo = Math.floor(i); return s[lo] + (s[Math.min(lo + 1, s.length - 1)] - s[lo]) * (i - lo); };
 
       function draw() {
         seg($("#tripletDepth"), depths.map((p) => ({ key: String(p), label: `p = ${p}` })), String(depth), (k) => { depth = +k; draw(); });
         const kHost = $("#tripletKind");
         kHost.hidden = kinds.length < 2;
-        seg(kHost, kinds.map((k) => ({ key: k, label: k === "mcm" ? "MCM" : "direct" })), kind, (k) => { kind = k; draw(); });
-        let pool = camps.filter((r) => r.kind === kind && r.every[String(depth)]);
-        if (!$("#tripletAll").checked) {                    // each device's campaign with the highest median
+        seg(kHost, kinds.map((k) => ({ key: k, label: k === "mcm" ? "MCM" : "direct" })), kind, (k) => { kind = k; chosen = null; draw(); });
+        const ofKind = camps.filter((r) => r.kind === kind).sort((a, b) => dev(a.device).name.localeCompare(dev(b.device).name) || a.id.localeCompare(b.id));
+        const avail = ofKind.filter((r) => r.every[String(depth)]);
+        let on;
+        if (chosen) on = new Set(chosen);
+        else if (preset === "all") on = new Set(avail.map((r) => r.id));
+        else {                                               // each device's campaign with the highest median
           const bestOf = {};
           const medAt = (r) => pct(r.every[String(depth)].filter((x) => x != null), 0.5);
-          pool.forEach((r) => { if (!bestOf[r.device] || medAt(r) > medAt(bestOf[r.device])) bestOf[r.device] = r; });
-          pool = Object.values(bestOf);
+          avail.forEach((r) => { if (!bestOf[r.device] || medAt(r) > medAt(bestOf[r.device])) bestOf[r.device] = r; });
+          on = new Set(Object.values(bestOf).map((r) => r.id));
         }
+        shown = on;
+        seg($("#tripletPreset"), [{ key: "best", label: "best of each device" }, { key: "all", label: "every campaign" }], chosen ? "" : preset,
+          (k) => { preset = k; chosen = null; draw(); });
+        const chipHost = $("#tripletChips");
+        chipHost.innerHTML = "";
+        ofKind.forEach((r) => {
+          const has = !!r.every[String(depth)], b = document.createElement("button");
+          b.type = "button"; b.className = "chip"; b.setAttribute("aria-pressed", has && on.has(r.id));
+          b.disabled = !has; if (!has) { b.style.opacity = 0.45; b.style.cursor = "default"; b.title = `no data at p = ${depth}`; }
+          b.innerHTML = `<i style="background:${on.has(r.id) && has ? colOf(r.device) : "var(--ctx)"}"></i>${esc(campLabel(r))}`;
+          b.addEventListener("click", () => { const s = new Set(shown); s.has(r.id) ? s.delete(r.id) : s.add(r.id); chosen = s; draw(); });
+          chipHost.appendChild(b);
+        });
+        const pool = avail.filter((r) => on.has(r.id));
         const rows = pool.map((r) => {
           const v = r.every[String(depth)].filter((x) => x != null), q = r.median.find((x) => x.p === depth) || {};
           return { r, v, med: pct(v, 0.5), q25: pct(v, 0.25), q75: pct(v, 0.75), lo: pct(v, 0.05), hi: pct(v, 0.95), thr: q.threshold, ideal: q.r_ideal };
@@ -564,7 +586,8 @@
         host.style.height = Math.max(220, 60 + rows.length * 44) + "px";
         host.innerHTML = "";
         const W = host.clientWidth, H = host.clientHeight;
-        if (!W || !rows.length) return;
+        if (!rows.length) { $("#tripletLegend").innerHTML = "<span>Pick a campaign above.</span>"; return; }
+        if (!W) return;
         const m = { t: 10, r: 18, b: 40, l: 170 };
         const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Distribution of r over every triplet at p = ${depth}` }, host);
         const all = rows.flatMap((x) => x.v).concat(rows.map((x) => x.thr), rows.map((x) => x.ideal)).filter((v) => v != null);
@@ -584,7 +607,7 @@
         rows.forEach((row, i) => {
           const y = Yc(i), col = colOf(row.r.device), h = Math.min(18, band * 0.45);
           el("text", { x: m.l - 10, y: y - 2, "text-anchor": "end", class: "row-label" }, svg).textContent = dev(row.r.device).name;
-          el("text", { x: m.l - 10, y: y + 12, "text-anchor": "end", class: "row-sub" }, svg).textContent = `${fShort(row.r.date)} ${row.r.date.slice(0, 4)} · ${row.v.length} triplets`;
+          el("text", { x: m.l - 10, y: y + 12, "text-anchor": "end", class: "row-sub" }, svg).textContent = `${fShort(row.r.date)} ${row.r.date.slice(0, 4)}${hhmm(row.r)} · ${row.v.length} triplets`;
           row.v.forEach((v, j) => el("circle", { cx: X(v), cy: y + ((j * 7919) % 100 / 100 - 0.5) * h * 1.6, r: 2, fill: col, opacity: 0.35 }, svg));
           el("line", { x1: X(row.lo), x2: X(row.hi), y1: y, y2: y, stroke: "var(--ink)", "stroke-width": 1.2 }, svg);
           el("rect", { x: X(row.q25), y: y - h / 2, width: Math.max(1, X(row.q75) - X(row.q25)), height: h, fill: col, "fill-opacity": 0.25, stroke: col, class: "box", rx: 2 }, svg);
