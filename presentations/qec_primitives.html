@@ -1,0 +1,1470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>QEC Primitives Benchmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=STIX+Two+Text:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#071526; --panel:#0c1e33; --panel2:#11263f; --line:#1c3350; --line2:#2b4566;
+  --ink:#eceff3; --ink2:#b6c3d4; --muted:#7f90a8;
+  --yellow:#FAEB5A; --jsc:#023D6B; --jscl:#ADBDE3;
+  --xc:#B3A2E6; --zc:#6CB4E8; --err:#F0627A; --ok:#8FC23A;
+  --gutter:max(16px, env(safe-area-inset-left));
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1440px;margin:0 auto;padding:20px var(--gutter) 40px}
+header{margin-bottom:14px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--jscl)}
+h1{font-size:clamp(22px,3vw,32px);font-weight:600;margin:4px 0 0;letter-spacing:-.01em;text-wrap:balance}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+@media (min-width:1100px){.layout{grid-template-columns:minmax(0,1fr) 360px;align-items:start}}
+.stage{margin:0;background:radial-gradient(120% 100% at 50% 0%,#0d2038 0%,#071526 70%);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stage svg{display:block;width:100%;height:auto}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid var(--line);background:var(--panel)}
+.btn{appearance:none;border:1px solid var(--line2);background:var(--panel2);color:var(--ink);font:inherit;font-size:14px;height:36px;min-width:40px;padding:0 12px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--muted)}
+.btn:focus-visible,input:focus-visible{outline:2px solid var(--jscl);outline-offset:2px}
+.btn.primary{background:var(--jscl);color:var(--jsc);border-color:var(--jscl);font-weight:600;min-width:84px}
+.btn.nudge{animation:nudge 1.4s ease-in-out infinite}
+@keyframes nudge{0%,100%{box-shadow:0 0 0 0 rgba(173,189,227,.6)}50%{box-shadow:0 0 0 7px rgba(173,189,227,0)}}
+@media (prefers-reduced-motion:reduce){.btn.nudge{animation:none;outline:2px solid var(--jscl);outline-offset:2px}}
+input[type=range]{flex:1 1 180px;accent-color:var(--jscl);min-width:120px}
+.tiny{font-size:13px;color:var(--ink2);display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.clock{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);min-width:76px;text-align:right}
+.pills{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 14px;background:var(--panel)}
+.pill{appearance:none;border:1px solid var(--line);background:transparent;color:var(--ink2);font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;cursor:pointer}
+.pill .n{font-family:"IBM Plex Mono",monospace;color:var(--muted);margin-right:4px}
+.pill.on{border-color:var(--jscl);color:var(--ink);background:#123058}
+.pill.on .n{color:var(--jscl)}
+aside{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.step{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--jscl);letter-spacing:.04em}
+aside h2{font-size:21px;line-height:1.25;margin:4px 0 10px;font-weight:600;text-wrap:balance}
+aside p{margin:0 0 10px;color:var(--ink2);font-size:15px}
+aside p b{color:var(--ink);font-weight:600}
+.m{font-family:"STIX Two Text",serif;font-style:italic;font-size:1.08em;color:var(--ink)}
+.m sub,.m sup{font-size:.7em;font-style:normal}
+.real{margin-top:14px;border-left:3px solid var(--jscl);background:#0f2a4a;padding:10px 12px;border-radius:0 8px 8px 0}
+.real .lab{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--jscl);margin-bottom:2px}
+.real p{margin:0;font-size:14px;color:var(--ink)}
+.real code{font-family:"IBM Plex Mono",monospace;font-size:.9em;color:var(--jscl);overflow-wrap:anywhere}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sw.dot{border-radius:50%}
+svg text{font-family:"IBM Plex Sans",system-ui,sans-serif}
+
+/* presentation mode */
+body.present{overflow:hidden}
+/* a slide: heading on top, drawing and narrative side by side, everything sized from the viewport */
+body.present .wrap{max-width:none;height:100vh;height:100dvh;padding:3.2vh 3vw 3vh;display:flex;flex-direction:column}
+body.present header{margin-bottom:2vh;flex:0 0 auto}
+body.present .eyebrow{font-size:clamp(12px,1vw,18px)}
+body.present h1{font-size:clamp(24px,2.5vw,48px)}
+body.present .pills{display:none}
+body.present .layout{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,27vw,560px);gap:2.4vw;align-items:start}
+body.present .layout>div{height:100%;min-height:0;display:flex;align-items:flex-start}
+body.present .stage{border:0;border-radius:0;width:100%;height:100%;display:flex;background:transparent}
+body.present .stage svg{flex:1 1 auto;min-height:0;width:100%;height:100%}
+body.present aside{max-height:100%;overflow:auto;padding:2.2vh 1.6vw}
+body.present .step{font-size:clamp(12px,.85vw,16px)}
+body.present aside h2{font-size:clamp(20px,1.6vw,32px)}
+body.present aside p{font-size:clamp(15px,1.05vw,21px)}
+body.present .real p{font-size:clamp(13px,.92vw,18px)}
+body.present .real .lab{font-size:clamp(11px,.75vw,14px)}
+body.present .legend{font-size:clamp(12px,.85vw,16px)}
+body.present.cap-off .layout{grid-template-columns:minmax(0,1fr)}
+body.present.cap-off aside{display:none}
+body.present .controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(760px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;opacity:0;transition:opacity .35s;z-index:5}
+body.present.ui-on .controls,body.present .controls:hover,body.present .controls:focus-within{opacity:1}
+body.present.no-cursor{cursor:none}
+#presCap{display:none}
+@media (max-width:560px){aside{padding:14px 16px} aside h2{font-size:19px} .clock{display:none}}
+
+/* title page */
+body.cover-on{overflow:hidden}
+#cover{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;transition:opacity .6s ease;cursor:pointer;--cvx:clamp(16px,3vw,44px)}
+#cover.gone{opacity:0;pointer-events:none}
+#cover[hidden]{display:none}
+.cv-hero{position:relative;flex:1 1 auto;min-height:clamp(180px,40vh,620px);margin:clamp(12px,2.4vw,32px) var(--cvx) 0;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;overflow:hidden;background:radial-gradient(130% 120% at 50% 0%,#0b1d33 0%,#05111f 75%)}
+#cvCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cv-hud{position:absolute;left:14px;top:10px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink2);letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 3px #000}
+.cv-hud b{color:var(--yellow);font-weight:500}
+.cv-hint{position:absolute;right:14px;top:10px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);pointer-events:none;text-align:right;text-shadow:0 1px 3px #000}
+.cv-tip{position:absolute;pointer-events:none;background:rgba(14,16,20,.94);border:1px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.45;color:var(--ink2);white-space:nowrap;opacity:0;transition:opacity .12s}
+.cv-tip.on{opacity:1}
+.cv-tip .k{font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+.cv-tip .b1{color:var(--yellow)}
+.cv-band,.cv-foot,.cv-aff{flex-shrink:0}
+.cv-band{margin-left:var(--cvx);background:var(--jsc);color:#fff;padding:clamp(16px,2.6vw,34px) var(--cvx) clamp(16px,2.4vw,30px) clamp(16px,2.2vw,30px);position:relative;overflow:hidden}
+.cv-band::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.07) 45%,transparent 60%);transform:translateX(-100%);animation:cvsheen 5.5s ease-in-out 1.2s infinite;pointer-events:none}
+@keyframes cvsheen{0%{transform:translateX(-100%)}35%,100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.cv-band::after{animation:none}}
+.cv-band h1{font-size:clamp(26px,4.1vw,58px);line-height:1.08;font-weight:600;margin:0;letter-spacing:-.015em;text-wrap:balance;max-width:28ch}
+.cv-band h1 .acc{color:var(--jscl)}
+.cv-sub{margin:clamp(10px,1.3vw,18px) 0 0;font-size:clamp(15px,1.55vw,22px);color:#dbe4f3;max-width:66ch;text-wrap:pretty}
+.cv-meta{margin-top:clamp(14px,1.8vw,26px);font-size:clamp(13px,1.15vw,16px);color:#b9d0e6;letter-spacing:.01em}
+.cv-meta .sep{opacity:.55;margin:0 .5em}
+.cv-foot{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 24px;padding:clamp(14px,1.8vw,22px) var(--cvx) clamp(14px,2vw,26px)}
+.cv-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 22px;flex:1 1 640px;max-width:1100px}
+@media (max-width:900px){.cv-chips{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cv-chip{border-left:2px solid var(--line2);padding:2px 0 2px 12px;transition:border-color .4s}
+.cv-chip.lit{border-left-color:var(--jscl)}
+.cv-chip .v{font-size:clamp(19px,1.9vw,26px);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+.cv-chip .v small{font-size:.62em;font-weight:500;color:var(--ink2);margin-left:3px}
+.cv-chip .l{font-size:12.5px;color:var(--muted);line-height:1.35;margin-top:2px}
+.cv-go{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.cv-go .btn{height:44px;padding:0 20px;font-size:16px}
+.cv-go .h{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted)}
+.cv-aff{padding:0 var(--cvx) clamp(12px,1.6vw,20px);font-size:12px;color:var(--muted);letter-spacing:.02em}
+.pill.cvpill .n{color:var(--muted)}
+@media (max-width:560px){.cv-hint{display:none}.cv-go{align-items:stretch;width:100%}.cv-go .btn{width:100%}}
+</style>
+</head>
+<body class="cover-on">
+<div id="cover" role="dialog" aria-modal="true" aria-labelledby="cvTitle">
+  <div class="cv-hero" id="cvHero">
+    <canvas id="cvCanvas" aria-label="Distance-5 surface-code patches running rounds of syndrome extraction: four CNOT layers into the ancillas, a mid-circuit measurement of every ancilla, and the checks an error lights up"></canvas>
+    <div class="cv-hud" id="cvHud"></div>
+    <div class="cv-hint">hover a check: its last 12 mid-circuit outcomes<br>hover a data qubit: the checks that watch it</div>
+    <div class="cv-tip" id="cvTip"></div>
+  </div>
+  <div class="cv-band">
+    <h1 id="cvTitle">Evaluating QEC primitives on quantum processors, <span class="acc">at large width and depth</span></h1>
+    <p class="cv-sub">Every round of error correction measures ancillas in the middle of the circuit and feeds the outcomes forward. We benchmark that cycle on IBM, IQM and Quantinuum processors, from 1D chains to the checks of surface, colour and qLDPC codes.</p>
+    <div class="cv-meta">November 2026<span class="sep">|</span>Alejandro Montañez-Barrera, Kristel Michielsen<span class="sep">|</span>Jülich Supercomputing Centre (JSC)</div>
+  </div>
+  <div class="cv-foot">
+    <div class="cv-chips">
+      <div class="cv-chip"><div class="v"><span data-to="11">0</span><small>QPUs</small></div><div class="l">IBM, IQM and Quantinuum: superconducting and trapped-ion</div></div>
+      <div class="cv-chip"><div class="v"><span data-to="119">0</span><small>qubits</small></div><div class="l">60-spin chains with 59 ancillas on IBM, LR-QAOA depth up to p = 50</div></div>
+      <div class="cv-chip"><div class="v"><span data-to="91">0</span><small>data qubits</small></div><div class="l">colour code d = 11, every check read mid-circuit on Helios-1</div></div>
+      <div class="cv-chip"><div class="v"><span data-to="700">0</span><small>million</small></div><div class="l">mid-circuit measurements on hardware, LR-QAOA runs alone</div></div>
+    </div>
+    <div class="cv-go">
+      <button class="btn primary" id="cvBegin">Begin ▸</button>
+      <span class="h">→, Space or click · F presents full screen</span>
+    </div>
+  </div>
+  <div class="cv-aff">Forschungszentrum Jülich · Jülich Supercomputing Centre</div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="partEb">Part 1 · syndrome extraction on a d = 3 surface code</div>
+    <h1 id="partH1">How error correction sees errors: mid-circuit measurement</h1>
+  </header>
+  <div class="layout">
+    <div>
+      <figure class="stage">
+        <svg id="svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="svgTitle">
+          <title id="svgTitle">Animated distance-3 surface code: checks measured through ancillas, mid-circuit measurement, detection events and feed-forward</title>
+          <g id="dyn"></g>
+        </svg>
+        <div class="controls">
+          <button class="btn" id="prev" aria-label="Previous step">&#9664;</button>
+          <button class="btn primary" id="play" aria-label="Play">Play</button>
+          <button class="btn" id="next" aria-label="Next step">&#9654;</button>
+          <input type="range" id="scrub" min="0" max="1000" step="1" value="0" aria-label="Timeline">
+          <span class="clock" id="clock">0:00</span>
+          <label class="tiny"><input type="checkbox" id="autopause" checked> pause after each step</label>
+          <button class="btn" id="present" aria-label="Present full screen" title="Present (F)">&#x26F6; Present</button>
+        </div>
+        <div class="pills" id="pills"></div>
+        <div id="presCap"><b id="presNo"></b><span id="presTitle"></span></div>
+      </figure>
+    </div>
+    <aside aria-live="polite">
+      <div class="step" id="stepNo">STEP 1 / 7</div>
+      <h2 id="capTitle"></h2>
+      <div id="capBody"></div>
+      <div class="real" id="capReal"><div class="lab">In this work</div><p id="capRealP"></p></div>
+      <div class="legend" id="legend1">
+        <span><i class="sw" style="background:var(--zc)"></i>Z check</span>
+        <span><i class="sw" style="background:var(--xc)"></i>X check</span>
+        <span><i class="sw dot" style="background:var(--ink)"></i>data qubit</span>
+        <span><i class="sw" style="background:var(--yellow)"></i>detection event</span>
+        <span><i class="sw dot" style="background:var(--err)"></i>error</span>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+const bump=u=>Math.sin(Math.PI*clamp(u));
+const C={ink:"#eceff3",ink2:"#b6c3d4",muted:"#7f90a8",line:"#1c3350",line2:"#2b4566",panel:"#0c1e33",panel2:"#11263f",
+  X:"#B3A2E6",Z:"#6CB4E8",y:"#FAEB5A",r:"#F0627A",g:"#8FC23A",jscl:"#ADBDE3",bg:"#071526"};
+const SUB="₀₁₂₃₄₅₆₇₈₉",sub=n=>String(n).split("").map(c=>SUB[+c]).join("");
+const pstr=(t,s)=>s.map(n=>t+sub(n)).join("");
+
+/* ---------- the rotated surface code, as qecbench builds it ----------
+   codes.surface_code(d): data n at row n//d, column n%d; every unit square a weight-4 check, alternating
+   boundary edges weight-2 checks. memory.check_types: a square is X if row+col of its top-left corner is
+   even; a weight-2 check is Z if its qubits share a column. memory.cx_schedule: four CNOT layers, the
+   data qubit each check touches given by its offset from the check's centre, Z_ORDER for Z, X_ORDER for X. */
+const Z_ORDER=[[1,1],[-1,1],[1,-1],[-1,-1]], X_ORDER=[[1,1],[1,-1],[-1,1],[-1,-1]];
+function buildCode(d){
+  const sup=[];
+  for(let j=0;j<d-1;j++)for(let i=0;i<d-1;i++){const r1=j*d,r2=(j+1)*d;sup.push([i+r1,i+1+r1,i+r2,i+1+r2]);}
+  for(let i=0;i<d-1;i++){
+    if(i%2===0){sup.push([i*d,i*d+d]);sup.push([i+(d-1)*d,i+1+(d-1)*d]);}
+    else{sup.push([i,i+1]);sup.push([i*d+d-1,i*d+d-1+d]);}}
+  return sup.map(s=>{
+    const rc=s.map(n=>[Math.floor(n/d),n%d]),rows=new Set(rc.map(p=>p[0]));
+    let type;
+    if(s.length===4){const r0=Math.min(...rc.map(p=>p[0])),c0=Math.min(...rc.map(p=>p[1]));type=(r0+c0)%2===0?"X":"Z";}
+    else type=rows.size===2?"Z":"X";
+    const mr=rc.reduce((a,p)=>a+p[0],0)/s.length,mc=rc.reduce((a,p)=>a+p[1],0)/s.length;
+    let cr=mr,cc=mc;
+    if(s.length===2){if(rows.size===1)cr+=cr===0?-.5:.5;else cc+=cc===0?-.5:.5;}
+    const slot={};rc.forEach((p,i)=>{slot[Math.sign(p[0]-cr)+","+Math.sign(p[1]-cc)]=s[i];});
+    const order=(type==="Z"?Z_ORDER:X_ORDER).map(o=>{const v=slot[o[0]+","+o[1]];return v===undefined?-1:v;});
+    const ar=cr,ac=cc;            // every ancilla at its lattice site: square centre, or the apex of the boundary arc
+    return {s,type,cr,cc,mr,mc,ar,ac,order,w:s.length};});
+}
+function plaqPath(q,X0,Y0,S,d){
+  const P=n=>[+(X0+(n%d)*S).toFixed(2),+(Y0+Math.floor(n/d)*S).toFixed(2)];
+  if(q.w===4){const [a,b,c,e]=q.s.map(P);return `M${a}L${b}L${e}L${c}Z`;}
+  const [p1,p2]=q.s.map(P),ox=q.cc-q.mc,oy=q.cr-q.mr,dx=p2[0]-p1[0],dy=p2[1]-p1[1];
+  const sw=(ox*dy-oy*dx)>0?1:0;
+  return `M${p1}A${S/2},${S/2} 0 0 ${sw} ${p2}Z`;
+}
+const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${clamp(a).toFixed(3)})`;};
+
+/* =====================================================================================
+   Part 1, slide 1: syndrome extraction on d = 3
+   ===================================================================================== */
+const D=3,Q=buildCode(D);           // checks: 0 X0134, 1 Z1245, 2 Z3467, 3 X4578, 4 Z03, 5 X67, 6 X12, 7 Z58
+const PX0=125,PY0=180,PS=122;
+const dP=n=>[PX0+(n%D)*PS,PY0+Math.floor(n/D)*PS];
+const aP=k=>[PX0+Q[k].ac*PS,PY0+Q[k].ar*PS];
+const PATHS=Q.map(q=>plaqPath(q,PX0,PY0,PS,D));
+const ZK=[1,2,4,7],XK=[0,3,6,5],ROWS=[...ZK,...XK];
+const FZ=1,FX=3;                    // the two checks shown one at a time
+// the syndrome record told in steps 5 and 6: X checks start random (data prepared in |0>), an X error on
+// data 4 before round 3 flips Z1245 and Z3467, and X0134 is misread once in round 5
+const XFIRST={0:1,3:1,6:0,5:1};
+function bitOf(k,r){let b=Q[k].type==="X"?XFIRST[k]:0;if((k===1||k===2)&&r>=3)b=1;if(k===0&&r===5)b^=1;return b;}
+function detOf(k,r){if(r===1)return Q[k].type==="Z"&&bitOf(k,1)===1;return bitOf(k,r)!==bitOf(k,r-1);}
+
+const el=(tag,a,inner="")=>{let s=`<${tag}`;for(const k in a)if(a[k]!==undefined&&a[k]!==null)s+=` ${k}="${a[k]}"`;return s+(inner===null?"/>":`>${inner}</${tag}>`);};
+const r1=v=>typeof v==="number"?+v.toFixed(1):v;
+const T_=(x,y,str,o={})=>el("text",{x:r1(x),y:r1(y),"font-size":o.fs||14,fill:o.fill||C.ink,"text-anchor":o.anchor,"font-weight":o.fw,
+  "font-family":o.math?"'STIX Two Text',serif":o.mono?"'IBM Plex Mono',monospace":undefined,"font-style":o.it?"italic":undefined,opacity:o.op,"letter-spacing":o.ls,"dominant-baseline":o.db},str);
+const M=(x,y,str,o={})=>T_(x,y,str,{...o,math:true});
+
+/* ---- the patch ---- */
+function drawPatch(o){
+  let h="";
+  const pa=o.pa??1,dim=o.dim||0,focus=o.focus??-1;
+  // logical operators behind everything
+  if(o.logical>0){const a=o.logical,[x0,y0]=dP(0),[x2]=dP(2),[,y6]=dP(6);
+    h+=el("rect",{x:x0-26,y:y0-26,width:x2-x0+52,height:52,rx:26,fill:hexA(C.Z,.10*a),stroke:hexA(C.Z,.85*a),"stroke-width":1.6,"stroke-dasharray":"6 5"},"");
+    h+=el("rect",{x:x0-22,y:y0-22,width:44,height:y6-y0+44,rx:22,fill:hexA(C.X,.08*a),stroke:hexA(C.X,.85*a),"stroke-width":1.6,"stroke-dasharray":"6 5"},"");
+    h+=M(x0-60,y0-50,"Z̄ = Z₀Z₁Z₂",{fs:18,fill:C.Z,op:a.toFixed(2)});
+    h+=M(x0-6,y6+92,"X̄ = X₀X₃X₆",{fs:18,fill:C.X,op:a.toFixed(2),anchor:"middle"});}
+  for(let k=0;k<Q.length;k++){
+    const q=Q[k],col=q.type==="X"?C.X:C.Z,a=pa*(focus>=0&&k!==focus&&!(o.focus2===k)?1-.78*dim:1);
+    const g=(o.glow&&o.glow[k])||0,hi=(o.hi&&o.hi[k])||0;
+    h+=el("path",{d:PATHS[k],fill:hexA(col,(.17+.5*hi)*a),stroke:hexA(col,(.6+.4*hi)*a),"stroke-width":1.4+2*hi,"stroke-linejoin":"round"},"");
+    if(g>0)h+=el("path",{d:PATHS[k],fill:hexA(C.y,.5*g),stroke:hexA(C.y,.9*g),"stroke-width":2.2},"");}
+  // matching edge (decoder)
+  if(o.match>0){const [x1,y1]=aP(1),[x2,y2]=aP(2),L=Math.hypot(x2-x1,y2-y1);
+    h+=el("line",{x1,y1,x2,y2,stroke:C.y,"stroke-width":3.5,"stroke-linecap":"round","stroke-dasharray":`${(L*o.match).toFixed(1)} ${L}`},"");}
+  // CNOT order digits
+  if(o.digits>0)for(let k=0;k<Q.length;k++){if(o.digOnly!=null&&k!==o.digOnly)continue;const q=Q[k],[ax,ay]=aP(k),col=q.type==="X"?C.X:C.Z;
+    const a=(focus>=0&&k!==focus?1-.85*dim:1)*(o.digA??1);
+    for(let L=0;L<Math.min(4,o.digits);L++){const n=q.order[L];if(n<0)continue;const [dx,dy]=dP(n);
+      const f=L+1>o.digits?o.digits-L:1;
+      h+=T_(ax+(dx-ax)*.5,ay+(dy-ay)*.5+5,String(L+1),{fs:14,fill:col,anchor:"middle",fw:600,mono:true,op:(a*f).toFixed(2)});}}
+  // CNOT pulses
+  for(const p of o.pulses||[]){const q=Q[p.k],[ax,ay]=aP(p.k),[dx,dy]=dP(p.n),col=q.type==="X"?C.X:C.Z;
+    const toAnc=q.type==="Z",u=ease(clamp(p.u)),fx=toAnc?dx:ax,fy=toAnc?dy:ay,tx=toAnc?ax:dx,ty=toAnc?ay:dy;
+    const a=bump(p.u*1.15)*(p.a??1);
+    h+=el("line",{x1:ax,y1:ay,x2:dx,y2:dy,stroke:hexA(col,.9*a),"stroke-width":p.big?4:3,"stroke-linecap":"round"},"");
+    const px=fx+(tx-fx)*u,py=fy+(ty-fy)*u;
+    h+=el("circle",{cx:px.toFixed(1),cy:py.toFixed(1),r:p.big?7:5,fill:hexA("#ffffff",a),stroke:hexA(col,a),"stroke-width":2},"");}
+  // data qubits
+  for(let n=0;n<D*D;n++){const [x,y]=dP(n),a=(o.da?o.da[n]:1);if(a<=0)continue;
+    const e=o.err&&o.err[n]||0,fx=o.fix&&o.fix[n]||0;
+    const s=.6+.4*ease(clamp(a)),r=19*s;
+    if(e>0)h+=el("circle",{cx:x,cy:y,r:r+10,fill:hexA(C.r,.18*e)},"");
+    h+=el("circle",{cx:x,cy:y,r,fill:e>0?hexA(C.r,.85*e):"#0f2340",stroke:e>0?C.r:hexA(C.ink,a),"stroke-width":2,opacity:a.toFixed(2)},"");
+    if(fx>0)h+=el("circle",{cx:x,cy:y,r:r+6+10*(1-fx),fill:"none",stroke:hexA(C.g,fx),"stroke-width":3},"");
+    h+=T_(x,y+5,String(n),{fs:14,fill:e>.5?"#2a0a10":C.ink,anchor:"middle",mono:true,fw:500,op:a.toFixed(2)});
+    if(e>0)h+=M(x+22,y-18,"X",{fs:20,fill:C.r,fw:700,op:e.toFixed(2)});}
+  // ancillas
+  for(let k=0;k<Q.length;k++){const q=Q[k],[x,y]=aP(k),col=q.type==="X"?C.X:C.Z;
+    const a=pa*(focus>=0&&k!==focus&&!(o.focus2===k)?1-.78*dim:1);if(a<=0)continue;
+    const A=o.anc&&o.anc[k]||{};
+    if(A.flash>0)h+=el("circle",{cx:x,cy:y,r:(12+22*A.flash).toFixed(1),fill:"none",stroke:hexA("#ffffff",1-A.flash),"stroke-width":2.5},"");
+    if(A.h>0)h+=el("rect",{x:x-17,y:y-17,width:34,height:34,rx:5,fill:"none",stroke:hexA(C.ink,A.h),"stroke-width":1.8},"");
+    const big=A.bit!==undefined&&A.bitA>0;
+    h+=el("circle",{cx:x,cy:y,r:big?13:10,fill:hexA(col,a),stroke:"#071526","stroke-width":2},"");
+    if(big)h+=T_(x,y+5,String(A.bit),{fs:14,fill:"#071526",anchor:"middle",fw:700,mono:true,op:A.bitA.toFixed(2)});
+    if(A.label)h+=M(x+(A.lx||0),y+(A.ly||34),A.label,{fs:18,fill:col,anchor:"middle",op:(A.labA??1).toFixed(2)});}
+  return h;
+}
+
+/* ---- circuit pieces ---- */
+const LIT=(on,a=1)=>on?a:.28*a;
+function wire(x0,x1,y,label,col,a=1){return el("line",{x1:x0,y1:y,x2:x1,y2:y,stroke:hexA(col||C.ink2,.55*a),"stroke-width":1.5},"")+M(x0-12,y+6,label,{fs:17,fill:col||C.ink2,anchor:"end",op:a});}
+function cwire(x0,x1,y,a=1){return el("line",{x1:x0,y1:y-2,x2:x1,y2:y-2,stroke:hexA(C.ink2,.7*a),"stroke-width":1.2},"")+el("line",{x1:x0,y1:y+2,x2:x1,y2:y+2,stroke:hexA(C.ink2,.7*a),"stroke-width":1.2},"");}
+function cnot(x,yc,yt,col,a,glow){let h="";
+  if(glow>0)h+=el("rect",{x:x-18,y:Math.min(yc,yt)-18,width:36,height:Math.abs(yt-yc)+36,rx:9,fill:hexA(col,.18*glow)},"");
+  h+=el("line",{x1:x,y1:yc,x2:x,y2:yt,stroke:hexA(col,a),"stroke-width":2},"");
+  h+=el("circle",{cx:x,cy:yc,r:5.5,fill:hexA(col,a)},"");
+  h+=el("circle",{cx:x,cy:yt,r:11,fill:"#0c1e33",stroke:hexA(col,a),"stroke-width":2},"");
+  h+=el("path",{d:`M${x-11},${yt}H${x+11}M${x},${yt-11}V${yt+11}`,stroke:hexA(col,a),"stroke-width":2},"");return h;}
+function gbox(x,y,label,col,a,glow,w=30){let h="";
+  if(glow>0)h+=el("rect",{x:x-w/2-6,y:y-21,width:w+12,height:42,rx:9,fill:hexA(col,.2*glow)},"");
+  h+=el("rect",{x:x-w/2,y:y-15,width:w,height:30,rx:5,fill:"#0c1e33",stroke:hexA(col,a),"stroke-width":1.8},"");
+  return h+M(x,y+6,label,{fs:17,fill:col,anchor:"middle",op:a.toFixed(2)});}
+function meter(x,y,col,a,glow,w=34){let h="";
+  if(glow>0)h+=el("rect",{x:x-w/2-6,y:y-23,width:w+12,height:46,rx:9,fill:hexA(C.y,.25*glow)},"");
+  h+=el("rect",{x:x-w/2,y:y-16,width:w,height:32,rx:5,fill:"#0c1e33",stroke:hexA(glow>0?C.y:col,a),"stroke-width":1.8},"");
+  h+=el("path",{d:`M${x-11},${y+7}A12,12 0 0 1 ${x+11},${y+7}`,fill:"none",stroke:hexA(glow>0?C.y:col,a),"stroke-width":1.6},"");
+  h+=el("line",{x1:x,y1:y+7,x2:x+8,y2:y-9,stroke:hexA(glow>0?C.y:col,a),"stroke-width":1.6},"");return h;}
+function head(x,y0,y1,a=1){return el("line",{x1:x,y1:y0,x2:x,y2:y1,stroke:hexA(C.y,.55*a),"stroke-width":1.5,"stroke-dasharray":"3 4"},"");}
+const interp=(t,K)=>{if(t<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(t<=K[i][0]){const [t0,v0]=K[i-1],[t1,v1]=K[i];return v0+(v1-v0)*(t-t0)/(t1-t0);}return K[K.length-1][1];};
+const panelTitle=(s,sub2)=>T_(510,72,s,{fs:19,fw:600})+(sub2?T_(510,96,sub2,{fs:14,fill:C.ink2}):"");
+
+/* ---- one round of syndrome extraction on the whole patch, at local time v ---- */
+function roundVis(v,tm,r){
+  const pulses=[],anc={};
+  for(let L=0;L<4;L++){const u=seg(v,tm.L0+L*tm.Ld,tm.L0+(L+1)*tm.Ld-.04);if(u>0&&u<1)for(let k=0;k<Q.length;k++){const n=Q[k].order[L];if(n>=0)pulses.push({k,n,u});}}
+  const hA=Math.max(bump(seg(v,tm.h1[0],tm.h1[1])),bump(seg(v,tm.h2[0],tm.h2[1])));
+  const fm=seg(v,tm.m[0],tm.m[1]),bitA=r?clamp(seg(v,tm.m[0]+.15,tm.m[0]+.45)-seg(v,tm.reset[0]+.2,tm.reset[1])):0;
+  for(let k=0;k<Q.length;k++){anc[k]={h:Q[k].type==="X"?hA:0,flash:fm>0&&fm<1?fm:0};if(r){anc[k].bit=bitOf(k,r);anc[k].bitA=bitA;}}
+  return {pulses,anc,measured:v>=tm.m[0]+.15,fm};
+}
+
+/* ---- the syndrome record (steps 5-6) ---- */
+function record(nDone,o={}){
+  let h="";const x0=640,cw=52,y0=o.y0??300,rh=27,gap=12,R=6;
+  const ry=i=>y0+i*rh+(i>=4?gap:0);
+  h+=T_(510,y0-38,"Syndrome record",{fs:16,fw:600});
+  h+=T_(660,y0-38,"one bit per check per round",{fs:13,fill:C.muted});
+  for(let r=1;r<=R;r++)h+=T_(x0+(r-.5)*cw,y0-20,"r"+r,{fs:12.5,fill:r<=nDone?C.ink2:C.muted,anchor:"middle",mono:true,op:r<=nDone?1:.5});
+  ROWS.forEach((k,i)=>{const q=Q[k],col=q.type==="X"?C.X:C.Z,y=ry(i);
+    h+=el("rect",{x:510,y:y-9,width:10,height:10,rx:2,fill:col},"");
+    h+=M(528,y+5,pstr(q.type,q.s),{fs:16,fill:col});
+    for(let r=1;r<=R;r++){const cx=x0+(r-.5)*cw;
+      h+=el("rect",{x:cx-cw/2+3,y:y-rh/2+2-4,width:cw-6,height:rh-4,rx:4,fill:r<=nDone?"#0f2340":"none",stroke:hexA(C.line2,r<=nDone?1:.5),"stroke-width":1},"");
+      if(r<=nDone){const b=bitOf(k,r),dt=detOf(k,r),a=r===nDone?(o.newA??1):1;
+        if(dt&&o.dets!==false)h+=el("rect",{x:cx-cw/2+3,y:y-rh/2-2,width:cw-6,height:rh-4,rx:4,fill:hexA(C.y,.22*a),stroke:hexA(C.y,a),"stroke-width":2},"");
+        const rnd=q.type==="X"&&r===1;
+        h+=T_(cx,y+5,String(b),{fs:14,mono:true,anchor:"middle",fw:dt?700:400,fill:dt&&o.dets!==false?C.y:rnd?C.muted:C.ink,op:a.toFixed(2)});}}});
+  if(o.randNote>0)h+=T_(x0+cw/2,ry(7)+30,"↑ X checks: random in round 1, then repeated",{fs:12.5,fill:C.muted,op:o.randNote.toFixed(2)});
+  if(o.legend>0){h+=el("rect",{x:858,y:y0-50,width:16,height:14,rx:3,fill:hexA(C.y,.22),stroke:C.y,"stroke-width":1.6,opacity:o.legend},"");
+    h+=T_(880,y0-38,"detection event",{fs:12.5,fill:C.ink2,op:o.legend});}
+  if(o.matchS>0){const cx=x0+2.5*cw,a=o.matchS,y1=ry(0),y2=ry(1);
+    h+=el("path",{d:`M${cx+cw/2-3},${y1}C${cx+cw/2+14},${y1} ${cx+cw/2+14},${y2} ${cx+cw/2-3},${y2}`,fill:"none",stroke:C.y,"stroke-width":2.5,opacity:a},"");}
+  if(o.matchT>0){const a=o.matchT,y=ry(4),xa=x0+4.5*cw,xb=x0+5.5*cw;
+    h+=el("path",{d:`M${xa},${y-14}C${xa},${y-30} ${xb},${y-30} ${xb},${y-14}`,fill:"none",stroke:C.y,"stroke-width":2.5,opacity:a},"");}
+  return {h,ry,x0,cw};
+}
+/* the circuit of R rounds as one bundle: data keep running, ancillas are read every round */
+function bundle(cur,nDone,o={}){
+  let h="";const x0=600,x1=985,yd=o.yd??140,ya=yd+56,R=6,bw=(x1-x0-48)/R;
+  h+=el("line",{x1:x0-10,y1:yd,x2:x1-36,y2:yd,stroke:hexA(C.ink,.7),"stroke-width":5,"stroke-linecap":"round"},"");
+  h+=T_(x0-22,yd+5,"9 data",{fs:14,fill:C.ink,anchor:"end"});
+  h+=el("line",{x1:x0-10,y1:ya,x2:x1-36,y2:ya,stroke:hexA(C.ink2,.45),"stroke-width":5,"stroke-linecap":"round"},"");
+  h+=T_(x0-22,ya+5,"8 ancillas",{fs:14,fill:C.ink2,anchor:"end"});
+  h+=meter(x1-18,yd,C.ink2,.55,0,30);
+  h+=T_(x1-18,yd-26,"end",{fs:11.5,fill:C.muted,anchor:"middle"});
+  for(let r=1;r<=R;r++){const bx=x0+(r-1)*bw+4,on=r<=nDone||r===cur,act=r===cur;
+    h+=el("rect",{x:bx,y:yd-12,width:26,height:ya-yd+24,rx:6,fill:act?"#16365c":"#0f2340",stroke:hexA(act?C.jscl:C.line2,on?1:.5),"stroke-width":act?1.8:1},"");
+    h+=T_(bx+13,(yd+ya)/2+5,"CX",{fs:11.5,fill:C.ink2,anchor:"middle",mono:true,op:on?1:.45});
+    const mg=r===cur?(o.mg||0):0;
+    h+=meter(bx+42,ya,r<=nDone?C.y:C.ink2,on?1:.4,mg,22);
+    h+=T_(bx+28,ya+38,"r"+r,{fs:12,fill:act?C.jscl:C.muted,anchor:"middle",mono:true});}
+  return h;
+}
+
+/* =====================================================================================
+   the steps
+   ===================================================================================== */
+const S=[
+ {id:"code",d:16,short:"The code",title:"Nine qubits that store one",
+  body:`<p>The <b>surface code</b> spreads one logical qubit over a grid of <b>data qubits</b>. Nobody may read them directly: a measurement would destroy the stored state.</p>
+  <p>What we can read are <b>checks</b>, parities of neighbouring data qubits: <span class="m">X X X X</span> on the purple tiles, <span class="m">Z Z Z Z</span> on the blue ones, and pairs on the boundary. They commute with each other and with the logical operators <span class="m">Z̄</span> and <span class="m">X̄</span>, so reading them reveals errors without touching the information.</p>`,
+  real:`<code>codes.surface_code(d)</code>: <i>d</i>² data qubits, (<i>d</i>−1)² weight-4 and 2(<i>d</i>−1) weight-2 checks. For <i>d</i> = 3, 9 data qubits and 8 checks.`},
+ {id:"zcheck",d:12,short:"A Z check",title:"A check is read through an ancilla",
+  body:`<p>Each check gets its own <b>ancilla</b>, prepared in <span class="m">|0⟩</span>. Four CNOTs copy the parity of its four data qubits onto it, one data qubit at a time.</p>
+  <p>Measuring the ancilla then gives that parity: <b>0</b> for <span class="m">Z<sub>1</sub>Z<sub>2</sub>Z<sub>4</sub>Z<sub>5</sub> = +1</span>, <b>1</b> for −1. Only the ancilla is measured; the data qubits are never read.</p>`,
+  real:`The order of the four CNOTs is fixed per check type (<code>memory.cx_schedule</code>): a Z check visits its data qubits bottom-right, top-right, bottom-left, top-left.`},
+ {id:"xcheck",d:12,short:"An X check",title:"X checks: the same, in the other basis",
+  body:`<p>An X check sandwiches its CNOTs between two Hadamards on the ancilla, and the CNOTs point from the ancilla to the data. The ancilla then reads <span class="m">X<sub>4</sub>X<sub>5</sub>X<sub>7</sub>X<sub>8</sub></span>.</p>
+  <p>Here the data started in <span class="m">|0⟩</span>, so the first X outcome is random. What matters is that every later round <b>repeats</b> it.</p>`,
+  real:`X checks use the transposed order (bottom-right, bottom-left, top-right, top-left). Any other choice makes the detectors non-deterministic or lowers the circuit distance below <i>d</i>.`},
+ {id:"round",d:13,short:"One round",title:"All checks at once: four CNOT layers",
+  body:`<p>All eight checks run in parallel. In each of the <b>four layers</b> every ancilla talks to one data qubit, and no data qubit is used twice in a layer.</p>
+  <p>The numbers on the tiles are that schedule. One round is: H on the X ancillas, four CNOT layers, H again, then <b>measure every ancilla</b>.</p>`,
+  real:`The cost grows with the code: <i>d</i> = 3 takes 24 CNOTs and 8 measurements per round; the <i>d</i> = 9 check Hamiltonian, 288 CNOTs and 80 mid-circuit measurements.`},
+ {id:"mcm",d:12,short:"Mid-circuit measurement",title:"Measure the ancillas, keep the data running",
+  body:`<p>The ancillas are measured <b>in the middle of the circuit</b>: the data qubits keep their state, the ancillas are reset to <span class="m">|0⟩</span>, and the next round starts.</p>
+  <p>Each round adds one column of bits to the <b>syndrome record</b>. Without errors, every check repeats its outcome round after round.</p>`,
+  real:`On IBM every round's syndrome is read out. On IQM through Amazon Braket a mid-circuit outcome only drives feed-forward and is never returned, so only the last round is read.`},
+ {id:"error",d:17,short:"Errors and detectors",title:"An error changes the record; the decoder reads the changes",
+  body:`<p>A <b>detection event</b> is a check whose outcome changed since the round before. Before round 3 an <span class="m">X</span> error hits qubit 4: the two Z checks around it change, once, and stay changed.</p>
+  <p>In round 5 one ancilla is <b>misread</b>: its check changes and changes back. The decoder pairs events: a pair in space is a data error to correct, a pair in time a measurement error to ignore.</p>`,
+  real:`Decoding uses <code>pymatching</code> on stim's detector error model; the logical error per round <i>ε</i> follows from <i>P</i>(<i>R</i>) = (1 − <i>A</i>(1 − 2<i>ε</i>)<sup><i>R</i></sup>)/2.`},
+ {id:"ff",d:14,short:"Feed-forward",title:"Measure, decide, act: the QEC primitive",
+  body:`<p>An outcome is often needed <b>during</b> the circuit: to reset the ancilla, to update the correction, or to choose the next logical gate. That is <b>feed-forward</b>, and the data qubits wait while the classical decision is made.</p>
+  <p>Mid-circuit measurement plus feed-forward, on every check, every round: this cycle is what we benchmark, at large <b>width</b> (checks at once) and <b>depth</b> (rounds in a row).</p>`,
+  real:`On IQM even the ancilla reset is a feed-forward: a <code>cc_prx</code> controlled by the ancilla's own <code>measure_ff</code>.`},
+ {id:"memshots",part:2,d:15,short:"What a memory experiment costs",title:"How many shots does a memory experiment need?",
+  body:`<p>A <b>memory experiment</b> stores a logical state for <span class="m">R</span> rounds of syndrome extraction, decodes, and counts how often the logical qubit flipped. Its logical error per round <span class="m">ε<sub>L</sub></span> is what error correction is judged by.</p>
+  <p>To pin <span class="m">ε<sub>L</sub></span> to ±10 % we must see about <b>100 logical failures</b>, so the shots grow as <span class="m">S ≈ 100/(Rε<sub>L</sub>)</span>. Below threshold every step <span class="m">d → d + 2</span> divides <span class="m">ε<sub>L</sub></span> by <span class="m">Λ = p<sub>th</sub>/p</span>: at <span class="m">p</span> = 10<sup>−3</sup>, <span class="m">d</span> = 3 needs ~2×10<sup>5</sup> shots, <span class="m">d</span> = 7 ~10<sup>7</sup>, <span class="m">d</span> = 11 ~10<sup>9</sup>.</p>`,
+  real:`<i>ε</i><sub>L</sub> from stim + pymatching simulations of <code>memory.stim_circuit</code> (uniform circuit-level noise, <i>R</i> = <i>d</i>, Z basis) for <i>d</i> = 3, 5, 7: <i>ε</i><sub>L</sub> ≈ 0.026 (<i>p</i>/0.0129)<sup>(<i>d</i>+1)/2</sup>, within 8 % for <i>p</i> ≤ 5×10<sup>−3</sup>. <i>d</i> ≥ 9 (dashed) extrapolates the same law. Both bases double the shots.`},
+ {id:"gadget",part:3,d:14,short:"One check, two uses",title:"A check can be measured, or rotated by",
+  body:`<p>In syndrome extraction the CZs write the parity <span class="m">Z<sub>1</sub>Z<sub>2</sub>Z<sub>4</sub>Z<sub>5</sub></span> into the ancilla's phase, and <span class="m">H</span> then measurement reads it.</p>
+  <p>Replace that last <span class="m">H</span> by <span class="m">Rx(2γ)</span> and the same circuit applies <span class="m">e<sup>−iγZ₁Z₂Z₄Z₅</sup></span>, one term of an LR-QAOA cost layer. The ancilla is still measured mid-circuit; outcome 1 leaves a known <span class="m">Z<sub>1</sub>Z<sub>2</sub>Z<sub>4</sub>Z<sub>5</sub></span> on the data, and <b>feed-forward</b> removes it.</p>`,
+  real:`The gadget of <code>circuits.build_dynamic</code>: <code>h</code> on the ancilla, one <code>cz</code> per data qubit, <code>rx(2wγ)</code>, <code>measure</code>, then <code>if_test</code>: <code>z</code> on the data (<code>x</code> for an X check) and <code>x</code> to reset the ancilla.`},
+ {id:"xzround",part:3,d:16,short:"A layer is a round",title:"One LR-QAOA layer is one round of syndrome extraction",
+  body:`<p>Take as Hamiltonian the code itself: every check in the basis the code gives it, <span class="m">Z…Z</span> and <span class="m">X…X</span> together. We call it the <b>XZ Hamiltonian</b>.</p>
+  <p>A layer then runs every check with the gadget: the same CZs and the same mid-circuit measurements as a round of the memory experiment, plus feed-forward and a mixer on the data. <span class="m">p</span> layers are <span class="m">p</span> rounds, at the width of the whole code.</p>`,
+  real:`<code>build_dynamic(frame="XZ")</code>: Z checks first, then X checks with the data between <code>h</code> gates; a <code>Y</code> mixer from <code>|+i⟩</code>, since <span class="m">Y</span> anticommutes with every check that holds the qubit. Linear ramp <i>γ<sub>k</sub></i> = <i>kδ/p</i>, <i>β<sub>k</sub></i> = (<i>p</i> − <i>k</i> + 1)<i>δ/p</i>, <i>δ</i> = 0.5.`},
+ {id:"xzmeasure",part:3,d:13,short:"What it measures",title:"A score with an exact reference, at 1,000 shots per circuit",
+  body:`<p>At the end the data are read, and the energy of the checks gives the approximation ratio <span class="m">r</span>. Its noiseless value is known exactly, so <span class="m">r<sub>ovl</sub></span> says how much of the ideal circuit survived the device: 1 is noiseless, 0 is random.</p>
+  <p>Unlike a memory experiment, nothing has to fail rarely to be seen: every physical error lowers <span class="m">r</span>, so 1,000 shots per circuit are enough, at every depth and every code size.</p>`,
+  real:`ibm_phoenix, XZ frame (kinds <code>mcm_xz_z</code> and <code>mcm_xz_x</code>): <i>d</i> = 3 run <code>20261005_071721</code> (11 patches), <i>d</i> = 5 run <code>20261002_121845</code> (8 patches), the same placements as the memory experiment.`},
+ {id:"chips",part:4,d:14,short:"Two QPUs",title:"ibm_phoenix and ibm_chicago, patch by patch",
+  body:`<p>On each chip we ran the XZ benchmark and a memory experiment on the same d = 3 placements, on the same day. Each point is one patch: its benchmark score against its measured logical error per round.</p>
+  <p>The two chips have the same median, but chicago has three bad placements. The benchmark ranks the patches as the memory does, on each chip and on both together (<span class="m">ρ</span> = 0.94 at <span class="m">p</span> = 2), with 24 times fewer shots.</p>`,
+  real:`ibm_phoenix: benchmark <code>20261005_071721</code>, memory <code>20261005_071730</code>. ibm_chicago: benchmark <code>20261111_135143</code>, memory <code>20261111_141428</code>. <i>ε</i> is the mean of the Z and X bases (<code>memory.error_per_round</code>, <i>R</i> = 1–10, 4,000 shots); <i>ρ</i> is Spearman's, of <i>r</i><sub>ovl</sub> against −<i>ε</i>.`},
+ {id:"codes",part:4,d:16,short:"Other codes",title:"Surface, colour and qLDPC codes on Helios-1",
+  body:`<p>Nothing in the benchmark is specific to the surface code: load the checks of any code as a Hamiltonian, and each layer measures them all through mid-circuit gadgets. Only the check weights and the connectivity change.</p>
+  <p>On Helios-1 the signal stays far above random up to 91 data qubits (colour <span class="m">d</span> = 11) and for the long-range checks of bivariate-bicycle codes, with 10–50 shots per circuit. Where the circuit can still be simulated, <span class="m">r</span> sits close to its noiseless value at low depth.</p>`,
+  real:`Helios-1 hardware, every check as <span class="m">Z…Z</span> (kind <code>mcm</code>); runs <code>20260309_1631</code> to <code>20260924_101609</code>. Codes from <code>codes.surface_code</code>, <code>codes.color_code</code> and <code>codes.bivariate_bicycle</code> (BB30 = [[30,4,5]], BB48 = [[48,4,7]]). Above about 37 data qubits there is no noiseless reference, so the significance above random is the measure.`},
+ {id:"scale",part:4,d:16,short:"Size",title:"Three code families, from 7 to 91 data qubits",
+  body:`<p>All three code families on one axis: the approximation ratio <span class="m">r</span> each reaches at its best depth, against the number of data qubits. Colour is the machine and shape the code; hollow marks are emulators, faint marks the other depths.</p>
+  <p>On Helios-1 the surface and colour codes keep <span class="m">r</span> = 0.72–0.76 from 25 to 91 data qubits: <span class="m">r</span> does not fall as the code grows. The qLDPC codes, whose checks reach across the code, sit lower but stay flat. ibm_phoenix drops from <span class="m">d</span> = 3 to <span class="m">d</span> = 5.</p>`,
+  real:`Paper Fig. 6 (<code>paper_figures</code> section 7). MCM LR-QAOA with every check as <span class="m">Z…Z</span> (kind <code>mcm</code>). Runs: Helios-1 <code>20260309_1631</code> to <code>20260924_101609</code>; Helios-1E <code>20260306_1514</code> to <code>20260629_0732</code>; H2-1 <code>20260820_0736</code>, <code>20260820_1140</code>; H2-1E <code>20260820_0707</code>; ibm_phoenix <code>20260909_1619</code>, <code>20260909_1631</code>. Error bars are one σ of shot noise. This is <i>r</i>, not <i>r</i><sub>ovl</sub>: there is no noiseless reference above about 37 data qubits. The best depth is a maximum over 3–5 depths, so with 10–20 shots it leans slightly high.`},
+ {id:"lambda",part:5,d:15,short:"Measuring λ",title:"How we turn a score into an error per gadget",
+  body:`<p>To compare chips we need one number per gadget, not a score per circuit. The model: every gadget fails with probability <span class="m">λ</span> in every layer, so a chain of <span class="m">N<sub>q</sub></span> spins at depth <span class="m">p</span> collects <span class="m">ε<sub>acc</sub> = (N<sub>q</sub> − 1) p λ</span> errors.</p>
+  <p>In a depolarizing simulation every chain length and every depth falls on one curve, <span class="m">r<sub>ovl</sub> = 2<sup>−κ<sub>r</sub>ε<sub>acc</sub></sup></span> with <span class="m">κ<sub>r</sub> = κ<sub>0</sub>/N<sub>q</sub></span>. On a chip we measure <span class="m">r<sub>ovl</sub></span> at a few depths and solve for <span class="m">λ</span>.</p>`,
+  real:`Paper Fig. 5a (<code>noise_study</code> §4, <code>paper_figures</code> §6): <code>data/noise_study/chain_depolarizing.json</code>, <i>N</i><sub>q</sub> = 5–15, <i>p</i> = 2, 5, 10, a two-qubit depolarizing channel after every edge interaction; <i>κ</i><sub>0</sub> = 3.689 ± 0.012 (<code>fit_kappa0</code>). On a device, <code>fit_lambda_eff</code> over <i>p</i> = 3, 5, 10. Example: ibm_boston <code>20260827_1035</code>, <i>N</i><sub>q</sub> = 10, <i>λ</i><sub>eff</sub> = 0.022.`},
+ {id:"triplets",part:5,d:17,short:"Every triplet",title:"One gadget, measured on every triplet of each chip",
+  body:`<p>The smallest piece of syndrome extraction is one ancilla between two data qubits: a two-spin LR-QAOA whose <span class="m">ZZ</span> term runs through one mid-circuit measurement and its feed-forward. We ran it on every data–ancilla–data triplet a chip offers.</p>
+  <p>Each point is one triplet; on the maps, each qubit takes the colour of the triplet it is the ancilla of. The median says how good the gadget is, the width how uneven the chip is. ibm_boston is the best and most even; the square-lattice chips, ibm_phoenix and ibm_chicago, are the widest, and repeat runs look the same.</p>`,
+  real:`Paper Fig. 3c (<code>paper_figures</code> §1) plus later campaigns: phoenix <code>20260916_102941</code>, chicago <code>20261111_123350</code> and <code>20261117_101043</code>. 500 shots per circuit (chicago 1,000); grey band 0.5 ± 3<i>σ</i> at 500 shots. Maps: coupling maps from the calibration files (boston <code>20260916_1359</code>, chicago <code>20261117_1010</code>), runs <code>20260814_0818</code> and <code>20261117_101043</code>; 8 boston qubits are never an ancilla (hollow).`},
+ {id:"chains",part:5,d:15,short:"Longer chains",title:"Chains of 10 to 60 spins",
+  body:`<p>From one gadget to many in a row: MCM chains of <span class="m">N<sub>q</sub></span> = 10 to 60 spins, with <span class="m">N<sub>q</sub></span> − 1 gadgets per layer, and <span class="m">λ</span> fitted at each length.</p>
+  <p>If the model holds, <span class="m">λ</span> should not depend on the length. On the best Heron chips it stays within a factor of two up to 60 spins; on others it grows with the chain. The trapped-ion machines sit 7 to 25 times below the best Heron chip at the lengths they ran.</p>`,
+  real:`Paper Fig. 5c (MCM part), <code>fit_lambda_eff</code> per <i>N</i><sub>q</sub> over <i>p</i> = 3, 5, 10 (phoenix 5–20). Runs: fez <code>20260828_1028</code>, marrakesh <code>20260828_1034</code>, kingston <code>20260827_1205</code>, pittsburgh <code>20260828_1025</code>, boston <code>20260827_1035</code>, phoenix <code>20260904_1435</code>, chicago <code>20261111_120600</code> (best and median of 3–16 placements), Helios-1 <code>20260915_1035</code> and <code>20260909_1423/1509/1521</code>, H2-1 <code>20260820_0650</code>. Every other chip ran one placement per length.`},
+ {id:"mcmtime",part:5,d:16,short:"MCM over time",title:"How mid-circuit measurement has evolved",
+  body:`<p>Average each chip's <span class="m">λ</span> over its chain lengths and place it at the date the chip became available: the error of one mid-circuit gadget, one hardware generation after another.</p>
+  <p>Placed by the date each device became available, IBM's Heron processors halved it from r2 to r3, and Quantinuum's trapped-ion machines sit about 17 times lower, from H2-1 to Helios-1. The Nighthawk chips are behind: ibm_phoenix at the first Heron r2, ibm_chicago twice above it.</p>`,
+  real:`Paper Fig. 5d (<code>paper_figures</code> §6), plus ibm_chicago. <i>λ</i> per <i>N</i><sub>q</sub> with <i>κ</i><sub>0</sub> = 3.69, <i>p</i> = 3, 5, 10 (phoenix 5–20); point = mean over <i>N</i><sub>q</sub>, bar = min–max. Runs: fez <code>0828_1028</code>, marrakesh <code>0828_1034</code>, kingston <code>0827_1205</code>, pittsburgh <code>0828_1025</code>, boston <code>0827_1035</code>, phoenix <code>0904_1435</code>, H2-1 <code>0820_0650</code>, Helios-1 <code>0909_1423/1509/1521</code>, chicago <code>1111_120600</code>. Chicago has no public release date (hollow, at our run) and is the best of 3–16 placements per <i>N</i><sub>q</sub>; the median placement gives 0.21. With 7 + 2 points, a trend is an anecdote.`},
+];
+const PARTS={1:{eb:"Part 1 · syndrome extraction on a d = 3 surface code",h1:"How error correction sees errors: mid-circuit measurement"},
+  2:{eb:"Part 2 · the cost of a memory experiment",h1:"Rare logical errors are expensive to see"},
+  3:{eb:"Part 3 · our proposal",h1:"Syndrome extraction as LR-QAOA on the XZ Hamiltonian"},
+  4:{eb:"Part 4 · across QPUs and codes",h1:"One benchmark for every chip and every code"},
+  5:{eb:"Part 5 · the primitive itself",h1:"Mid-circuit measurement, gadget by gadget and chip by chip"}};
+let acc=0;const starts=S.map(s=>{const a=acc;acc+=s.d;return a;});const TOTAL=acc;
+
+/* step drawers: each returns the dynamic SVG for local time t */
+const DRAW={
+ code(t){
+  const da=Array.from({length:9},(_,n)=>ease(seg(t,.3+n*.16,.9+n*.16)));
+  const pa=ease(seg(t,2,4)),lg=ease(seg(t,11.6,12.8)),hi={};
+  ZK.forEach((k,i)=>{hi[k]=bump(seg(t,4.2+i*.8,4.2+i*.8+1.4));});XK.forEach((k,i)=>{hi[k]=bump(seg(t,7.6+i*.8,7.6+i*.8+1.4));});
+  let h=drawPatch({pa,da,logical:lg,hi});
+  h+=T_(60,70,"d = 3 rotated surface code",{fs:19,fw:600,op:ease(seg(t,0,.6))});
+  h+=T_(60,96,"9 data qubits · 4 X checks · 4 Z checks",{fs:14,fill:C.ink2,op:ease(seg(t,2,3))});
+  // panel: the eight checks
+  const pA=ease(seg(t,3.6,4.4));
+  h+=panelTitle("The checks","parities we are allowed to measure");
+  const card=(x,ty,ks,a0)=>{let s="";const col=ty==="X"?C.X:C.Z;
+    s+=T_(x,140,ty+" checks",{fs:14,fill:col,fw:600,op:pA});
+    ks.forEach((k,i)=>{const a=ease(seg(t,a0+i*.8,a0+i*.8+.8)),y=176+i*42;
+      s+=el("rect",{x,y:y-24,width:205,height:34,rx:7,fill:hexA(col,.1*a),stroke:hexA(col,.5*a),"stroke-width":1},"");
+      s+=M(x+14,y-1,pstr(ty,Q[k].s),{fs:19,fill:col,op:a.toFixed(2)});
+      s+=T_(x+190,y-2,"w"+Q[k].w,{fs:12,fill:C.muted,anchor:"end",mono:true,op:a.toFixed(2)});});return s;};
+  h+=card(510,"Z",ZK,4.2)+card(740,"X",XK,7.6);
+  const nA=ease(seg(t,10.6,11.4));
+  h+=T_(510,370,"Any two checks share an even number of qubits where",{fs:15,fill:C.ink2,op:nA});
+  h+=T_(510,392,"X meets Z, so they all commute: they can be read",{fs:15,fill:C.ink2,op:nA});
+  h+=T_(510,414,"together, as often as we like.",{fs:15,fill:C.ink2,op:nA});
+  h+=T_(510,462,"The stored qubit lives in the logical operators,",{fs:15,fill:C.ink2,op:lg});
+  h+=T_(510,484,"which commute with every check:",{fs:15,fill:C.ink2,op:lg});
+  h+=M(510,522,"Z̄ = Z₀Z₁Z₂",{fs:20,fill:C.Z,op:lg})+M(660,522,"X̄ = X₀X₃X₆",{fs:20,fill:C.X,op:lg});
+  h+=T_(510,552,"distance 3: the shortest logical operator spans 3 qubits",{fs:13.5,fill:C.muted,op:ease(seg(t,13.4,14.2))});
+  return h;},
+
+ zcheck(t){
+  const q=Q[FZ],dim=ease(seg(t,.2,1.1)),anc={},pulses=[],T0=1.8,TL=1.9;
+  const nDone=[0,1,2,3].filter(L=>t>=T0+L*TL+1.3).length;
+  for(let L=0;L<4;L++){const u=seg(t,T0+L*TL,T0+L*TL+1.3);if(u>0&&u<1)pulses.push({k:FZ,n:q.order[L],u,big:true});}
+  const fm=seg(t,9.7,10.6);
+  anc[FZ]={label:t<9.7?"|0⟩":"",ly:-28,labA:dim,flash:fm>0&&fm<1?fm:0,bit:0,bitA:ease(seg(t,10,10.4))};
+  let h=drawPatch({focus:FZ,digOnly:FZ,dim,pulses,anc,digits:nDone+(pulses.length?clamp(pulses[0].u*1.2):0)});
+  h+=T_(60,70,"One Z check",{fs:19,fw:600});
+  // the parity the ancilla holds
+  const got=q.order.slice(0,nDone);
+  const par=got.length?"a = "+got.map(n=>"d"+sub(n)).join(" ⊕ "):"a = 0";
+  h+=M(250,540,par,{fs:21,fill:C.Z,anchor:"middle",op:dim});
+  if(t>=10.2)h+=T_(250,572,"measured 0: even parity, Z₁Z₂Z₄Z₅ = +1",{fs:15,fill:C.ink2,anchor:"middle",op:ease(seg(t,10.2,10.8))});
+  // circuit
+  h+=panelTitle("Its circuit","four CNOTs from the data into the ancilla, then measure");
+  const wy={1:150,2:205,4:260,5:315},ya=395,xs=[635,705,775,845],xi=575,xm=905;
+  for(const n of [1,2,4,5])h+=wire(560,950,wy[n],"d"+sub(n),C.ink);
+  h+=wire(560,xm,ya,"a",C.Z);h+=cwire(xm+17,965,ya);h+=T_(970,ya+5,"s",{fs:15,fill:C.ink2,it:true});
+  h+=gbox(xi,ya,"|0⟩",C.Z,1,0,36);
+  for(let L=0;L<4;L++){const n=q.order[L],on=t>=T0+L*TL,g=bump(seg(t,T0+L*TL,T0+L*TL+1.3));
+    h+=cnot(xs[L],wy[n],ya,C.Z,LIT(on),g);
+    h+=T_(xs[L],ya+40,String(L+1),{fs:13,fill:C.Z,anchor:"middle",mono:true,op:LIT(on)});}
+  h+=meter(xm,ya,C.Z,LIT(t>=9.7),bump(fm));
+  h+=T_(xs[0]-30,ya+40,"layer",{fs:12,fill:C.muted,anchor:"end"});
+  const hx=interp(t,[[0,555],[1.2,xi],[T0,xi+30],...xs.map((x,L)=>[T0+L*TL+.65,x]),[9.7,xm],[12,960]]);
+  h+=head(hx,128,ya+24);
+  if(t>=10.2)h+=T_(950,ya-26,"0",{fs:16,mono:true,fill:C.y,anchor:"middle",fw:700,op:ease(seg(t,10.2,10.7))});
+  h+=T_(510,515,"The CNOT flips the ancilla when its data qubit is 1,",{fs:14.5,fill:C.ink2,op:ease(seg(t,2,3))});
+  h+=T_(510,537,"so after four of them the ancilla holds their parity.",{fs:14.5,fill:C.ink2,op:ease(seg(t,2,3))});
+  return h;},
+
+ xcheck(t){
+  const q=Q[FX],dim=ease(seg(t,.2,1.1)),anc={},pulses=[],T0=2.6,TL=1.6,H1=[1.3,2.2],H2=[9.1,9.8];
+  const nDone=[0,1,2,3].filter(L=>t>=T0+L*TL+1.1).length;
+  for(let L=0;L<4;L++){const u=seg(t,T0+L*TL,T0+L*TL+1.1);if(u>0&&u<1)pulses.push({k:FX,n:q.order[L],u,big:true});}
+  const fm=seg(t,10.1,11),hA=Math.max(bump(seg(t,...H1)),bump(seg(t,...H2)));
+  anc[FX]={label:t<1.75?"|0⟩":t<9.45?"|+⟩":"",ly:46,labA:dim,h:hA,flash:fm>0&&fm<1?fm:0,bit:1,bitA:ease(seg(t,10.4,10.8))};
+  let h=drawPatch({focus:FX,digOnly:FX,dim,pulses,anc,digits:nDone+(pulses.length?clamp(pulses[0].u*1.2):0)});
+  h+=T_(60,70,"One X check",{fs:19,fw:600});
+  const got=q.order.slice(0,nDone);
+  h+=M(250,540,got.length?"ancilla ↔ "+got.map(n=>"X"+sub(n)).join(""):"ancilla in |+⟩ after H",{fs:21,fill:C.X,anchor:"middle",op:ease(seg(t,1.5,2.2))});
+  if(t>=10.6)h+=T_(250,572,"measured 1: random the first time, repeated after",{fs:15,fill:C.ink2,anchor:"middle",op:ease(seg(t,10.6,11.2))});
+  h+=panelTitle("Its circuit","Hadamards around CNOTs from the ancilla into the data");
+  const wy={4:150,5:205,7:260,8:315},ya=395,xi=565,xh1=612,xs=[665,725,785,845],xh2=893,xm=938;
+  for(const n of [4,5,7,8])h+=wire(550,975,wy[n],"d"+sub(n),C.ink);
+  h+=wire(550,xm,ya,"a",C.X);h+=cwire(xm+17,975,ya);
+  h+=gbox(xi,ya,"|0⟩",C.X,1,0,36);
+  h+=gbox(xh1,ya,"H",C.X,LIT(t>=H1[0]),bump(seg(t,...H1)));
+  for(let L=0;L<4;L++){const n=q.order[L],on=t>=T0+L*TL,g=bump(seg(t,T0+L*TL,T0+L*TL+1.1));
+    h+=cnot(xs[L],ya,wy[n],C.X,LIT(on),g);
+    h+=T_(xs[L],ya+40,String(L+1),{fs:13,fill:C.X,anchor:"middle",mono:true,op:LIT(on)});}
+  h+=gbox(xh2,ya,"H",C.X,LIT(t>=H2[0]),bump(seg(t,...H2)));
+  h+=meter(xm,ya,C.X,LIT(t>=10.1),bump(fm),32);
+  const hx=interp(t,[[0,548],[1,xi],[H1[0]+.4,xh1],...xs.map((x,L)=>[T0+L*TL+.55,x]),[H2[0]+.35,xh2],[10.1,xm],[12,975]]);
+  h+=head(hx,128,ya+24);
+  if(t>=10.6)h+=T_(958,ya-26,"1",{fs:16,mono:true,fill:C.y,anchor:"middle",fw:700,op:ease(seg(t,10.6,11))});
+  h+=T_(510,515,"H turns the ancilla's X into Z and back, so the same",{fs:14.5,fill:C.ink2,op:ease(seg(t,2.4,3.4))});
+  h+=T_(510,537,"parity trick now reads X₄X₅X₇X₈.",{fs:14.5,fill:C.ink2,op:ease(seg(t,2.4,3.4))});
+  return h;},
+
+ round(t){
+  const dim=1-ease(seg(t,0,.8)),tm={h1:[1,1.8],L0:2.2,Ld:2,h2:[10.4,11.1],m:[99,100],reset:[99,100]};
+  const v=roundVis(t,tm,0),L=Math.floor((t-tm.L0)/tm.Ld);
+  const digits=t<tm.L0?0:Math.min(4,(t-tm.L0)/tm.Ld*1.0+.25);
+  for(const k in v.anc)if(t>11.4)v.anc[k].label="";
+  let h=drawPatch({focus:-1,dim,pulses:v.pulses,anc:v.anc,digits});
+  h+=T_(60,70,"One round, all checks in parallel",{fs:19,fw:600});
+  const lab=t<tm.h1[0]?"":t<tm.L0?"H on the X ancillas":t<tm.L0+4*tm.Ld?`CNOT layer ${L+1} / 4`:t<tm.h2[1]?"H on the X ancillas":"every ancilla holds its parity";
+  h+=T_(250,540,lab,{fs:18,fill:C.ink,anchor:"middle"});
+  // panel: the schedule table
+  h+=panelTitle("The schedule","which data qubit each ancilla touches in each layer");
+  const xl=510,cols=[{x:640,l:"H"},{x:695,l:"1"},{x:750,l:"2"},{x:805,l:"3"},{x:860,l:"4"},{x:915,l:"H"}],y0=160,rh=33;
+  const act=t<tm.h1[0]?-1:t<tm.L0?0:t<tm.L0+4*tm.Ld?1+Math.min(3,L):t<tm.h2[1]?5:6;
+  cols.forEach((c,i)=>{const on=act===i;
+    if(on)h+=el("rect",{x:c.x-25,y:y0-46,width:50,height:8*rh+48,rx:8,fill:hexA(C.y,.08),stroke:hexA(C.y,.6),"stroke-width":1.2},"");
+    h+=T_(c.x,y0-24,i>0&&i<5?"L"+c.l:c.l,{fs:13,fill:on?C.y:C.muted,anchor:"middle",mono:true});});
+  ROWS.forEach((k,i)=>{const q=Q[k],col=q.type==="X"?C.X:C.Z,y=y0+i*rh;
+    h+=M(xl,y+5,pstr(q.type,q.s),{fs:16,fill:col});
+    if(q.type==="X"){for(const ci of [0,5])h+=T_(cols[ci].x,y+5,"H",{fs:14,fill:col,anchor:"middle",mono:true,op:LIT(act>=ci)});}
+    for(let Lc=0;Lc<4;Lc++){const n=q.order[Lc],on=act>=Lc+1;
+      h+=T_(cols[Lc+1].x,y+5,n<0?"·":String(n),{fs:15,fill:n<0?C.muted:col,anchor:"middle",mono:true,fw:act===Lc+1&&n>=0?700:400,op:LIT(on)});}});
+  const sA=ease(seg(t,6,7));
+  h+=T_(510,455,"Read down a column: no data qubit appears twice.",{fs:14.5,fill:C.ink2,op:sA});
+  const nA=ease(seg(t,11.2,12));
+  h+=M(510,500,"17 qubits · 24 CNOTs · 4 layers · 8 measurements",{fs:19,fill:C.ink,op:nA});
+  h+=T_(510,525,"per round, for d = 3",{fs:13.5,fill:C.muted,op:nA});
+  return h;},
+
+ mcm(t){
+  const RD=5.4,r0=.6,tm={h1:[0,.4],L0:.4,Ld:.6,h2:[2.8,3.1],m:[3.2,4.1],reset:[4.2,5.3]};
+  const k=Math.min(1,Math.floor(Math.max(0,t-r0)/RD)),v=t<r0?-1:t-r0-k*RD,r=k+1;
+  const vis=v>=0?roundVis(v,tm,r):{pulses:[],anc:{},measured:false,fm:0};
+  const nDone=(r-1)+(vis.measured?1:0);
+  if(v>=tm.reset[0]&&v<tm.reset[1])for(const kk in vis.anc){vis.anc[kk].flash=0;}
+  let h=drawPatch({pulses:vis.pulses,anc:vis.anc});
+  h+=T_(60,70,`Round ${r}`,{fs:19,fw:600});
+  const ph=v<0?"":v<tm.h2[1]?"CNOT layers":v<tm.reset[0]?"mid-circuit measurement":"reset ancillas to |0⟩";
+  h+=T_(250,540,ph,{fs:18,fill:v>=tm.m[0]&&v<tm.reset[0]?C.y:C.ink,anchor:"middle"});
+  h+=T_(250,570,"the data qubits are not measured",{fs:14.5,fill:C.ink2,anchor:"middle",op:ease(seg(t,3.6,4.4))});
+  h+=panelTitle("The circuit, round after round","");
+  h+=bundle(r,nDone,{yd:128,mg:bump(vis.fm)});
+  h+=T_(510,240,"mid-circuit: ancillas read and reset, data keep their state",{fs:13.5,fill:C.ink2,op:ease(seg(t,1,2))});
+  const fresh=v>=0&&v<=tm.reset[1]&&vis.measured;
+  const rec=record(nDone,{y0:322,newA:fresh?ease(clamp((v-tm.m[0]-.15)/.4)):1,randNote:ease(seg(t,5,6))});
+  h+=rec.h;
+  return h;},
+
+ error(t){
+  const RD=2.6,r0=.5,tm={h1:[0,.15],L0:.2,Ld:.32,h2:[1.48,1.6],m:[1.62,2.1],reset:[2.15,2.6]};
+  const raw=Math.floor(Math.max(0,t-r0)/RD),k=Math.min(3,raw),v=t<r0?-1:(raw>3?RD+1:t-r0-k*RD),r=3+k;
+  const vis=v>=0&&v<=RD?roundVis(v,tm,r):{pulses:[],anc:{},measured:v>RD,fm:0};
+  if(v>RD)for(let kk=0;kk<Q.length;kk++)vis.anc[kk]={};
+  const nDone=(r-1)+(vis.measured?1:0);
+  // glow: detection events of the latest measured round, fading over the next round
+  const glow={},last=vis.measured?r:r-1,since=vis.measured?v-tm.m[0]:v+RD-tm.m[0];
+  const decA=ease(seg(t,11.4,12.4));
+  if(last>=3&&t<11.4)for(let kk=0;kk<Q.length;kk++)if(detOf(kk,last))glow[kk]=clamp(1-Math.max(0,since-.5)/(RD+.3));
+  // after the last round: show every detection event again for the decoder
+  if(t>=11.4){glow[1]=glow[2]=.65*decA;glow[0]=.65*decA*(1-ease(seg(t,14.6,15.4)));}
+  const eA=ease(seg(t,r0,r0+.5)),fix=ease(seg(t,13.4,14.4)),err={4:eA*(1-.85*fix)},fx={4:fix};
+  let h=drawPatch({pulses:vis.pulses,anc:vis.anc,glow,err,fix:fx,match:ease(seg(t,12.6,13.4))});
+  h+=T_(60,70,t<11.4?`Round ${r}`:"Decoding",{fs:19,fw:600});
+  let lab="",lc=C.ink;
+  if(t<r0+.9){lab="an X error hits qubit 4";lc=C.r;}
+  else if(t<11.4){if(r===3&&vis.measured){lab="Z₁Z₂Z₄Z₅ and Z₃Z₄Z₆Z₇ change: two events";lc=C.y;}
+    else if(r===5&&vis.measured){lab="X₀X₁X₃X₄ misread: it changes for one round";lc=C.y;}
+    else if(r===6&&vis.measured){lab="…and changes back: a second event, in time";lc=C.y;}
+    else lab=r===4||r===6?"nothing new: no events":"";}
+  else if(t<13.4){lab="pair in space → data error on qubit 4";lc=C.y;}
+  else{lab="correct X on qubit 4 (in software)";lc=C.g;}
+  h+=T_(250,540,lab,{fs:17,fill:lc,anchor:"middle"});
+  if(t>=13.4)h+=T_(250,570,"the misread check needs no correction",{fs:14.5,fill:C.ink2,anchor:"middle",op:ease(seg(t,14.6,15.4))});
+  h+=panelTitle("The record, with errors","");
+  h+=bundle(t<11.4?r:7,Math.min(6,nDone),{yd:128,mg:bump(vis.fm)});
+  const rec=record(Math.min(6,nDone),{y0:322,newA:vis.measured&&t<11.4?ease(clamp((v-tm.m[0]-.1)/.3)):1,legend:ease(seg(t,2.4,3.2)),
+    matchS:ease(seg(t,11.6,12.4)),matchT:ease(seg(t,14,14.8))});
+  h+=rec.h;
+  if(t>=11.6)h+=T_(510,570,"space pair: data error",{fs:13.5,fill:C.y,op:ease(seg(t,11.8,12.4))});
+  if(t>=14)h+=T_(700,570,"time pair: measurement error",{fs:13.5,fill:C.y,op:ease(seg(t,14.2,14.8))});
+  return h;},
+
+ ff(t){
+  const RD=2.2,tm={h1:[0,.12],L0:.14,Ld:.3,h2:[1.36,1.46],m:[1.48,1.85],reset:[1.88,2.2]};
+  const v=t%RD,vis=roundVis(v,tm,0);
+  let h=drawPatch({pulses:vis.pulses,anc:vis.anc});
+  h+=T_(60,70,`Round ${Math.floor(t/RD)+1}, and the next, and the next…`,{fs:19,fw:600});
+  h+=T_(250,540,"every check, every round",{fs:18,fill:C.ink,anchor:"middle"});
+  // panel: measure → decide → act
+  h+=panelTitle("Feed-forward","the outcome steers the rest of the circuit");
+  const yd=150,ya=215,yc=262,xs=560,xm=650,xr=780,xdec=840,xp=905;
+  h+=wire(548,970,yd,"data",C.ink);h+=wire(548,970,ya,"anc",C.Z);
+  const cx_=bump(seg(t,.4,1.8)),fm=seg(t,1.9,2.9),travel=ease(seg(t,2.9,4.6)),aR=bump(seg(t,4.4,5.6)),dec=bump(seg(t,5.6,6.8)),aP_=bump(seg(t,6.9,8.1));
+  h+=el("rect",{x:xs,y:yd-18,width:50,height:ya-yd+36,rx:6,fill:hexA(C.Z,.12+.2*cx_),stroke:C.Z,"stroke-width":1.6},"");
+  h+=T_(xs+25,(yd+ya)/2+5,"CX×4",{fs:12.5,fill:C.Z,anchor:"middle",mono:true});
+  h+=meter(xm,ya,C.Z,1,bump(fm));
+  // classical path: meter → down → right
+  const cx0=xm,cy0=ya+17;
+  h+=el("path",{d:`M${cx0-2},${cy0}V${yc+2}H${xp+2}M${cx0+2},${cy0}V${yc-2}H${xp-2}`,fill:"none",stroke:hexA(C.ink2,.7),"stroke-width":1.2},"");
+  h+=el("line",{x1:xr,y1:yc,x2:xr,y2:ya+15,stroke:hexA(C.ink2,.7),"stroke-width":1.2,"stroke-dasharray":"0"},"");
+  h+=el("line",{x1:xp,y1:yc,x2:xp,y2:yd+15,stroke:hexA(C.ink2,.7),"stroke-width":1.2},"");
+  if(travel>0&&travel<1){const L1=yc-cy0,L2=xp-cx0,s=travel*(L1+L2),px=s<L1?cx0:cx0+(s-L1),py=s<L1?cy0+s:yc;
+    h+=el("circle",{cx:px,cy:py,r:6,fill:C.y},"");}
+  h+=el("rect",{x:xdec-30,y:yc-14,width:60,height:28,rx:6,fill:"#0c1e33"},"");
+  h+=el("rect",{x:xdec-30,y:yc-14,width:60,height:28,rx:6,fill:hexA(C.jscl,.12+.3*dec),stroke:C.jscl,"stroke-width":1.4},"");
+  h+=T_(xdec,yc+5,"decide",{fs:12.5,fill:C.jscl,anchor:"middle"});
+  h+=gbox(xr,ya,"X",C.Z,1,aR);
+  h+=gbox(xp,yd,"P",C.ink,1,aP_);
+  h+=T_(xr,ya-26,"reset",{fs:12,fill:C.ink2,anchor:"middle"});
+  h+=T_(xp,yd-26,"correct / next gate",{fs:12,fill:C.ink2,anchor:"middle"});
+  h+=T_(xm,ya-26,"measure",{fs:12,fill:C.ink2,anchor:"middle"});
+  // latency bracket
+  const lA=ease(seg(t,4.6,5.4));
+  h+=el("path",{d:`M${xm+18},${yc+26}v8H${xp}v-8`,fill:"none",stroke:hexA(C.y,.8*lA),"stroke-width":1.5},"");
+  h+=T_((xm+xp)/2,yc+54,"classical latency: the data qubits idle and decohere",{fs:13.5,fill:C.y,anchor:"middle",op:lA});
+  // the cycle
+  const cA=ease(seg(t,8.6,9.6));
+  const bx=[518,672,826],bl=[["4 CNOT","layers"],["mid-circuit","measurement"],["feed-","forward"]],by=380,bw=134,bh=62;
+  bx.forEach((x,i)=>{const cyc=((t-9.6)/1.1)%3,lit=t>9.6?bump(cyc-i):0;
+    h+=el("rect",{x,y:by,width:bw,height:bh,rx:10,fill:hexA(i===1?C.y:C.jscl,.08+.18*lit),stroke:hexA(i===1?C.y:C.jscl,cA),"stroke-width":1.5},"");
+    h+=T_(x+bw/2,by+27,bl[i][0],{fs:15,fill:C.ink,anchor:"middle",fw:600,op:cA});
+    h+=T_(x+bw/2,by+47,bl[i][1],{fs:15,fill:C.ink,anchor:"middle",fw:600,op:cA});
+    if(i<2)h+=el("path",{d:`M${x+bw+4},${by+bh/2}h12`,stroke:hexA(C.ink2,cA),"stroke-width":2,"marker-end":"url(#arr)"},"");});
+  h+=el("path",{d:`M${bx[2]+bw/2},${by+bh+4}v18H${bx[0]+bw/2}v-14`,fill:"none",stroke:hexA(C.ink2,cA),"stroke-width":2,"marker-end":"url(#arr)"},"");
+  h+=T_((bx[0]+bx[2]+bw)/2,by+bh+40,"next round",{fs:12.5,fill:C.muted,anchor:"middle",op:cA});
+  const wA=ease(seg(t,10.4,11.4));
+  h+=T_(510,540,"This cycle is the primitive we benchmark:",{fs:16,fill:C.ink,fw:600,op:wA});
+  h+=T_(510,564,"width = checks at once, depth = rounds in a row.",{fs:15,fill:C.ink2,op:wA});
+  return h;},
+};
+
+/* =====================================================================================
+   Part 2: what a memory experiment costs in shots
+   eps_L per round from stim + pymatching on memory.stim_circuit (uniform circuit-level noise p, R = d rounds,
+   Z basis), d = 3, 5, 7 and p = 2e-3 ... 5e-3, fitted as eps_L = A (p / p_th)^((d+1)/2):
+   A = 0.0257, p_th = 0.0129, within 8 % of every simulated point; d >= 9 is the same law extrapolated.
+   Shots: the relative error of P_L is 1/sqrt(S P_L), so +-10 % takes about 100 logical failures,
+   S = 100 / P_L with P_L ~ R eps_L at R = d rounds, one basis.
+   ===================================================================================== */
+const FIT_A=.0257,P_TH=.0129,PREC=.1,FAILS=1/(PREC*PREC);
+const epsL=(d,p)=>FIT_A*Math.pow(p/P_TH,(d+1)/2);
+const shotsFor=(d,p)=>FAILS/(d*epsL(d,p));
+const MD=[{d:3,col:"#6CB4E8"},{d:5,col:"#B3A2E6"},{d:7,col:"#8FC23A"},{d:9,col:"#FAEB5A"},{d:11,col:"#E8A15A"},{d:15,col:"#E58FD0"}];
+const P0=1e-3,PMIN=1e-4,PMAX=5e-3;
+const SUP="⁰¹²³⁴⁵⁶⁷⁸⁹",supN=n=>(n<0?"⁻":"")+String(Math.abs(n)).split("").map(c=>SUP[+c]).join("");
+const fmtInt=v=>Math.round(v).toLocaleString("en-US");
+const sci=v=>{const e=Math.floor(Math.log10(v)+1e-9),ms=(v/10**e).toFixed(1);
+  if(e>=0&&e<4)return fmtInt(v);if(ms==="10.0")return "10"+supN(e+1);return (ms==="1.0"?"":ms+" × ")+"10"+supN(e);};
+const SB=x=>`<tspan baseline-shift="sub" font-size="72%">${x}</tspan>`,EL="ε"+SB("L");
+const CH={x0:96,x1:590,y0:150,y1:455};
+function axes(o){const {x0,x1,y0,y1}=CH,fx=o.xlog?Math.log10:v=>v,fy=o.ylog?Math.log10:v=>v;
+  const X=v=>x0+(fx(v)-fx(o.xmin))/(fx(o.xmax)-fx(o.xmin))*(x1-x0),Y=v=>y1-(fy(v)-fy(o.ymin))/(fy(o.ymax)-fy(o.ymin))*(y1-y0);
+  let h="";
+  for(const v of o.yt){const y=Y(v);h+=el("line",{x1:x0,x2:x1,y1:y,y2:y,stroke:"#142a44","stroke-width":1},"")+T_(x0-8,y+4,o.fy(v),{fs:12,fill:C.muted,anchor:"end",mono:true});}
+  for(const v of o.xt){const x=X(v);h+=el("line",{x1:x,x2:x,y1:y1,y2:y1+5,stroke:C.muted},"")+T_(x,y1+20,o.fx(v),{fs:12,fill:C.muted,anchor:"middle",mono:true});}
+  h+=el("line",{x1:x0,x2:x1,y1:y1,y2:y1,stroke:C.line2,"stroke-width":1.2},"");
+  if(o.xl)h+=T_((x0+x1)/2,y1+46,o.xl,{fs:13.5,fill:C.ink2,anchor:"middle"});
+  if(o.yl)h+=T_(x0-60,y0-16,o.yl,{fs:13.5,fill:C.ink2});
+  return {X,Y,h};}
+const pathOf=(pts)=>pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)).join("");
+let hoverU=null;const HOVER={memshots:1};
+
+Object.assign(DRAW,{
+ memshots(t){
+  let h=T_(60,70,"Shots to measure the logical error of a surface-code memory",{fs:19,fw:600})
+       +T_(60,96,"±10 % on "+EL+", R = d rounds, one basis, circuit-level noise p",{fs:14,fill:C.ink2});
+  const ax=axes({xlog:true,ylog:true,xmin:PMIN,xmax:PMAX,ymin:10,ymax:1e16,yt:[1e2,1e4,1e6,1e8,1e10,1e12,1e14,1e16],
+    xt:[1e-4,3e-4,1e-3,3e-3],fy:v=>"10"+supN(Math.round(Math.log10(v))),fx:v=>v>=1e-3?Math.round(v*1e3)+"×10⁻³":Math.round(v*1e4)+"×10⁻⁴",
+    xl:"physical error rate p  (better devices to the left)",yl:"shots"});
+  h+=ax.h;
+  // the chosen p
+  const LMIN=Math.log10(PMIN),LMAX=Math.log10(PMAX);
+  const p=hoverU!=null?10**(LMIN+hoverU*(LMAX-LMIN)):P0;
+  const mA=hoverU!=null?1:ease(seg(t,.6,1.3)),xm=ax.X(p);
+  h+=el("line",{x1:xm,x2:xm,y1:CH.y0,y2:CH.y1,stroke:hexA(C.ink,.45*mA),"stroke-dasharray":"4 4"},"");
+  // curves and the points at p, one distance at a time
+  const t0=1.4,dt=1.5;
+  MD.forEach((m,i)=>{const u=hoverU!=null?1:ease(seg(t,t0+i*dt,t0+i*dt+1.1));if(u<=0)return;
+    const pts=[];for(let j=0;j<=100;j++){const q=10**(LMIN+(LMAX-LMIN)*j/100),s=shotsFor(m.d,q);if(s<=1e16)pts.push([ax.X(q),ax.Y(Math.max(10,s))]);}
+    const n=Math.max(2,Math.round(pts.length*u)),seen=pts.slice(pts.length-n);
+    h+=el("path",{d:pathOf(seen),fill:"none",stroke:m.col,"stroke-width":2.4,"stroke-dasharray":m.d>7?"7 4":null},"");
+    const s=shotsFor(m.d,p),lA=hoverU!=null?1:ease(seg(t,t0+i*dt+.6,t0+i*dt+1.1));
+    if(s<=1e16&&lA>0)h+=el("circle",{cx:xm,cy:ax.Y(s),r:5,fill:m.col,stroke:"#071526","stroke-width":2,opacity:lA},"");
+    if(u>.95){const e=pts[0],top=e[1]<=CH.y0+2;h+=T_(top?e[0]-8:e[0]+6,top?e[1]+4:e[1]-9,"d = "+m.d,{fs:12,fill:m.col,mono:true,anchor:top?"end":"start"});}});
+  // readout table
+  const Lam=P_TH/p,rA=hoverU!=null?1:ease(seg(t,.6,1.3));
+  h+=T_(640,140,"p = "+sci(p),{fs:22,fw:600,op:rA});
+  h+=T_(640,164,"Λ = p"+SB("th")+" / p ≈ "+(Lam<10?Lam.toFixed(1):Math.round(Lam))+": each +2 in d divides "+EL+" by Λ",{fs:13,fill:C.ink2,op:rA});
+  const cx=[640,752,862,975];
+  h+=T_(cx[0],200,"d",{fs:12,fill:C.muted,mono:true,op:rA})+T_(cx[1],200,"qubits",{fs:12,fill:C.muted,mono:true,anchor:"end",op:rA})
+    +T_(cx[2],200,EL+" / round",{fs:12,fill:C.muted,mono:true,anchor:"end",op:rA})+T_(cx[3],200,"shots",{fs:12,fill:C.muted,mono:true,anchor:"end",op:rA});
+  MD.forEach((m,i)=>{const a=hoverU!=null?1:ease(seg(t,t0+i*dt+.6,t0+i*dt+1.1));if(a<=0)return;const y=232+i*31;
+    h+=el("rect",{x:628,y:y-20,width:354,height:28,rx:6,fill:hexA(m.col,.07*a)},"");
+    h+=T_(cx[0],y,String(m.d),{fs:15,fill:m.col,mono:true,fw:600,op:a});
+    h+=T_(cx[1],y,fmtInt(2*m.d*m.d-1),{fs:14,mono:true,anchor:"end",fill:C.ink2,op:a});
+    h+=T_(cx[2],y,sci(epsL(m.d,p)),{fs:14,mono:true,anchor:"end",op:a});
+    h+=T_(cx[3],y,sci(shotsFor(m.d,p)),{fs:14,mono:true,anchor:"end",fw:600,op:a});});
+  // the lesson
+  const tl=t0+MD.length*dt,nA=hoverU!=null?1:ease(seg(t,tl+.8,tl+1.8));
+  h+=el("rect",{x:630,y:436,width:350,height:96,rx:10,fill:hexA(C.r,.07*nA),stroke:hexA(C.r,.55*nA),"stroke-width":1.2},"");
+  h+=T_(646,462,"The better the code, the rarer its failures,",{fs:13.5,fw:600,fill:C.ink,op:nA});
+  h+=T_(646,484,"and the more shots it takes to see them:",{fs:13.5,fw:600,fill:C.ink,op:nA});
+  h+=T_(646,508,"S ≈ 100 / (R "+EL+") grows by Λ with each step in d.",{fs:13.5,fill:C.ink2,op:nA});
+  const hA=ease(seg(t,tl+2,tl+2.8));
+  h+=T_(CH.x0,566,"hover the chart to change p",{fs:12.5,fill:C.muted,op:hoverU!=null?0:hA});
+  return h;},
+});
+
+/* =====================================================================================
+   Part 3: our proposal, syndrome extraction as LR-QAOA on the XZ Hamiltonian
+   circuits.build_dynamic(frame="XZ"): per layer, the Z...Z checks (H on the ancillas, CZs), then the X...X checks
+   with the data conjugated by H, Rx(2 w gamma_k) on every ancilla, all ancillas measured together, feed-forward
+   (outcome 1: Z_P or X_P on the data, X on the ancilla), and an Ry(-2 beta_k) mixer on the data, from |+i>.
+   Linear ramp gamma_k = k delta / p, beta_k = (p - k + 1) delta / p, delta = 0.5. The data are read in Z (the
+   Z checks) or in X (the X checks): two circuits per depth.
+   r_ovl: ibm_phoenix, d = 3 run 20261005_071721 (11 patches), d = 5 run 20261002_121845 (8 patches),
+   1,000 shots per circuit; median and range over patches (analysis.load_results(kind="mcm_xz")).
+   ===================================================================================== */
+const XZD=[{d:3,col:"#6CB4E8",n:11,pts:[[1,.81,.71,.90],[2,.52,.42,.62],[3,.36,.27,.52],[5,.24,.14,.37],[7,.17,.06,.28],[10,.08,.03,.17]]},
+           {d:5,col:"#B3A2E6",n:8,pts:[[1,.51,.43,.74],[2,.27,.20,.38],[3,.17,.08,.23],[5,.06,.04,.10],[7,.04,.03,.07],[10,.01,.01,.03]]}];
+const SP=x=>`<tspan baseline-shift="super" font-size="72%">${x}</tspan>`;
+function czg(x,yd,ya,col,a,glow){let h="";
+  if(glow>0)h+=el("rect",{x:x-14,y:Math.min(yd,ya)-14,width:28,height:Math.abs(ya-yd)+28,rx:8,fill:hexA(col,.18*glow)},"");
+  h+=el("line",{x1:x,y1:yd,x2:x,y2:ya,stroke:hexA(col,a),"stroke-width":2},"");
+  return h+el("circle",{cx:x,cy:yd,r:5.5,fill:hexA(col,a)},"")+el("circle",{cx:x,cy:ya,r:5.5,fill:hexA(col,a)},"");}
+function miniCirc(y0,o){   // one Z check, Z1Z2Z4Z5, read (o.lr false) or rotated (o.lr true)
+  let h="";const a=o.a,wy=[0,1,2,3].map(i=>y0+i*30),ya=y0+128,DN=[1,2,4,5],xs=[310,365,420,475],xe=o.lr?760:700;
+  DN.forEach((n,i)=>{h+=el("line",{x1:150,y1:wy[i],x2:xe,y2:wy[i],stroke:hexA(C.ink2,.55*a),"stroke-width":1.5},"")+M(138,wy[i]+5,"d"+sub(n),{fs:15,fill:C.ink2,anchor:"end",op:a});});
+  h+=el("line",{x1:150,y1:ya,x2:o.lr?760:620,y2:ya,stroke:hexA(C.Z,.55*a),"stroke-width":1.5},"")+M(138,ya+5,"a",{fs:16,fill:C.Z,anchor:"end",op:a});
+  h+=gbox(185,ya,"|0⟩",C.Z,a,0,36)+gbox(245,ya,"H",C.Z,a,0);
+  xs.forEach((x,L)=>{h+=czg(x,wy[L],ya,C.Z,a,o.cz?bump(seg(o.cz,L,L+1)):0);});
+  if(!o.lr){h+=gbox(545,ya,"H",C.Z,a,0);h+=meter(620,ya,C.Z,a,o.m||0);h+=cwire(637,700,ya,a);h+=M(712,ya+6,"s",{fs:17,fill:C.ink2,op:a});}
+  else{h+=gbox(545,ya,"Rx(2γ)",o.rg>0?C.y:C.Z,a,o.rg||0,70);h+=meter(625,ya,C.Z,a,o.m||0);
+    const fa=a*(o.fa??1),fg=o.fg||0,xf=715;
+    h+=el("path",{d:`M${625},${ya+16}V${ya+38}H${xf}V${wy[0]}`,fill:"none",stroke:hexA(C.y,.85*fa),"stroke-width":1.6,"stroke-dasharray":"5 4"},"");
+    h+=T_(632,ya+34,"if 1",{fs:12.5,fill:C.y,op:fa});
+    wy.forEach(y=>{h+=gbox(xf,y,"Z",C.y,fa,fg,26);});h+=gbox(xf,ya,"X",C.y,fa,fg,26);}
+  return h;}
+
+Object.assign(DRAW,{
+ gadget(t){
+  let h=T_(60,70,"One check, two uses of the same circuit",{fs:19,fw:600})+T_(60,96,"the d = 3 check Z₁Z₂Z₄Z₅; a CNOT into the ancilla is a CZ between two H on it",{fs:14,fill:C.ink2});
+  const aT=ease(seg(t,.6,1.6)),aB=ease(seg(t,4.2,5.2)),rg=bump(seg(t,6.4,8.4)),fg=bump(seg(t,8.6,10.4));
+  h+=T_(60,140,"Syndrome extraction: measure it",{fs:15,fw:600,fill:C.Z,op:aT});
+  h+=miniCirc(166,{a:aT,cz:t>1.6&&t<3.8?(t-1.6)*4/2.2:0,m:bump(seg(t,3.6,4.3))});
+  h+=T_(740,232,"s = 0 or 1:",{fs:15,fill:C.ink,op:ease(seg(t,3.8,4.4))})+M(740,256,"the parity Z₁Z₂Z₄Z₅",{fs:16,fill:C.ink2,op:ease(seg(t,3.8,4.4))});
+  h+=T_(60,358,"LR-QAOA: rotate by it",{fs:15,fw:600,fill:C.y,op:aB});
+  h+=miniCirc(384,{lr:true,a:aB,cz:t>5.2&&t<6.6?(t-5.2)*4/1.4:0,rg,m:bump(seg(t,8,8.6)),fa:ease(seg(t,8.6,9.4)),fg});
+  const eA=ease(seg(t,10.4,11.4));
+  h+=el("path",{d:"M772,378 q10,0 10,12 v40 q0,12 10,12 q-10,0 -10,12 v40 q0,12 -10,12",fill:"none",stroke:hexA(C.ink2,eA),"stroke-width":1.5},"");
+  h+=M(800,450,"= e",{fs:22,fill:C.ink,op:eA})+M(834,438,"−iγ Z₁Z₂Z₄Z₅",{fs:15,fill:C.ink,op:eA});
+  const nA=ease(seg(t,11.6,12.6));
+  h+=T_(60,592,"One gate changes: H → Rx(2γ). The random outcome leaves a known Z₁Z₂Z₄Z₅, and feed-forward removes it.",{fs:14,fill:C.ink2,op:nA});
+  return h;},
+
+ xzround(t){
+  // one layer on the whole patch: Z checks, X checks, Rx, MCM, feed-forward, mixer
+  const pulses=[],anc={},hi={},fix={};
+  const zt=1.4,xt=5.6,LD=1,tr=9.8,tm=10.8,tf=11.8,tmx=12.8;
+  for(let L=0;L<4;L++){
+    const uz=seg(t,zt+L*LD,zt+(L+1)*LD-.04),ux=seg(t,xt+L*LD,xt+(L+1)*LD-.04);
+    if(uz>0&&uz<1)ZK.forEach(k=>{const n=Q[k].order[L];if(n>=0)pulses.push({k,n,u:uz});});
+    if(ux>0&&ux<1)XK.forEach(k=>{const n=Q[k].order[L];if(n>=0)pulses.push({k,n,u:ux});});}
+  const zOn=bump(seg(t,zt-.3,zt+4.2)),xOn=bump(seg(t,xt-.3,xt+4.2));
+  ZK.forEach(k=>hi[k]=.6*zOn);XK.forEach(k=>hi[k]=.6*xOn);
+  const rA=bump(seg(t,tr,tr+1)),fm=seg(t,tm,tm+.9);
+  for(let k=0;k<Q.length;k++)anc[k]={h:rA,flash:fm>0&&fm<1?fm:0};
+  const ff=bump(seg(t,tf,tf+1));for(const n of [1,2,4,7])fix[n]=ff;      // the corrections of the checks that read 1
+  let h=drawPatch({pulses,anc,hi,fix});
+  const mx=bump(seg(t,tmx,tmx+1));
+  if(mx>0)for(let n=0;n<9;n++){const [x,y]=dP(n);h+=el("circle",{cx:x,cy:y,r:27,fill:"none",stroke:hexA(C.ink,.8*mx),"stroke-width":2.5},"");}
+  h+=T_(60,70,"One LR-QAOA layer on the whole patch",{fs:19,fw:600});
+  h+=M(60,100,"H = Z₁Z₂Z₄Z₅ + Z₃Z₄Z₆Z₇ + Z₀Z₃ + Z₅Z₈ + X₀X₁X₃X₄ + X₄X₅X₇X₈ + X₁X₂ + X₆X₇",{fs:14.5,fill:C.ink2,op:ease(seg(t,.2,1))});
+  // the stages
+  const ST=[["Z checks: 4 CZ layers","ancillas in |+⟩ collect the Z…Z parities",C.Z,zt,xt],
+    ["X checks: 4 CZ layers","data between H gates: the X…X parities",C.X,xt,tr],
+    ["Rx(2γₖ) on every ancilla","the cost layer e"+SP("−iγₖH")+": the one new gate",C.y,tr,tm],
+    ["Mid-circuit measurement","all 8 ancillas at once, as in a round",C.jscl,tm,tf],
+    ["Feed-forward","outcome 1: undo Z"+SB("P")+" or X"+SB("P")+", reset the ancilla",C.g,tf,tmx],
+    ["Mixer Ry(−2βₖ) on the data","from |+i⟩; then the next layer",C.ink2,tmx,tmx+1.2]];
+  const bx=560,bw=410,bh=50;
+  ST.forEach((s,i)=>{const y=134+i*58,a=ease(seg(t,.4+i*.12,1+i*.12)),on=t>=s[3]&&t<s[4]?1:0,done=t>=s[4];
+    h+=el("rect",{x:bx,y,width:bw,height:bh,rx:9,fill:hexA(s[2],on?.2:.05),stroke:hexA(s[2],(on?1:done?.55:.3)*a),"stroke-width":on?2:1.2},"");
+    h+=T_(bx+16,y+21,s[0],{fs:15,fw:600,fill:on?C.ink:C.ink2,op:a});
+    h+=T_(bx+16,y+40,s[1],{fs:12.5,fill:C.muted,op:a});
+    h+=T_(bx+bw-12,y+21,String(i+1),{fs:13,mono:true,fill:s[2],anchor:"end",op:a});});
+  const lA=ease(seg(t,tmx+1.2,tmx+2));
+  if(lA>0)h+=el("path",{d:`M${bx+bw+6},${134+5*58+25}h10V${134+25}h-6`,fill:"none",stroke:hexA(C.ink2,lA),"stroke-width":1.8,"marker-end":"url(#arr)"},"");
+  h+=T_(bx,134+6*58+22,"× p layers, with γ rising and β falling (linear ramp)",{fs:14.5,fill:C.ink,fw:600,op:lA});
+  h+=T_(bx,134+6*58+46,"Per layer: 24 CZ and 8 MCM, the gates of one syndrome round",{fs:13.5,fill:C.ink2,op:lA});
+  return h;},
+
+ xzmeasure(t){
+  let h=T_(60,70,"What the device returns: ibm_phoenix, XZ Hamiltonian",{fs:19,fw:600})+T_(60,96,"median over patches and their range, 1,000 shots per circuit",{fs:14,fill:C.ink2});
+  const ax=axes({xmin:0,xmax:10.5,ymin:0,ymax:1,yt:[0,.25,.5,.75,1],xt:[1,2,3,5,7,10],fy:v=>v.toFixed(2),fx:String,xl:"LR-QAOA layers p  (= rounds of checks)",yl:"r"+SB("ovl")});
+  h+=ax.h;
+  h+=el("line",{x1:CH.x0,x2:CH.x1,y1:ax.Y(1),y2:ax.Y(1),stroke:hexA(C.ink,.5),"stroke-dasharray":"5 4"},"")+T_(CH.x1-4,ax.Y(1)-7,"noiseless",{fs:12,fill:C.ink2,anchor:"end"});
+  h+=T_(CH.x0+6,ax.Y(0)-7,"random",{fs:12,fill:C.ink2});
+  XZD.forEach((s,i)=>{const u=ease(seg(t,1+i*2.4,3+i*2.4));if(u<=0)return;const n=Math.max(1,Math.ceil(s.pts.length*u));const P=s.pts.slice(0,n);
+    const band=P.map(q=>[ax.X(q[0]),ax.Y(q[3])]).concat(P.slice().reverse().map(q=>[ax.X(q[0]),ax.Y(q[2])]));
+    if(P.length>1)h+=el("path",{d:pathOf(band)+"Z",fill:hexA(s.col,.14)},"");
+    h+=el("path",{d:pathOf(P.map(q=>[ax.X(q[0]),ax.Y(q[1])])),fill:"none",stroke:s.col,"stroke-width":2.4},"");
+    P.forEach(q=>{h+=el("circle",{cx:ax.X(q[0]),cy:ax.Y(q[1]),r:4.5,fill:s.col,stroke:"#071526","stroke-width":2},"");});
+    const ly=ax.Y(.93-i*.08);h+=el("line",{x1:400,x2:424,y1:ly-4,y2:ly-4,stroke:s.col,"stroke-width":2.4,opacity:u},"")+T_(432,ly,`d = ${s.d}, ${s.n} patches`,{fs:12.5,fill:s.col,op:u});});
+  const r1=ease(seg(t,6,7)),r2=ease(seg(t,7.5,8.5)),r3=ease(seg(t,9.5,10.5));
+  h+=T_(640,150,"Read the data at the end",{fs:15,fw:600,op:r1});
+  h+=T_(640,174,"in Z for the Z checks, in X for the X checks:",{fs:13.5,fill:C.ink2,op:r1});
+  h+=T_(640,194,"two circuits per depth, one energy E.",{fs:13.5,fill:C.ink2,op:r1});
+  h+=M(640,240,"r = (E − E"+SB("max")+") / (E"+SB("min")+" − E"+SB("max")+")",{fs:17,fill:C.ink,op:r2});
+  h+=M(640,274,"r"+SB("ovl")+" = (r − r"+SB("rand")+") / (r"+SB("ideal")+" − r"+SB("rand")+")",{fs:17,fill:C.ink,op:r2});
+  h+=T_(640,300,"1: the noiseless circuit; 0: random bits.",{fs:13.5,fill:C.ink2,op:r2});
+  h+=el("rect",{x:630,y:340,width:350,height:150,rx:10,fill:hexA(C.g,.07*r3),stroke:hexA(C.g,.55*r3),"stroke-width":1.2},"");
+  h+=T_(646,366,"What the memory experiment lacks",{fs:14,fw:600,op:r3});
+  h+=T_(646,392,"• no decoder: the reference r"+SB("ideal")+" is exact",{fs:13.5,fill:C.ink2,op:r3});
+  h+=T_(646,416,"• the signal is the physical error, so",{fs:13.5,fill:C.ink2,op:r3});
+  h+=T_(658,436,"1,000 shots resolve r to ±0.005",{fs:13.5,fill:C.ink2,op:r3});
+  h+=T_(646,460,"• r"+SB("ovl")+" falls with depth and with d:",{fs:13.5,fill:C.ink2,op:r3});
+  h+=T_(658,480,"more layers, more checks, more errors",{fs:13.5,fill:C.ink2,op:r3});
+  return h;},
+});
+
+/* =====================================================================================
+   Part 4: across QPUs and across codes
+   Chips: d = 3 surface code, XZ benchmark and memory experiment of the same day on the same placements.
+     ibm_phoenix: benchmark 20261005_071721, memory 20261005_071730 (11 patches);
+     ibm_chicago: benchmark 20261111_135143, memory 20261111_141428 (9 patches).
+     eps = mean of the Z- and X-basis logical error per round (memory.error_per_round over R = 1..10, 4,000 shots);
+     r_ovl at p = 2 from analysis.load_results(kind="mcm_xz"). Spearman rho(r_ovl, -eps).
+   Codes: Helios-1 hardware, MCM LR-QAOA with every check as Z...Z (analysis.load_results(kind="mcm")),
+     runs 20260309_1631 ... 20260924_101609; r_ideal only where the circuit can be simulated (<= 37 data qubits).
+     Counts from CodeStructure.counts("mcm").
+   ===================================================================================== */
+const CHIPS=[{name:"ibm_phoenix",col:"#6CB4E8",sq:false,rho:.94,eps:"2.5 %",r:".52",
+  pts:[[.0151,.618],[.0172,.59],[.0174,.623],[.0199,.586],[.0218,.524],[.0248,.541],[.0314,.467],[.0374,.446],[.04,.477],[.0432,.438],[.0473,.425]]},
+ {name:"ibm_chicago",col:"#E8A15A",sq:true,rho:.87,eps:"2.8 %",r:".53",
+  pts:[[.0135,.639],[.0179,.579],[.018,.674],[.0268,.527],[.0277,.586],[.0593,.424],[.1037,.228],[.1173,.241],[.2576,.088]]}];
+const RHO_P=[[1,.35,.95,.74],[2,.94,.87,.94],[3,.88,.83,.88],[5,.84,.80,.85],[7,.92,.90,.88],[10,.80,.87,.84]];
+const FAM=[
+ {name:"Surface code",kind:"local checks of weight 4 and 2",
+  big:["d = 9: 81 data qubits, 288 CZ + 80 MCM per layer,","20σ above random at p = 5 with 20 shots"],
+  inst:[{lab:"d = 5",r:[.735,.748,.752],id:[.731,.797,.843]},{lab:"d = 7",r:[.703,.716,.759]},{lab:"d = 9",r:[.677,.755,.737]}]},
+ {name:"Triangular colour code",kind:"local checks of weight 6 and 4",
+  big:["d = 11: 91 data qubits, 240 CZ + 45 MCM per layer,","9σ above random at p = 10 with 10 shots"],
+  inst:[{lab:"d = 7",r:[.681,.72,.702],id:[.697,.72,.845]},{lab:"d = 9",r:[.653,.73,.733]},{lab:"d = 11",r:[.616,.673,.722]}]},
+ {name:"Bivariate bicycle (qLDPC)",kind:"long-range checks of weight 5, on a torus",
+  big:["BB48: 48 data qubits, 220 CZ + 44 MCM per layer,","6σ above random at p = 5 with 20 shots"],
+  inst:[{lab:"BB30",r:[.556,.608,.598],id:[.616,.679,.77]},{lab:"BB48",r:[.559,.607,.563]}]}];
+const ICOL=["#6CB4E8","#B3A2E6","#FAEB5A"];
+// triangular colour code d = 7 (codes.color_code(7)): positions and faces
+const CC7P=[[0,0],[-1,-1.732],[0,-3.464],[2,-3.464],[-3,-5.196],[-1,-5.196],[3,-5.196],[-4,-6.928],[0,-6.928],[2,-6.928],[-3,-8.66],[-1,-8.66],[3,-8.66],[5,-8.66],[-6,-10.392],[-4,-10.392],[0,-10.392],[2,-10.392],[6,-10.392],[-7,-12.124],[-3,-12.124],[-1,-12.124],[3,-12.124],[5,-12.124],[-6,-13.856],[-4,-13.856],[0,-13.856],[2,-13.856],[6,-13.856],[8,-13.856],[-9,-15.588],[-7,-15.588],[-3,-15.588],[-1,-15.588],[3,-15.588],[5,-15.588],[9,-15.588]];
+const CC7F=[[0,3,2,1],[1,2,5,4],[6,13,12,9],[7,10,15,14],[18,29,28,23],[19,24,31,30],[24,25,32,31],[26,27,34,33],[28,29,36,35],[2,3,6,9,8,5],[4,5,8,11,10,7],[8,9,12,17,16,11],[10,11,16,21,20,15],[12,13,18,23,22,17],[14,15,20,25,24,19],[16,17,22,27,26,21],[20,21,26,33,32,25],[22,23,28,35,34,27]];
+const CC7C=(()=>{   // the 3-colouring of the faces (neighbours share an edge), by backtracking
+  const nb=CC7F.map((f,i)=>CC7F.map((g,j)=>j!==i&&f.filter(v=>g.includes(v)).length>=2?j:-1).filter(j=>j>=0)),c=CC7F.map(()=>-1);
+  const go=i=>{if(i===CC7F.length)return true;for(let k=0;k<3;k++){if(nb[i].some(j=>c[j]===k))continue;c[i]=k;if(go(i+1))return true;}c[i]=-1;return false;};
+  go(0);return c;})();
+const Q5=buildCode(5);
+
+Object.assign(DRAW,{
+ chips(t){
+  let h=T_(60,70,"Two IBM chips, d = 3 surface code",{fs:19,fw:600})+T_(60,96,"each point one patch: the benchmark at p = 2 against the memory experiment of the same day",{fs:14,fill:C.ink2});
+  const ax=axes({xlog:true,xmin:.01,xmax:.3,ymin:0,ymax:.8,yt:[0,.2,.4,.6,.8],xt:[.01,.03,.1,.3],fy:v=>v.toFixed(1),fx:v=>Math.round(v*100)+" %",
+    xl:"memory experiment: logical error per round ε",yl:"r"+SB("ovl")+", XZ benchmark at p = 2"});
+  h+=ax.h;
+  CHIPS.forEach((c,i)=>{const t0=1+i*2.6;
+    c.pts.forEach((q,j)=>{const a=ease(seg(t,t0+j*.12,t0+j*.12+.5));if(a<=0)return;const x=ax.X(q[0]),y=ax.Y(q[1]),r=5.5*(.4+.6*a);
+      h+=c.sq?el("rect",{x:x-r,y:y-r,width:2*r,height:2*r,rx:1.5,fill:hexA(c.col,.9*a),stroke:"#071526","stroke-width":1.5},""):el("circle",{cx:x,cy:y,r,fill:hexA(c.col,.9*a),stroke:"#071526","stroke-width":1.5},"");});
+    const la=ease(seg(t,t0,t0+.6)),ly=CH.y0+14+i*22;
+    h+=(c.sq?el("rect",{x:CH.x1-150,y:ly-9,width:10,height:10,rx:1.5,fill:c.col,opacity:la},""):el("circle",{cx:CH.x1-145,cy:ly-4,r:5,fill:c.col,opacity:la},""))
+      +T_(CH.x1-132,ly,`${c.name}, ${c.pts.length} patches`,{fs:12.5,fill:c.col,op:la});});
+  // the three bad chicago placements
+  const bA=ease(seg(t,6.4,7.2));
+  h+=el("ellipse",{cx:ax.X(.15),cy:ax.Y(.19),rx:62,ry:52,fill:"none",stroke:hexA(C.r,.8*bA),"stroke-width":1.5,"stroke-dasharray":"5 4"},"");
+  h+=T_(ax.X(.15),ax.Y(.19)-60,"3 bad placements",{fs:12.5,fill:C.r,anchor:"middle",op:bA});
+  // table
+  const tA=ease(seg(t,7.4,8.2)),cx=[640,770,850,915,975];
+  h+=T_(cx[0],150,"",{});
+  [["",0],["patches",1],["median ε",2],["median r"+SB("ovl"),3],["ρ",4]].forEach(([s,k])=>{h+=T_(cx[k],150,s,{fs:12,fill:C.muted,mono:true,anchor:k?"end":"start",op:tA});});
+  CHIPS.forEach((c,i)=>{const y=180+i*30;
+    h+=T_(cx[0],y,c.name,{fs:14,fill:c.col,fw:600,op:tA})+T_(cx[1],y,String(c.pts.length),{fs:14,mono:true,anchor:"end",op:tA})
+      +T_(cx[2],y,c.eps,{fs:14,mono:true,anchor:"end",op:tA})+T_(cx[3],y,c.r,{fs:14,mono:true,anchor:"end",op:tA})+T_(cx[4],y,c.rho.toFixed(2),{fs:14,mono:true,anchor:"end",fw:600,op:tA});});
+  h+=T_(cx[0],240,"both chips",{fs:14,fill:C.ink,fw:600,op:tA})+T_(cx[1],240,"20",{fs:14,mono:true,anchor:"end",op:tA})+T_(cx[4],240,"0.94",{fs:14,mono:true,anchor:"end",fw:600,op:tA});
+  h+=el("line",{x1:628,x2:980,y1:254,y2:254,stroke:hexA(C.line2,tA)},"");
+  h+=T_(cx[0],278,"ρ at every depth (phoenix · chicago · both)",{fs:12.5,fill:C.muted,op:tA});
+  RHO_P.forEach((r,i)=>{const x=652+i*55;h+=T_(x,302,"p = "+r[0],{fs:12,fill:C.muted,mono:true,anchor:"middle",op:tA});
+    h+=T_(x,322,r[1].toFixed(2),{fs:12.5,mono:true,anchor:"middle",fill:CHIPS[0].col,op:tA})+T_(x,340,r[2].toFixed(2),{fs:12.5,mono:true,anchor:"middle",fill:CHIPS[1].col,op:tA})
+      +T_(x,358,r[3].toFixed(2),{fs:12.5,mono:true,anchor:"middle",fill:C.ink,op:tA});});
+  const nA=ease(seg(t,9.4,10.4));
+  h+=el("rect",{x:630,y:390,width:350,height:124,rx:10,fill:hexA(C.g,.07*nA),stroke:hexA(C.g,.55*nA),"stroke-width":1.2},"");
+  h+=T_(646,416,"Same median, different chip",{fs:14,fw:600,op:nA});
+  h+=T_(646,440,"The medians agree, but chicago has three",{fs:13.5,fill:C.ink2,op:nA});
+  h+=T_(646,460,"placements at ε = 10–26 %; the benchmark",{fs:13.5,fill:C.ink2,op:nA});
+  h+=T_(646,480,"puts them last as well. Shots per patch:",{fs:13.5,fill:C.ink2,op:nA});
+  h+=T_(646,500,"2,000 for it, 48,000 for the memory.",{fs:13.5,fill:C.ink,fw:600,op:nA});
+  return h;},
+
+ codes(t){
+  let h=T_(60,70,"Any code is a Hamiltonian: only the checks change",{fs:19,fw:600})+T_(60,96,"Helios-1, LR-QAOA with a mid-circuit-measured gadget per check",{fs:14,fill:C.ink2});
+  const CX=[180,500,820],dA=[0,1,2].map(i=>ease(seg(t,.6+i*.8,1.6+i*.8)));
+  // surface d = 5
+  {const S=30,X0=CX[0]-2*S,Y0=135,a=dA[0];
+    Q5.forEach(q=>{h+=el("path",{d:plaqPath(q,X0,Y0,S,5),fill:hexA(q.type==="X"?C.X:C.Z,.22*a),stroke:hexA(q.type==="X"?C.X:C.Z,.7*a),"stroke-width":1},"");});
+    for(let n=0;n<25;n++)h+=el("circle",{cx:X0+(n%5)*S,cy:Y0+Math.floor(n/5)*S,r:3.6,fill:hexA(C.ink,a)},"");}
+  // colour d = 7
+  {const s=8.6,X0=CX[1],Y0=132,a=dA[1],P=CC7P.map(p=>[X0+p[0]*s,Y0-p[1]*s]),FC=[C.X,C.Z,C.g];
+    CC7F.forEach((f,i)=>{h+=el("path",{d:"M"+f.map(v=>P[v][0].toFixed(1)+","+P[v][1].toFixed(1)).join("L")+"Z",fill:hexA(FC[CC7C[i]],.25*a),stroke:hexA(FC[CC7C[i]],.75*a),"stroke-width":1,"stroke-linejoin":"round"},"");});
+    P.forEach(p=>{h+=el("circle",{cx:p[0],cy:p[1],r:3.2,fill:hexA(C.ink,a)},"");});}
+  // bivariate bicycle BB30 on its 5 x 3 torus: L qubits at (2i, 2j), R at (2i+1, 2j+1), X checks at (2i+1, 2j)
+  {const ell=5,m=3,s=25,X0=CX[2]-4.5*s,Y0=142,a=dA[2],G=(c,r)=>[X0+c*s,Y0+r*s];
+    h+=el("rect",{x:X0-s*.5,y:Y0-s*.5,width:10*s,height:6*s,rx:8,fill:"none",stroke:hexA(C.line2,a),"stroke-dasharray":"4 4"},"");
+    h+=T_(X0+4.5*s,Y0+6*s+4,"periodic boundaries (a torus)",{fs:11,fill:C.muted,anchor:"middle",op:a});
+    for(let i=0;i<ell;i++)for(let j=0;j<m;j++){const [lx,ly]=G(2*i,2*j),[rx,ry]=G(2*i+1,2*j+1),[cx_,cy_]=G(2*i+1,2*j);
+      h+=el("rect",{x:cx_-3,y:cy_-3,width:6,height:6,fill:hexA(C.X,.45*a)},"");
+      h+=el("circle",{cx:lx,cy:ly,r:3.6,fill:hexA(C.ink,a)},"")+el("circle",{cx:rx,cy:ry,r:3.6,fill:hexA(C.ink2,a)},"");}
+    // check 0: x^0 y^0 home, row 0 of A = 1 + x and B = 1 + y + x^2 y^2  (support 0, 12, 15, 17, 25 of codes.bivariate_bicycle("BB30"))
+    const home=G(1,0),sup=[G(0,0),G(8,0),G(1,1),G(1,5),G(7,3)],u=ease(seg(t,3.4,4.6));
+    sup.forEach(p=>{h+=el("line",{x1:home[0],y1:home[1],x2:home[0]+(p[0]-home[0])*u,y2:home[1]+(p[1]-home[1])*u,stroke:hexA(C.y,.9*a),"stroke-width":1.8},"");});
+    if(u>0){sup.forEach(p=>{h+=el("circle",{cx:p[0],cy:p[1],r:5,fill:"none",stroke:hexA(C.y,u),"stroke-width":1.6},"");});
+      h+=el("rect",{x:home[0]-5,y:home[1]-5,width:10,height:10,fill:C.y},"");}}
+  // names and the results
+  FAM.forEach((F,i)=>{const cx=CX[i],a=dA[i],x0=cx-115,x1=cx+115,y0=402,y1=505,rA=ease(seg(t,5+i*1.6,6+i*1.6));
+    h+=T_(cx,318,F.name,{fs:16,fw:600,anchor:"middle",op:a})+T_(cx,338,F.kind,{fs:12.5,fill:C.ink2,anchor:"middle",op:a});
+    const X=k=>x0+(k/2)*(x1-x0),Y=v=>y1-(v-.5)/(.9-.5)*(y1-y0);
+    h+=el("line",{x1:x0,x2:x1,y1:y1,y2:y1,stroke:hexA(C.line2,rA)},"")+T_(x0-6,y1+4,"0.5",{fs:10.5,fill:C.muted,anchor:"end",mono:true,op:rA})+T_(x0-6,Y(.9)+4,"0.9",{fs:10.5,fill:C.muted,anchor:"end",mono:true,op:rA});
+    h+=el("line",{x1:x0,x2:x1,y1:Y(.9),y2:Y(.9),stroke:hexA("#142a44",rA)},"");
+    ["3","5","10"].forEach((p,k)=>{h+=T_(X(k),y1+16,"p="+p,{fs:10.5,fill:C.muted,anchor:"middle",mono:true,op:rA});});
+    h+=T_(x1,y1-6,"random",{fs:10.5,fill:C.muted,anchor:"end",op:rA});
+    F.inst.forEach((I,k)=>{const col=ICOL[k];
+      if(I.id)h+=el("path",{d:pathOf(I.id.map((v,j)=>[X(j),Y(v)])),fill:"none",stroke:hexA(col,.6*rA),"stroke-width":1.4,"stroke-dasharray":"4 3"},"");
+      h+=el("path",{d:pathOf(I.r.map((v,j)=>[X(j),Y(v)])),fill:"none",stroke:hexA(col,rA),"stroke-width":2.2},"");
+      I.r.forEach((v,j)=>{h+=el("circle",{cx:X(j),cy:Y(v),r:3.2,fill:col,opacity:rA},"");});
+      const lx=x0+k*72;h+=el("line",{x1:lx,x2:lx+16,y1:y0-18,y2:y0-18,stroke:col,"stroke-width":2.2,opacity:rA},"")+T_(lx+21,y0-14,I.lab,{fs:11.5,fill:col,mono:true,op:rA});});
+    h+=T_(cx,y1+40,F.big[0],{fs:11.5,fill:C.ink2,anchor:"middle",op:rA})+T_(cx,y1+56,F.big[1],{fs:11.5,fill:C.ink,anchor:"middle",fw:600,op:rA});});
+  const kA=ease(seg(t,10.4,11.2));
+  h+=T_(500,368,"r against layers p (3, 5, 10), random = 0.5; dashed: the noiseless r, where it can still be simulated",{fs:12,fill:C.muted,anchor:"middle",op:kA});
+  return h;},
+});
+
+/* =====================================================================================
+   Part 4, last step: r at the best depth against N_q, for the three code families (paper Fig. 6,
+   notebooks/paper_figures section 7). MCM LR-QAOA, every check as Z...Z (analysis.load_results(kind="mcm")).
+   Runs: Helios-1 surface 20260309_1631 20260825_1229 20260918_100200 20260922_091417, colour 20260316_1424
+   20260825_1231 20260924_101609, qLDPC 20260702_0853; Helios-1E surface 20260306_1514 20260306_1518 20260309_1203
+   20260310_1119, colour 20260316_1139, qLDPC 20260629_0732; H2-1 surface 20260820_0736, colour 20260820_1140;
+   H2-1E surface 20260820_0707; ibm_phoenix surface 20260909_1619 20260909_1631.
+   Each entry: [N_q, best r, 1 sigma, best p, other depths' r, label offset [dx,dy], x jitter px]
+   ===================================================================================== */
+const SDEV={"Helios-1":{col:"#F0627A",emu:false},"Helios-1E":{col:"#F0627A",emu:true},"H2-1":{col:"#B3A2E6",emu:false},
+  "H2-1E":{col:"#B3A2E6",emu:true},"ibm_phoenix":{col:"#6CB4E8",emu:false}};
+const SFAM=[
+ {key:"surface",name:"surface",t0:1,pts:[
+  ["Helios-1E",9,.82,.0064,15,[.7722,.7888,.8185,.8113],[-11,-4],-6],["H2-1E",9,.8162,.0064,10,[.7662,.7977],[10,6],6],
+  ["ibm_phoenix",9,.6315,.0058,3,[.615,.5869],[10,0],0],
+  ["Helios-1",25,.7517,.0149,10,[.735,.7475],[10,-7],0],["Helios-1E",25,.7428,.0045,10,[.6955,.7268],[10,9],-4],
+  ["H2-1",25,.7092,.0123,10,[.6733,.6875],[10,4],3],["ibm_phoenix",25,.5635,.0036,5,[.5481,.5525],[10,0],0],
+  ["Helios-1",49,.7594,.0128,10,[.7031,.7156],[10,-6],0],["Helios-1",81,.755,.0087,5,[.6769,.7369],[10,-6],0]]},
+ {key:"colour",name:"colour",t0:4.2,pts:[
+  ["Helios-1E",7,.926,.0086,20,[.8053,.8487,.9,.92],[10,0],0],["Helios-1E",19,.8267,.0148,10,[.7033,.7567,.7822,.7767],[10,0],0],
+  ["Helios-1",37,.72,.0161,5,[.6811,.7022],[10,-5],0],["H2-1",37,.6922,.017,10,[.6789,.6822],[10,6],3],
+  ["Helios-1",61,.7333,.0433,10,[.6533,.73],[10,0],0],["Helios-1",91,.7222,.016,10,[.6156,.6733],[-11,-14],0]]},
+ {key:"qldpc",name:"qLDPC (BB)",t0:7.2,pts:[
+  ["Helios-1E",18,.7357,.022,10,[.5714,.6307],[-11,0],0],["Helios-1",30,.6077,.0264,5,[.5558,.5981],[10,0],0],
+  ["Helios-1",48,.6068,.0167,5,[.5591,.5631],[10,0],0]]}];
+// one marker: square for the surface code, triangle for the colour code, hexagon for qLDPC
+function smark(fam,x,y,s,fill,stroke,sw){
+  if(fam==="surface")return el("rect",{x:r1(x-s),y:r1(y-s),width:r1(2*s),height:r1(2*s),rx:1.2,fill,stroke,"stroke-width":sw},"");
+  const pts=fam==="colour"?[[0,-1.25],[1.1,.7],[-1.1,.7]]:[0,1,2,3,4,5].map(k=>[Math.cos(Math.PI/3*k),Math.sin(Math.PI/3*k)].map(v=>v*1.12));
+  return el("path",{d:"M"+pts.map(p=>r1(x+p[0]*s)+","+r1(y+p[1]*s)).join("L")+"Z",fill,stroke,"stroke-width":sw,"stroke-linejoin":"round"},"");}
+
+Object.assign(DRAW,{
+ scale(t){
+  let h=T_(60,70,"How far the signal survives with size",{fs:19,fw:600})+T_(60,96,"every code family on one axis: r at its best depth against the number of data qubits",{fs:14,fill:C.ink2});
+  const x0=96,x1=672,y0=140,y1=470,xmax=100,ymin=.45,ymax=.96;
+  const X=v=>x0+v/xmax*(x1-x0),Y=v=>y1-(v-ymin)/(ymax-ymin)*(y1-y0),aA=ease(seg(t,0,.8));
+  for(const v of [.5,.6,.7,.8,.9]){const y=Y(v);h+=el("line",{x1:x0,x2:x1,y1:y,y2:y,stroke:hexA("#142a44",aA),"stroke-width":1},"")+T_(x0-8,y+4,v.toFixed(1),{fs:12,fill:C.muted,anchor:"end",mono:true,op:aA});}
+  for(const v of [0,20,40,60,80,100]){const x=X(v);h+=el("line",{x1:x,x2:x,y1:y1,y2:y1+5,stroke:hexA(C.muted,aA)},"")+T_(x,y1+20,String(v),{fs:12,fill:C.muted,anchor:"middle",mono:true,op:aA});}
+  h+=el("line",{x1:x0,x2:x1,y1:y1,y2:y1,stroke:hexA(C.line2,aA),"stroke-width":1.2},"");
+  h+=T_((x0+x1)/2,y1+44,"data qubits N"+SB("q"),{fs:13.5,fill:C.ink2,anchor:"middle",op:aA})+T_(x0-60,y0-14,"r at the best depth",{fs:13.5,fill:C.ink2,op:aA});
+  h+=el("line",{x1:x0,x2:x1,y1:Y(.5),y2:Y(.5),stroke:hexA(C.muted,aA),"stroke-width":1.4,"stroke-dasharray":"2 4"},"")+T_(x1-4,Y(.5)-7,"random",{fs:11.5,fill:C.muted,anchor:"end",op:aA});
+  // each family: the faint other depths, the lines that join a device's sizes, then the best-depth points
+  const front=[];
+  SFAM.forEach(F=>{
+    const byDev={};F.pts.forEach(q=>{(byDev[q[0]]=byDev[q[0]]||[]).push(q);});
+    Object.entries(byDev).forEach(([dev,qs])=>{if(qs.length<2)return;const D=SDEV[dev],u=ease(seg(t,F.t0+.3,F.t0+2.2));if(u<=0)return;
+      const P=qs.map(q=>[X(q[1])+q[7],Y(q[2])]),L=P.length-1,k=Math.min(L,Math.floor(u*L)),f=u*L-k,end=k<L?[P[k][0]+(P[k+1][0]-P[k][0])*f,P[k][1]+(P[k+1][1]-P[k][1])*f]:P[L];
+      h+=el("path",{d:pathOf(P.slice(0,k+1).concat([end])),fill:"none",stroke:hexA(D.col,.55),"stroke-width":1.5,"stroke-dasharray":D.emu?"5 4":"none"},"");});
+    F.pts.forEach((q,j)=>{const [dev,n,r,e,p,oth,lab,jx]=q,D=SDEV[dev],a=ease(seg(t,F.t0+j*.22,F.t0+j*.22+.5));if(a<=0)return;
+      const x=X(n)+jx,y=Y(r);
+      oth.forEach(v=>{h+=smark(F.key,x,Y(v),5,hexA(D.col,(D.emu?.16:.26)*a),"none",0);});
+      front.push({F,dev,D,x,y,e:e/(ymax-ymin)*(y1-y0),p,lab,a});});});
+  front.forEach(({F,D,x,y,e,a})=>{h+=el("line",{x1:x,x2:x,y1:y-e,y2:y+e,stroke:hexA(D.col,a),"stroke-width":1.6},"")
+      +el("line",{x1:x-3,x2:x+3,y1:y-e,y2:y-e,stroke:hexA(D.col,a),"stroke-width":1.4},"")+el("line",{x1:x-3,x2:x+3,y1:y+e,y2:y+e,stroke:hexA(D.col,a),"stroke-width":1.4},"");});
+  front.forEach(({F,D,x,y,p,lab,a})=>{const s=6.2*(.5+.5*a);
+    h+=D.emu?smark(F.key,x,y,s,C.bg,hexA(D.col,a),2):smark(F.key,x,y,s,hexA(D.col,a),hexA(C.bg,a),1.4);
+    h+=T_(x+lab[0],y+lab[1]+4,"p="+p,{fs:10.5,fill:D.col,anchor:lab[0]<0?"end":"start",mono:true,op:a});});
+  // legend: machines, then code families
+  const lA=ease(seg(t,.4,1.2)),lx=712;
+  h+=T_(lx,150,"machine",{fs:12,fill:C.muted,op:lA})+T_(lx+150,150,"code",{fs:12,fill:C.muted,op:lA});
+  [["Helios-1","Helios-1"],["Helios-1E","emulator"],["H2-1","H2-1"],["H2-1E","emulator"],["ibm_phoenix","ibm_phoenix"]].forEach(([dev,lab],i)=>{const D=SDEV[dev],y=172+i*21;
+    h+=el("circle",{cx:lx+6,cy:y-4,r:5.5,fill:D.emu?C.bg:hexA(D.col,lA),stroke:hexA(D.col,lA),"stroke-width":D.emu?2:0},"")+T_(lx+18,y,(D.emu?dev+", ":"")+(D.emu?"emulator":lab),{fs:12.5,fill:D.emu?C.ink2:D.col,op:lA});});
+  SFAM.forEach((F,i)=>{const y=172+i*21,fa=ease(seg(t,F.t0-.2,F.t0+.4));
+    h+=smark(F.key,lx+156,y-4,5.5,hexA(C.ink2,fa),"none",0)+T_(lx+168,y,F.name,{fs:12.5,fill:C.ink,op:fa});});
+  h+=T_(lx+150,172+3*21+8,"faint: other depths",{fs:11.5,fill:C.muted,op:lA})+T_(lx+150,172+4*21+4,"hollow: emulator",{fs:11.5,fill:C.muted,op:lA});
+  // the width callout on the Helios-1 hardware points
+  const wA=ease(seg(t,9.6,10.4));
+  const wy=Y(.795),wa=X(25)-10,wb=X(91)+10;
+  h+=el("path",{d:`M${wa},${wy+7}V${wy}H${wb}V${wy+7}`,stroke:hexA(C.y,.85*wA),"stroke-width":1.4,fill:"none"},"");
+  h+=T_((X(25)+X(91))/2,Y(.795)-8,"25 → 91 data qubits: r stays at 0.72–0.76",{fs:12.5,fill:C.y,anchor:"middle",op:wA});
+  // what to take from it
+  const nA=ease(seg(t,10.8,11.8)),bx=708,by=300;
+  h+=el("rect",{x:bx,y:by,width:276,height:184,rx:10,fill:hexA(C.g,.07*nA),stroke:hexA(C.g,.55*nA),"stroke-width":1.2},"");
+  h+=T_(bx+14,by+26,"Width is not the limit",{fs:14,fw:600,op:nA});
+  ["On Helios-1, surface and colour codes","keep r = 0.72–0.76 from 25 to 91 data","qubits, with 10–50 shots per circuit.","qLDPC checks reach across the code,","and sit lower but flat (0.61 at 30, 48).","ibm_phoenix drops from 0.63 at d = 3"].forEach((s,i)=>{h+=T_(bx+14,by+50+i*19,s,{fs:13,fill:C.ink2,op:nA});});
+  h+=T_(bx+14,by+50+6*19,"to 0.56 at d = 5.",{fs:13,fill:C.ink2,op:nA});
+  return h;},
+});
+/* =====================================================================================
+   Part 5: the mid-circuit gadget over time (paper Fig. 5d, notebooks/paper_figures section 6).
+   LR-QAOA chains of N_q spins, one MCM gadget per edge (kind "mcm"). Per chain length, lambda_eff from
+   noise_study.fit_lambda_eff with kappa_r = kappa_0/N_q, kappa_0 = 3.69, over p = 3, 5, 10 (ibm_phoenix: p = 5..20);
+   per device the mean over N_q, bars min-max over N_q. Runs: ibm_fez 20260828_1028, ibm_marrakesh 20260828_1034,
+   ibm_kingston 20260827_1205, ibm_pittsburgh 20260828_1025, ibm_boston 20260827_1035, ibm_phoenix 20260904_1435,
+   H2-1 20260820_0650, Helios-1 20260909_1423 / _1509 / _1521. Dates: vendor's first public availability.
+   ===================================================================================== */
+const MT=[ // [device, processor, year, mean, min, max, colour, label dx, label dy]
+ ["H2-1","H2",2024.43,4.86e-3,4.86e-3,4.86e-3,"#B3A2E6",12,4],
+ ["ibm_fez","Heron r2",2024.50,8.45e-2,6.68e-2,9.79e-2,"#6CB4E8",-12,4],
+ ["ibm_marrakesh","Heron r2",2024.87,1.01e-1,6.58e-2,1.36e-1,"#6CB4E8",12,4],
+ ["ibm_kingston","Heron r2",2025.27,5.34e-2,4.76e-2,5.88e-2,"#6CB4E8",-12,4],
+ ["ibm_pittsburgh","Heron r3",2025.58,3.91e-2,2.80e-2,4.71e-2,"#6CB4E8",0,44],
+ ["Helios-1","Helios",2025.85,3.34e-3,2.24e-3,4.06e-3,"#F0627A",12,4],
+ ["ibm_boston","Heron r3",2025.87,4.02e-2,2.21e-2,5.12e-2,"#6CB4E8",12,4],
+ ["ibm_phoenix","Nighthawk r2",2026.67,7.78e-2,6.04e-2,9.19e-2,"#6CB4E8",-12,4],
+ ["ibm_chicago","Nighthawk, our run",2026.86,1.54e-1,6.49e-2,2.85e-1,"#6CB4E8",-12,4,1]];
+// ibm_chicago 20261111_120600 (N_q = 10-50, 3-16 placements each): no public release date, so placed (hollow) at the date of our run;
+// lambda of the best placement at each N_q (median placement: mean 0.21, 0.15-0.30)
+
+Object.assign(DRAW,{
+ mcmtime(t){
+  let h=T_(60,70,"The gadget itself, chip by chip",{fs:19,fw:600})+T_(60,96,"error per mid-circuit gadget against the date each device became available",{fs:14,fill:C.ink2});
+  const ax=axes({ylog:true,xmin:2024.25,xmax:2026.95,ymin:1.6e-3,ymax:.4,yt:[.002,.005,.01,.02,.05,.1,.2],xt:[2024.5,2025,2025.5,2026,2026.5],
+    fy:v=>String(v),fx:v=>(v%1?"Jul ":"Jan ")+Math.floor(v),xl:"first available",yl:"λ"+SB("eff")+" per gadget (MCM)"});
+  h+=ax.h;
+  // vendor bands
+  const bA=ease(seg(t,7,7.8));
+  [[.0221,.285,"#6CB4E8","IBM, superconducting"],[.00224,.00486,"#F0627A","Quantinuum, trapped ion"]].forEach(([lo,hi,col,lab])=>{
+    h+=el("rect",{x:CH.x0,y:ax.Y(hi),width:CH.x1-CH.x0,height:ax.Y(lo)-ax.Y(hi),fill:hexA(col,.07*bA)},"")+T_(CH.x1-6,ax.Y(lo)-7,lab,{fs:12,fill:hexA(col,.9*bA),anchor:"end"});});
+  // devices, in order of release
+  MT.forEach((m,i)=>{const a=ease(seg(t,1+i*.7,1.6+i*.7));if(a<=0)return;const [dev,proc,yr,mu,lo,hi,col,dx,dy,hol]=m,x=ax.X(yr),y=ax.Y(mu);
+    if(hi>lo)h+=el("line",{x1:x,x2:x,y1:ax.Y(hi),y2:ax.Y(lo),stroke:hexA(col,a),"stroke-width":1.6},"")
+      +el("line",{x1:x-4,x2:x+4,y1:ax.Y(hi),y2:ax.Y(hi),stroke:hexA(col,a),"stroke-width":1.4},"")+el("line",{x1:x-4,x2:x+4,y1:ax.Y(lo),y2:ax.Y(lo),stroke:hexA(col,a),"stroke-width":1.4},"");
+    const s=6.5*(.5+.5*a);
+    h+=hol?el("circle",{cx:x,cy:y,r:s,fill:C.bg,stroke:hexA(col,a),"stroke-width":2,"stroke-dasharray":"3 2"},""):el("path",{d:`M${x-s},${y-s}L${x+s},${y+s}M${x-s},${y+s}L${x+s},${y-s}`,stroke:hexA(col,a),"stroke-width":3.2,"stroke-linecap":"round"},"");
+    const an=dx<0?"end":dx>0?"start":"middle";
+    h+=T_(x+dx,y+dy-5,dev.replace("ibm_",""),{fs:12.5,fill:col,anchor:an,fw:600,op:a})+T_(x+dx,y+dy+10,proc,{fs:11,fill:C.muted,anchor:an,op:a});});
+  // the vendor gap
+  const gA=ease(seg(t,8.4,9.2)),gx=ax.X(2026.2),g1=ax.Y(.0704),g2=ax.Y(.00403);
+  h+=el("line",{x1:gx,x2:gx,y1:g1+4,y2:g2-4,stroke:hexA(C.y,.85*gA),"stroke-width":1.5,"marker-end":gA>0?"url(#arr)":""},"");
+  h+=T_(gx+8,(g1+g2)/2-4,"≈ 17× lower",{fs:13,fill:C.y,fw:600,op:gA})+T_(gx+8,(g1+g2)/2+13,"(geometric means)",{fs:11,fill:C.muted,op:gA});
+  // what to take from it
+  const nA=ease(seg(t,10.2,11.2)),bx=630,by=150;
+  h+=el("rect",{x:bx,y:by,width:352,height:186,rx:10,fill:hexA(C.g,.07*nA),stroke:hexA(C.g,.55*nA),"stroke-width":1.2},"");
+  h+=T_(bx+16,by+26,"How the gadget has evolved",{fs:14,fw:600,op:nA});
+  ["Heron r2 → r3 halved the mean error per","gadget, from 0.08 to 0.04. The trapped-ion",
+   "machines sit 17× lower and improved 1.5×:","H2-1 4.9 × 10⁻³ → Helios-1 3.3 × 10⁻³.","The Nighthawk chips are behind: phoenix","at 0.08, chicago at 0.15 (best placements)."]
+    .forEach((s,i)=>{h+=T_(bx+16,by+52+i*20,s,{fs:13.5,fill:i>=4?C.ink:C.ink2,op:nA});});
+  return h;},
+});
+/* =====================================================================================
+   Part 5, first step: every data-ancilla-data triplet of a chip (paper Fig. 3c, plus the later campaigns).
+   Two-spin LR-QAOA through one MCM gadget, r at p = 3 (analysis.load_results(kind="mcm", n_data=2)).
+   Rows: iqm_garnet 20260813_0729, iqm_emerald 20260813_0722/0723, ibm_kingston 20260813_1637, ibm_boston 20260814_0818,
+   ibm_phoenix 20260902_1629 and 20260916_102941, ibm_chicago 20261111_123350 and 20261117_101043.
+   500 shots per circuit (chicago 1,000). r_ideal(3) = 0.895; random 0.5 +- 3 sigma(500 shots) = 0.5 +- 0.067.
+   ===================================================================================== */
+const TRI_R=[[.500,.500,.504,.506,.512,.516,.522,.524,.524,.530,.534,.538,.538,.542,.542,.554,.556,.564,.604,.610,.612,.616,.622,.634,.634,.636,.650,.654,.670,.676,.676,.680,.688,.696,.744],
+ [.482,.500,.504,.506,.522,.522,.544,.548,.552,.552,.552,.560,.562,.564,.564,.570,.576,.578,.588,.592,.596,.598,.604,.604,.604,.612,.612,.622,.622,.628,.634,.634,.634,.634,.634,.636,.642,.646,.648,.648,.652,.656,.656,.656,.656,.660,.660,.668,.668,.670,.672,.672,.672,.674,.676,.682,.682,.684,.686,.686,.686,.688,.688,.690,.690,.690,.692,.692,.694,.698,.698,.700,.700,.702,.704,.708,.710,.710,.712,.712,.714,.716,.716,.716,.716,.720,.720,.722,.722,.726,.728,.730,.732,.734,.734,.736,.738,.740,.742,.746,.746,.750,.752,.768],
+ [.438,.442,.466,.476,.502,.510,.524,.534,.536,.550,.550,.556,.556,.558,.562,.564,.568,.568,.574,.576,.580,.580,.586,.590,.590,.592,.596,.598,.598,.600,.602,.602,.606,.606,.612,.614,.622,.622,.626,.626,.626,.628,.636,.638,.640,.642,.644,.650,.650,.652,.652,.652,.652,.656,.662,.664,.664,.664,.666,.666,.668,.670,.672,.672,.672,.674,.674,.674,.678,.678,.678,.680,.682,.686,.686,.686,.690,.690,.690,.694,.698,.698,.698,.700,.700,.702,.706,.706,.708,.710,.714,.716,.716,.716,.716,.718,.720,.722,.724,.724,.730,.732,.736,.738,.740,.742,.742,.742,.746,.746,.748,.750,.750,.750,.754,.756,.758,.760,.760,.760,.764,.768,.768,.774,.774,.774,.774,.782,.784,.784,.788,.790,.794,.794,.798,.800,.802,.804,.806,.820,.824,.828,.828,.832,.832,.838,.850,.852],
+ [.402,.436,.548,.560,.576,.580,.596,.602,.606,.608,.616,.616,.618,.620,.630,.634,.634,.646,.648,.648,.660,.660,.660,.662,.664,.666,.668,.686,.688,.688,.688,.694,.694,.694,.698,.700,.700,.704,.704,.710,.720,.726,.728,.728,.730,.732,.732,.736,.736,.738,.738,.740,.740,.742,.746,.748,.748,.752,.754,.754,.760,.762,.766,.768,.768,.768,.770,.770,.770,.772,.772,.772,.774,.776,.780,.780,.782,.788,.790,.792,.794,.796,.796,.798,.798,.800,.802,.802,.802,.802,.804,.804,.806,.806,.806,.808,.808,.810,.810,.810,.812,.812,.814,.814,.814,.816,.816,.818,.818,.820,.820,.822,.822,.822,.824,.824,.826,.828,.828,.828,.830,.832,.832,.832,.834,.836,.838,.838,.840,.840,.840,.842,.844,.844,.846,.846,.846,.850,.852,.852,.858,.858,.864,.866,.868,.868,.872,.888],
+ [.236,.244,.306,.324,.328,.356,.368,.374,.382,.396,.402,.402,.408,.408,.410,.422,.426,.428,.438,.444,.444,.444,.450,.454,.464,.466,.466,.466,.468,.470,.472,.476,.480,.488,.490,.492,.500,.504,.508,.514,.516,.518,.520,.520,.524,.526,.526,.530,.530,.538,.540,.540,.540,.542,.548,.548,.550,.554,.554,.556,.560,.560,.566,.570,.576,.578,.582,.588,.590,.590,.592,.594,.596,.610,.614,.616,.616,.616,.620,.622,.624,.626,.630,.632,.632,.634,.634,.638,.638,.652,.658,.662,.674,.676,.678,.682,.686,.694,.704,.704,.706,.712,.714,.714,.718,.734,.742,.744,.750,.756,.758,.758,.772,.786,.788,.800,.816,.820,.836,.848],
+ [.178,.222,.258,.258,.298,.300,.302,.316,.318,.320,.326,.334,.334,.338,.344,.350,.366,.370,.372,.380,.382,.394,.402,.410,.412,.412,.414,.416,.422,.432,.432,.442,.448,.448,.450,.454,.460,.462,.462,.464,.468,.470,.470,.476,.476,.476,.478,.484,.492,.496,.504,.510,.510,.512,.514,.514,.516,.520,.528,.528,.534,.534,.536,.536,.542,.544,.548,.550,.552,.554,.556,.558,.562,.568,.574,.576,.578,.580,.588,.588,.592,.594,.596,.598,.608,.610,.616,.618,.628,.632,.634,.634,.646,.648,.666,.682,.690,.690,.692,.694,.696,.698,.704,.708,.712,.714,.720,.726,.740,.756,.762,.780,.798,.806,.816,.820,.820,.832,.840,.850],
+ [.344,.348,.383,.394,.406,.406,.414,.432,.435,.437,.445,.450,.461,.488,.489,.490,.491,.496,.500,.500,.503,.504,.504,.505,.508,.510,.511,.514,.515,.515,.518,.519,.520,.521,.523,.524,.525,.527,.529,.533,.534,.536,.539,.545,.550,.552,.556,.557,.559,.559,.566,.566,.567,.574,.577,.581,.581,.581,.583,.583,.585,.589,.592,.596,.598,.599,.601,.603,.605,.608,.612,.613,.616,.619,.620,.621,.623,.626,.632,.634,.634,.638,.641,.642,.642,.643,.644,.647,.651,.657,.657,.658,.658,.661,.661,.662,.665,.677,.682,.687,.691,.697,.700,.706,.708,.712,.713,.715,.729,.729,.737,.742,.742,.742,.757,.767,.781,.792,.800,.842],
+ [.257,.283,.319,.322,.349,.353,.382,.385,.404,.404,.407,.421,.423,.425,.427,.435,.436,.437,.438,.440,.441,.444,.445,.458,.458,.460,.461,.465,.466,.472,.473,.478,.479,.482,.486,.488,.494,.494,.507,.511,.512,.517,.520,.523,.523,.527,.527,.527,.529,.529,.531,.532,.534,.536,.542,.545,.547,.547,.548,.550,.554,.557,.561,.568,.568,.571,.577,.577,.582,.583,.588,.601,.603,.609,.613,.614,.616,.618,.619,.625,.625,.631,.632,.634,.636,.656,.658,.659,.661,.661,.662,.666,.668,.668,.670,.678,.686,.688,.701,.702,.704,.705,.712,.713,.717,.722,.728,.730,.739,.741,.746,.755,.755,.757,.769,.776,.777,.808,.809,.841]];
+const TRI=[ // name, date, colour, best depth's median [r, p]
+ ["iqm_garnet","13 Aug","#F0627A",[.564,3]],["iqm_emerald","13 Aug","#8FC23A",[.672,3]],
+ ["ibm_kingston","13 Aug","#B3A2E6",[.758,6]],["ibm_boston","14 Aug","#FAEB5A",[.838,6]],
+ ["ibm_phoenix","2 Sep","#6CB4E8",[.726,6]],["ibm_phoenix","16 Sep","#6CB4E8",[.728,6]],
+ ["ibm_chicago","11 Nov","#E8A15A",[.709,7]],["ibm_chicago","17 Nov","#E8A15A",[.694,7]]];
+// a Gaussian kernel density of one row (Scott's bandwidth), on a grid of r
+function kde(v,lo,hi,step){const n=v.length,m=v.reduce((a,b)=>a+b,0)/n,sd=Math.sqrt(v.reduce((a,b)=>a+(b-m)*(b-m),0)/(n-1)),bw=1.06*sd*Math.pow(n,-.2);
+  const a=Math.max(lo,v[0]-bw),b=Math.min(hi,v[n-1]+bw),out=[];
+  for(let x=a;x<=b+1e-9;x+=step){let s=0;for(const u of v)s+=Math.exp(-.5*((x-u)/bw)**2);out.push([x,s]);}
+  const mx=Math.max(...out.map(q=>q[1]));return out.map(q=>[q[0],q[1]/mx]);}
+const TRI_KDE=TRI_R.map(v=>kde(v,.1,1,.005));
+const quant=(v,q)=>{const i=(v.length-1)*q,a=Math.floor(i);return v[a]+(v[Math.min(a+1,v.length-1)]-v[a])*(i-a);};
+
+// chip maps for the triplet step: positions from layout.grid_layout of the calibration coupling map
+// (ibm_boston 20260916_1359, ibm_chicago 20261117_1010); R[i] = r at p = 3 of the triplet whose ancilla is qubit i
+// (runs 20260814_0818 and 20261117_101043; -1: never an ancilla), T[i] = its two data qubits
+const CHIPMAP={boston:{P:[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[3,1],[7,1],[11,1],[15,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2],[15,2],[1,3],[5,3],[9,3],[13,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4],[3,5],[7,5],[11,5],[15,5],[0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[15,6],[1,7],[5,7],[9,7],[13,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[3,9],[7,9],[11,9],[15,9],[0,10],[1,10],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10],[8,10],[9,10],[10,10],[11,10],[12,10],[13,10],[14,10],[15,10],[1,11],[5,11],[9,11],[13,11],[0,12],[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],[9,12],[10,12],[11,12],[12,12],[13,12],[14,12],[15,12],[3,13],[7,13],[11,13],[15,13],[0,14],[1,14],[2,14],[3,14],[4,14],[5,14],[6,14],[7,14],[8,14],[9,14],[10,14],[11,14],[12,14],[13,14],[14,14],[15,14]],E:[[0,1],[1,2],[2,3],[3,4],[3,16],[4,5],[5,6],[6,7],[7,8],[7,17],[8,9],[9,10],[10,11],[11,12],[11,18],[12,13],[13,14],[14,15],[15,19],[16,23],[17,27],[18,31],[19,35],[20,21],[21,22],[21,36],[22,23],[23,24],[24,25],[25,26],[25,37],[26,27],[27,28],[28,29],[29,30],[29,38],[30,31],[31,32],[32,33],[33,34],[33,39],[34,35],[36,41],[37,45],[38,49],[39,53],[40,41],[41,42],[42,43],[43,44],[43,56],[44,45],[45,46],[46,47],[47,48],[47,57],[48,49],[49,50],[50,51],[51,52],[51,58],[52,53],[53,54],[54,55],[55,59],[56,63],[57,67],[58,71],[59,75],[60,61],[61,62],[61,76],[62,63],[63,64],[64,65],[65,66],[65,77],[66,67],[67,68],[68,69],[69,70],[69,78],[70,71],[71,72],[72,73],[73,74],[73,79],[74,75],[76,81],[77,85],[78,89],[79,93],[80,81],[81,82],[82,83],[83,84],[83,96],[84,85],[85,86],[86,87],[87,88],[87,97],[88,89],[89,90],[90,91],[91,92],[91,98],[92,93],[93,94],[94,95],[95,99],[96,103],[97,107],[98,111],[99,115],[100,101],[101,102],[101,116],[102,103],[103,104],[104,105],[105,106],[105,117],[106,107],[107,108],[108,109],[109,110],[109,118],[110,111],[111,112],[112,113],[113,114],[113,119],[114,115],[116,121],[117,125],[118,129],[119,133],[120,121],[121,122],[122,123],[123,124],[123,136],[124,125],[125,126],[126,127],[127,128],[127,137],[128,129],[129,130],[130,131],[131,132],[131,138],[132,133],[133,134],[134,135],[135,139],[136,143],[137,147],[138,151],[139,155],[140,141],[141,142],[142,143],[143,144],[144,145],[145,146],[146,147],[147,148],[148,149],[149,150],[150,151],[151,152],[152,153],[153,154],[154,155]],R:[-1,0.688,0.664,0.788,0.688,0.74,0.768,0.828,0.732,0.602,0.576,0.832,0.82,0.824,0.814,0.798,0.802,0.646,0.77,0.846,-1,0.822,0.76,0.77,0.832,0.85,0.66,0.618,0.616,0.436,0.766,0.606,0.838,0.802,0.844,0.872,0.824,0.808,0.694,0.832,-1,0.79,0.81,0.736,0.798,0.738,0.634,0.726,0.796,0.608,0.868,0.776,0.846,0.822,0.846,0.73,0.84,0.864,0.816,0.822,-1,0.796,0.836,0.688,0.794,0.838,0.812,0.754,0.826,0.802,0.828,0.686,0.8,0.742,0.81,0.74,0.858,0.62,0.83,0.814,-1,0.804,0.72,0.806,0.666,0.548,0.402,0.806,0.648,0.762,0.752,0.828,0.842,0.668,0.852,0.634,0.834,0.704,0.852,0.812,-1,0.71,0.802,0.728,0.648,0.746,0.768,0.728,0.768,0.82,0.66,0.782,0.81,0.748,0.866,0.808,0.804,0.84,0.858,0.844,-1,0.738,0.772,0.704,0.78,0.66,0.7,0.698,0.774,0.616,0.78,0.84,0.868,0.596,0.662,0.77,0.818,0.772,0.818,0.816,-1,0.806,0.772,0.888,0.736,0.58,0.56,0.694,0.7,0.754,0.63,0.748,0.792,0.814,0.694,0.732],T:[[],[0,2],[1,3],[4,16],[3,5],[4,6],[5,7],[6,17],[7,9],[8,10],[9,11],[12,18],[11,13],[12,14],[13,15],[14,19],[3,23],[7,27],[11,31],[15,35],[],[20,36],[21,23],[22,24],[23,25],[26,37],[25,27],[26,28],[27,29],[30,38],[29,31],[30,32],[31,33],[34,39],[33,35],[19,34],[21,41],[25,45],[29,49],[33,53],[],[40,42],[41,43],[44,56],[43,45],[37,46],[45,47],[48,57],[47,49],[38,50],[49,51],[52,58],[51,53],[39,54],[53,55],[54,59],[43,63],[47,67],[51,71],[55,75],[],[60,76],[61,63],[62,64],[63,65],[66,77],[65,67],[66,68],[67,69],[70,78],[69,71],[70,72],[71,73],[72,79],[73,75],[59,74],[61,81],[65,85],[69,89],[73,93],[],[80,82],[81,83],[84,96],[83,85],[77,86],[85,87],[88,97],[87,89],[88,90],[89,91],[92,98],[91,93],[79,94],[93,95],[94,99],[83,103],[87,107],[91,111],[95,115],[],[100,116],[101,103],[102,104],[103,105],[106,117],[105,107],[106,108],[107,109],[110,118],[109,111],[98,112],[111,113],[114,119],[113,115],[99,114],[101,121],[105,125],[109,129],[113,133],[],[120,122],[121,123],[124,136],[123,125],[117,126],[125,127],[128,137],[127,129],[128,130],[129,131],[132,138],[131,133],[119,134],[133,135],[134,139],[123,143],[127,147],[131,151],[135,155],[],[140,142],[141,143],[136,142],[143,145],[144,146],[145,147],[137,148],[147,149],[148,150],[149,151],[138,152],[151,153],[152,154],[153,155],[139,154]]},
+ chicago:{P:[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[0,9],[1,9],[2,9],[3,9],[4,9],[5,9],[6,9],[7,9],[8,9],[9,9],[0,10],[1,10],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10],[8,10],[9,10],[0,11],[1,11],[2,11],[3,11],[4,11],[5,11],[6,11],[7,11],[8,11],[9,11]],E:[[0,1],[0,10],[1,2],[1,11],[2,3],[2,12],[3,4],[3,13],[4,5],[4,14],[5,6],[5,15],[6,7],[6,16],[7,8],[7,17],[8,9],[8,18],[9,19],[10,11],[10,20],[11,12],[11,21],[12,13],[12,22],[13,14],[13,23],[14,15],[14,24],[15,16],[15,25],[16,17],[16,26],[17,18],[17,27],[18,19],[18,28],[19,29],[20,21],[20,30],[21,22],[21,31],[22,23],[22,32],[23,24],[23,33],[24,25],[24,34],[25,26],[25,35],[26,27],[26,36],[27,28],[27,37],[28,29],[28,38],[29,39],[30,31],[30,40],[31,32],[31,41],[32,33],[32,42],[33,34],[33,43],[34,35],[34,44],[35,36],[35,45],[36,37],[36,46],[37,38],[37,47],[38,39],[38,48],[39,49],[40,41],[40,50],[41,42],[41,51],[42,43],[42,52],[43,44],[43,53],[44,45],[44,54],[45,46],[45,55],[46,47],[46,56],[47,48],[47,57],[48,49],[48,58],[49,59],[50,51],[50,60],[51,52],[51,61],[52,53],[52,62],[53,54],[53,63],[54,55],[54,64],[55,56],[55,65],[56,57],[56,66],[57,58],[57,67],[58,59],[58,68],[59,69],[60,61],[60,70],[61,62],[61,71],[62,63],[62,72],[63,64],[63,73],[64,65],[64,74],[65,66],[65,75],[66,67],[66,76],[67,68],[67,77],[68,69],[68,78],[69,79],[70,71],[70,80],[71,72],[71,81],[72,73],[72,82],[73,74],[73,83],[74,75],[74,84],[75,76],[75,85],[76,77],[76,86],[77,78],[77,87],[78,79],[78,88],[79,89],[80,81],[80,90],[81,82],[81,91],[82,83],[82,92],[83,84],[83,93],[84,85],[84,94],[85,86],[85,95],[86,87],[86,96],[87,88],[87,97],[88,89],[88,98],[89,99],[90,91],[90,100],[91,92],[91,101],[92,93],[92,102],[93,94],[93,103],[94,95],[94,104],[95,96],[95,105],[96,97],[96,106],[97,98],[97,107],[98,99],[98,108],[99,109],[100,101],[100,110],[101,102],[101,111],[102,103],[102,112],[103,104],[103,113],[104,105],[104,114],[105,106],[105,115],[106,107],[106,116],[107,108],[107,117],[108,109],[108,118],[109,119],[110,111],[111,112],[112,113],[113,114],[114,115],[115,116],[116,117],[117,118],[118,119]],R:[0.46,0.438,0.616,0.656,0.507,0.322,0.618,0.625,0.613,0.404,0.614,0.479,0.472,0.777,0.568,0.658,0.55,0.746,0.421,0.67,0.755,0.568,0.542,0.554,0.632,0.527,0.713,0.512,0.668,0.809,0.423,0.571,0.517,0.511,0.441,0.488,0.427,0.631,0.755,0.769,0.808,0.547,0.458,0.634,0.741,0.445,0.625,0.444,0.545,0.668,0.494,0.678,0.52,0.523,0.382,0.458,0.349,0.407,0.583,0.425,0.661,0.739,0.561,0.601,0.603,0.531,0.486,0.532,0.437,0.536,0.717,0.436,0.44,0.523,0.319,0.257,0.404,0.609,0.662,0.702,0.482,0.385,0.283,0.659,0.353,0.529,0.582,0.527,0.722,0.686,0.435,0.636,0.577,0.701,0.588,0.73,0.661,0.757,0.557,0.705,0.461,0.548,0.478,0.529,0.473,0.728,0.547,0.534,0.494,0.666,0.776,0.841,0.688,0.527,0.577,0.704,0.619,0.465,0.712,0.466],T:[[1,10],[0,2],[1,3],[2,4],[3,14],[4,6],[5,16],[6,17],[7,18],[8,19],[0,20],[10,21],[11,13],[12,23],[15,24],[5,25],[15,26],[7,16],[8,19],[9,18],[10,21],[20,22],[12,32],[13,22],[14,23],[24,35],[16,25],[17,37],[27,29],[28,39],[20,31],[30,32],[31,42],[23,34],[33,35],[25,36],[26,46],[36,47],[28,39],[29,38],[30,50],[40,51],[41,52],[33,44],[43,54],[35,44],[45,56],[46,57],[47,49],[48,59],[40,51],[41,61],[42,53],[43,52],[44,64],[45,56],[55,57],[58,67],[48,57],[58,69],[50,70],[60,71],[63,72],[53,73],[54,74],[66,75],[65,76],[68,77],[58,67],[59,79],[60,80],[70,81],[62,73],[63,83],[73,84],[65,74],[75,77],[76,87],[68,79],[69,78],[81,90],[80,91],[72,83],[84,93],[74,85],[75,86],[85,96],[88,97],[89,98],[88,99],[80,91],[92,101],[82,93],[94,103],[95,104],[85,94],[86,95],[87,107],[97,108],[89,109],[90,110],[102,111],[103,112],[93,102],[103,105],[104,115],[96,105],[106,117],[98,118],[99,119],[100,111],[101,110],[111,113],[112,114],[113,115],[114,116],[106,117],[107,116],[108,119],[109,118]]}};
+const RAMP=[[.45,[240,98,122]],[.67,[250,235,90]],[.89,[143,194,58]]];
+function rampR(r,a=1){r=clamp(r,RAMP[0][0],RAMP[2][0]);const k=r<RAMP[1][0]?0:1,[r0,c0]=RAMP[k],[r1_,c1]=RAMP[k+1],u=(r-r0)/(r1_-r0);
+  return `rgba(${c0.map((c,i)=>Math.round(c+(c1[i]-c)*u)).join(",")},${clamp(a).toFixed(3)})`;}
+Object.assign(DRAW,{
+ triplets(t){
+  let h=T_(60,70,"One gadget, on every triplet of the chip",{fs:19,fw:600})+T_(60,96,"r of a two-spin LR-QAOA at p = 3 through one mid-circuit gadget, for each data–ancilla–data triplet",{fs:14,fill:C.ink2});
+  const x0=210,x1=600,ry0=146,dy=38,yA=ry0+8*dy-6,X=v=>x0+(v-.15)/(.95-.15)*(x1-x0),aA=ease(seg(t,0,.8));
+  // random band, the noiseless value, the axis
+  h+=el("rect",{x:X(.433),y:ry0-24,width:X(.567)-X(.433),height:yA-ry0+24,fill:hexA(C.muted,.14*aA)},"")+T_(X(.5),ry0-30,"random",{fs:11.5,fill:C.muted,anchor:"middle",op:aA});
+  h+=el("line",{x1:X(.895),x2:X(.895),y1:ry0-24,y2:yA,stroke:hexA(C.ink,.8*aA),"stroke-width":1.4,"stroke-dasharray":"5 4"},"")+T_(X(.895),ry0-30,"noiseless 0.90",{fs:11.5,fill:C.ink2,anchor:"middle",op:aA});
+  h+=el("line",{x1:x0,x2:x1,y1:yA,y2:yA,stroke:hexA(C.line2,aA),"stroke-width":1.2},"");
+  [.25,.5,.75].forEach(v=>{h+=el("line",{x1:X(v),x2:X(v),y1:yA,y2:yA+5,stroke:hexA(C.muted,aA)},"")+T_(X(v),yA+20,v.toFixed(2),{fs:12,fill:C.muted,anchor:"middle",mono:true,op:aA});});
+  h+=T_((x0+x1)/2,yA+42,"approximation ratio r at p = 3, one point per triplet",{fs:13,fill:C.ink2,anchor:"middle",op:aA});
+  // rows
+  const rowT=i=>2.2+i*.7;
+  TRI.forEach(([name,date,col],i)=>{const v=TRI_R[i],y=ry0+i*dy,a=ease(seg(t,rowT(i),rowT(i)+.8));if(a<=0)return;
+    h+=T_(x0-14,y+2,name,{fs:13,fill:col,fw:600,anchor:"end",op:a})+T_(x0-14,y+16,date+" · "+v.length,{fs:10.5,fill:C.muted,anchor:"end",op:a});
+    const K=TRI_KDE[i],up=K.map(q=>[X(q[0]),y-13*q[1]*a]),dn=K.slice().reverse().map(q=>[X(q[0]),y+13*q[1]*a]);
+    h+=el("path",{d:pathOf(up.concat(dn))+"Z",fill:hexA(col,.2*a),stroke:"none"},"");
+    v.forEach((u,j)=>{const z=Math.sin(j*12.9898+i*78.233)*43758.5453,jit=(z-Math.floor(z)-.5)*18;h+=el("circle",{cx:r1(X(u)),cy:r1(y+jit),r:1.9,fill:hexA(col,.7*a)},"");});
+    const q1=quant(v,.25),md=quant(v,.5),q3=quant(v,.75);
+    h+=el("line",{x1:X(q1),x2:X(q3),y1:y+16,y2:y+16,stroke:hexA(col,a),"stroke-width":3},"")+el("circle",{cx:X(md),cy:y+16,r:5,fill:hexA(col,a),stroke:C.bg,"stroke-width":1.5},"");});
+  // two chips, every qubit coloured by r of the triplet in which it is the ancilla
+  const s=12.5,M=[["boston","ibm_boston · 14 Aug","heavy-hex, 156 qubits",640,3],["chicago","ibm_chicago · 17 Nov","square lattice, 120 qubits",862,7]];
+  M.forEach(([key,name,kind,mx,row])=>{const D=CHIPMAP[key],my=150,a=ease(seg(t,.3,1.1)),cA=ease(seg(t,rowT(row),rowT(row)+1.2)),P=D.P.map(p=>[mx+p[0]*s,my+p[1]*s]);
+    h+=T_(mx,my-26,name,{fs:12.5,fw:600,fill:C.ink,op:a})+T_(mx,my-12,kind,{fs:10.5,fill:C.muted,op:a});
+    D.E.forEach(([u,v])=>{h+=el("line",{x1:P[u][0],y1:P[u][1],x2:P[v][0],y2:P[v][1],stroke:hexA(C.line2,a),"stroke-width":1.2},"");});
+    P.forEach((p,i)=>{const r=D.R[i];
+      h+=r<0?el("circle",{cx:p[0],cy:p[1],r:2.6,fill:"none",stroke:hexA(C.muted,a),"stroke-width":1},"")
+        :el("circle",{cx:p[0],cy:p[1],r:4.4,fill:cA>0?rampR(r,cA):hexA(C.muted,.5*a)},"");});});
+  // one triplet, pointed out before the colours arrive
+  {const D=CHIPMAP.chicago,mx=862,my=150,k=44,[d1,d2]=D.T[k],P=i=>[mx+D.P[i][0]*s,my+D.P[i][1]*s],u=ease(seg(t,1.1,1.8))*(1-ease(seg(t,rowT(7)+1.4,rowT(7)+2.2)));
+    if(u>0){const A=P(k),B=P(d1),E=P(d2);
+      h+=el("path",{d:`M${B[0]},${B[1]}L${A[0]},${A[1]}L${E[0]},${E[1]}`,stroke:hexA(C.y,u),"stroke-width":3.2,fill:"none","stroke-linecap":"round"},"");
+      [[B,"d"],[A,"a"],[E,"d"]].forEach(([q,l])=>{h+=el("circle",{cx:q[0],cy:q[1],r:7,fill:C.bg,stroke:hexA(C.y,u),"stroke-width":1.6},"")+T_(q[0],q[1]+3.5,l,{fs:9.5,fill:C.y,anchor:"middle",fw:600,op:u});});
+      h+=T_(mx,my+11*s+22,"one triplet:",{fs:11.5,fill:C.y,op:u})+T_(mx,my+11*s+37,"data – ancilla – data",{fs:11.5,fill:C.y,op:u});}}
+  // colour scale
+  const kA=ease(seg(t,rowT(3),rowT(3)+1)),kx0=640,kx1=970,ky=350;
+  for(let i=0;i<60;i++){const r=.45+(.9-.45)*i/60;h+=el("rect",{x:kx0+(kx1-kx0)*i/60,y:ky,width:(kx1-kx0)/60+.6,height:8,fill:rampR(r,kA)},"");}
+  [.5,.7,.9].forEach(v=>{const x=kx0+(v-.45)/(.45)*(kx1-kx0);h+=T_(x,ky+22,v.toFixed(1),{fs:10.5,fill:C.muted,anchor:"middle",mono:true,op:kA});});
+  h+=T_(kx0,ky-8,"r at p = 3 of the triplet whose ancilla is that qubit",{fs:11.5,fill:C.ink2,op:kA});
+  // what to take from it
+  const nA=ease(seg(t,10.6,11.6));
+  h+=T_(60,yA+74,"ibm_boston is the most even chip: 42 % of its triplets above 0.8. On the square-lattice chips (phoenix, chicago) good and bad",{fs:13.5,fill:C.ink2,op:nA});
+  h+=T_(60,yA+94,"triplets sit next to each other, from random to 0.85, the same in runs a week or two apart. Every IBM chip does better at",{fs:13.5,fill:C.ink2,op:nA});
+  h+=T_(60,yA+114,"p = 6–7 than at p = 3; phoenix and chicago by +0.12 to +0.20.",{fs:13.5,fill:C.ink2,op:nA});
+  return h;},
+});
+/* =====================================================================================
+   Part 5: how lambda is measured (paper Fig. 5a, notebooks/noise_study) and chains at larger N_q (Fig. 5c, MCM).
+   Collapse: data/noise_study/chain_depolarizing.json, N_q = 5..15, p = 2, 5, 10, lambda on a log grid; x = (kappa_0/N_q) eps_acc,
+   kappa_0 = 3.689 +- 0.012 (noise_study.fit_kappa0). LKAP: per-size fitted kappa_r and its standard error.
+   Example: ibm_boston 20260827_1035, N_q = 10, r_ovl at p = 3, 5, 10 -> lambda_eff = 0.0221.
+   Chains: lambda_eff per N_q (fit_lambda_eff, p = 3, 5, 10; phoenix 5..20) from the runs of the next step;
+   Helios-1 adds 20260915_1035 (N_q = 20); chicago 20261111_120600, best and median placement per N_q.
+   ===================================================================================== */
+const LCOL=[[5,0.01158,0.992],[5,0.01867,0.987],[5,0.03018,0.980],[5,0.0487,0.967],[5,0.07873,0.947],[5,0.1272,0.916],[5,0.2055,0.867],[5,0.332,0.792],[5,0.5363,0.682],[5,0.8664,0.531],[5,1.4,0.349],[5,2.261,0.174],[5,3.654,0.049],[5,5.903,-0.006],[5,0.01107,0.992],[5,0.01786,0.988],[5,0.02885,0.980],[5,0.04663,0.968],[5,0.07541,0.949],[5,0.1218,0.919],[5,0.1968,0.873],[5,0.3179,0.803],[5,0.5136,0.703],[5,0.8299,0.568],[5,1.341,0.404],[5,2.166,0.235],[5,3.499,0.096],[5,5.654,0.017],[5,9.134,0.000],[5,14.76,0.000],[5,0.008485,0.994],[5,0.01372,0.991],[5,0.02214,0.985],[5,0.03579,0.977],[5,0.05777,0.962],[5,0.09334,0.940],[5,0.1508,0.905],[5,0.2436,0.852],[5,0.3936,0.772],[5,0.6359,0.660],[5,1.027,0.512],[5,1.66,0.338],[5,2.681,0.168],[5,4.332,0.049],[5,6.999,0.004],[5,11.31,0.000],[5,18.27,-0.000],[5,29.51,-0.000],[6,0.00744,0.995],[6,0.01205,0.992],[6,0.01943,0.986],[6,0.03142,0.978],[6,0.05073,0.965],[6,0.08203,0.943],[6,0.1324,0.910],[6,0.214,0.858],[6,0.3457,0.780],[6,0.5586,0.668],[6,0.9025,0.517],[6,1.458,0.338],[6,2.356,0.165],[6,3.806,0.043],[6,6.149,0.000],[6,0.007133,0.996],[6,0.0115,0.993],[6,0.01863,0.988],[6,0.03007,0.981],[6,0.04864,0.970],[6,0.07852,0.951],[6,0.1269,0.923],[6,0.205,0.878],[6,0.3312,0.810],[6,0.5351,0.711],[6,0.8645,0.574],[6,1.397,0.399],[6,2.256,0.210],[6,3.645,0.062],[6,5.889,0.005],[6,9.515,0.000],[6,15.37,0.000],[6,0.008854,0.995],[6,0.01427,0.991],[6,0.02306,0.986],[6,0.03726,0.977],[6,0.0602,0.963],[6,0.09721,0.941],[6,0.157,0.906],[6,0.2538,0.853],[6,0.41,0.773],[6,0.6624,0.660],[6,1.07,0.509],[6,1.729,0.333],[6,2.793,0.162],[6,4.513,0.043],[6,7.291,0.003],[6,11.78,0.000],[6,19.03,-0.000],[6,30.74,-0.000],[7,0.007642,0.995],[7,0.01239,0.992],[7,0.01997,0.986],[7,0.03231,0.978],[7,0.05218,0.965],[7,0.08433,0.944],[7,0.1362,0.911],[7,0.2201,0.861],[7,0.3556,0.784],[7,0.5746,0.674],[7,0.9283,0.525],[7,1.5,0.344],[7,2.423,0.168],[7,3.915,0.049],[7,6.325,0.000],[7,0.007326,0.994],[7,0.01186,0.991],[7,0.01913,0.986],[7,0.03094,0.977],[7,0.05002,0.963],[7,0.0808,0.940],[7,0.1305,0.905],[7,0.2109,0.852],[7,0.3406,0.774],[7,0.5503,0.663],[7,0.8891,0.520],[7,1.437,0.354],[7,2.321,0.191],[7,3.749,0.068],[7,6.058,0.008],[7,9.787,0.000],[7,15.81,0.000],[7,0.005639,0.996],[7,0.009065,0.994],[7,0.01465,0.990],[7,0.02372,0.983],[7,0.03832,0.973],[7,0.06187,0.957],[7,0.09998,0.932],[7,0.1615,0.892],[7,0.261,0.834],[7,0.4217,0.748],[7,0.6813,0.631],[7,1.101,0.482],[7,1.778,0.313],[7,2.873,0.153],[7,4.642,0.043],[7,7.499,0.004],[7,12.12,0.000],[7,19.57,0.000],[7,31.62,0.000],[8,0.004842,0.997],[8,0.00784,0.995],[8,0.01264,0.992],[8,0.02043,0.987],[8,0.03297,0.978],[8,0.05331,0.965],[8,0.0861,0.944],[8,0.1391,0.910],[8,0.2247,0.858],[8,0.3631,0.778],[8,0.5866,0.661],[8,0.9476,0.503],[8,1.531,0.317],[8,2.474,0.142],[8,3.996,0.030],[8,6.456,0.000],[8,0.004658,0.997],[8,0.007471,0.995],[8,0.01208,0.992],[8,0.01955,0.987],[8,0.03159,0.979],[8,0.05105,0.967],[8,0.08246,0.947],[8,0.1332,0.915],[8,0.2152,0.866],[8,0.3478,0.792],[8,0.5618,0.685],[8,0.9077,0.539],[8,1.466,0.366],[8,2.369,0.195],[8,3.828,0.070],[8,6.184,0.011],[8,9.991,0.000],[8,16.14,0.000],[8,0.005718,0.996],[8,0.009269,0.994],[8,0.01499,0.990],[8,0.02421,0.984],[8,0.03911,0.974],[8,0.06318,0.959],[8,0.1021,0.934],[8,0.1649,0.896],[8,0.2665,0.839],[8,0.4305,0.754],[8,0.6955,0.636],[8,1.124,0.484],[8,1.815,0.309],[8,2.933,0.147],[8,4.738,0.042],[8,7.655,0.001],[8,12.37,-0.000],[8,19.98,-0.000],[8,32.28,-0.000],[9,0.004919,0.997],[9,0.007953,0.995],[9,0.01283,0.991],[9,0.02074,0.986],[9,0.03349,0.977],[9,0.05415,0.963],[9,0.08748,0.942],[9,0.1413,0.908],[9,0.2283,0.856],[9,0.3688,0.777],[9,0.5959,0.663],[9,0.9627,0.506],[9,1.555,0.313],[9,2.513,0.129],[9,4.06,0.022],[9,6.559,0.000],[9,0.004714,0.997],[9,0.007625,0.995],[9,0.0123,0.992],[9,0.01988,0.987],[9,0.0321,0.979],[9,0.05186,0.967],[9,0.08379,0.946],[9,0.1354,0.914],[9,0.2187,0.865],[9,0.3533,0.789],[9,0.5707,0.680],[9,0.9221,0.532],[9,1.49,0.357],[9,2.407,0.182],[9,3.888,0.051],[9,6.282,0.002],[9,10.15,0.000],[9,16.4,0.000],[9,0.005821,0.996],[9,0.009428,0.993],[9,0.01521,0.989],[9,0.0246,0.983],[9,0.03972,0.973],[9,0.06419,0.956],[9,0.1037,0.930],[9,0.1675,0.890],[9,0.2707,0.830],[9,0.4373,0.743],[9,0.7065,0.623],[9,1.141,0.469],[9,1.844,0.294],[9,2.979,0.131],[9,4.813,0.029],[9,7.777,0.001],[9,12.56,0.000],[9,20.3,0.000],[9,32.79,0.000],[10,0.004981,0.997],[10,0.008043,0.994],[10,0.01299,0.991],[10,0.02099,0.985],[10,0.03394,0.976],[10,0.05482,0.962],[10,0.08854,0.939],[10,0.1431,0.903],[10,0.2311,0.848],[10,0.3734,0.766],[10,0.6033,0.648],[10,0.9747,0.492],[10,1.575,0.304],[10,2.544,0.120],[10,4.11,0.011],[10,6.641,0.000],[10,0.004759,0.997],[10,0.007711,0.995],[10,0.01243,0.992],[10,0.02011,0.987],[10,0.0325,0.979],[10,0.0525,0.967],[10,0.08482,0.947],[10,0.137,0.914],[10,0.2214,0.864],[10,0.3577,0.788],[10,0.5779,0.677],[10,0.9336,0.528],[10,1.508,0.354],[10,2.437,0.190],[10,3.937,0.066],[10,6.36,0.006],[10,10.28,0.000],[10,16.6,0.000],[10,0.005903,0.996],[10,0.009555,0.993],[10,0.01542,0.989],[10,0.0249,0.982],[10,0.04021,0.972],[10,0.06501,0.955],[10,0.105,0.929],[10,0.1696,0.889],[10,0.2741,0.830],[10,0.4428,0.745],[10,0.7154,0.627],[10,1.156,0.472],[10,1.867,0.290],[10,3.017,0.130],[10,4.874,0.040],[10,7.874,0.004],[10,12.72,0.000],[10,20.55,0.000],[10,33.2,0.000],[11,0.005031,0.997],[11,0.008116,0.995],[11,0.01311,0.991],[11,0.0212,0.986],[11,0.03428,0.977],[11,0.05537,0.963],[11,0.08945,0.941],[11,0.1445,0.906],[11,0.2335,0.852],[11,0.3772,0.769],[11,0.6094,0.648],[11,0.9846,0.485],[11,1.591,0.297],[11,2.57,0.123],[11,4.152,0.027],[11,6.708,0.000],[11,0.00483,0.997],[11,0.007781,0.995],[11,0.01258,0.992],[11,0.02032,0.987],[11,0.03283,0.978],[11,0.05303,0.966],[11,0.08566,0.945],[11,0.1384,0.913],[11,0.2236,0.865],[11,0.3613,0.792],[11,0.5837,0.685],[11,0.943,0.541],[11,1.524,0.368],[11,2.461,0.201],[11,3.977,0.073],[11,6.425,0.008],[11,10.38,0.000],[11,16.77,0.000],[11,0.00597,0.996],[11,0.009626,0.993],[11,0.01556,0.989],[11,0.02515,0.983],[11,0.04065,0.973],[11,0.06564,0.956],[11,0.1061,0.930],[11,0.1714,0.889],[11,0.2768,0.828],[11,0.4472,0.740],[11,0.7226,0.619],[11,1.167,0.465],[11,1.886,0.289],[11,3.047,0.135],[11,4.923,0.035],[11,7.953,0.001],[11,12.85,0.000],[11,20.76,0.000],[11,33.54,0.000],[12,0.005073,0.996],[12,0.008209,0.994],[12,0.01325,0.991],[12,0.0214,0.985],[12,0.03456,0.976],[12,0.05583,0.962],[12,0.0902,0.939],[12,0.1457,0.903],[12,0.2354,0.848],[12,0.3804,0.766],[12,0.6145,0.649],[12,0.9928,0.493],[12,1.604,0.306],[12,2.591,0.124],[12,4.187,0.009],[12,6.764,-0.000],[12,0.004858,0.997],[12,0.00784,0.995],[12,0.01267,0.991],[12,0.02048,0.986],[12,0.03311,0.977],[12,0.05346,0.964],[12,0.08639,0.942],[12,0.1396,0.908],[12,0.2255,0.856],[12,0.3643,0.778],[12,0.5886,0.670],[12,0.9509,0.525],[12,1.536,0.347],[12,2.482,0.169],[12,4.01,0.048],[12,6.478,0.001],[12,10.47,0.000],[12,16.91,0.000],[12,0.006026,0.996],[12,0.009715,0.994],[12,0.01571,0.990],[12,0.02536,0.984],[12,0.04098,0.974],[12,0.06619,0.959],[12,0.107,0.934],[12,0.1728,0.895],[12,0.2791,0.834],[12,0.451,0.742],[12,0.7286,0.612],[12,1.177,0.449],[12,1.902,0.274],[12,3.072,0.126],[12,4.964,0.033],[12,8.02,0.001],[12,12.96,0.000],[12,20.93,0.000],[13,0.005108,0.997],[13,0.008258,0.994],[13,0.01334,0.991],[13,0.02154,0.985],[13,0.03479,0.976],[13,0.05622,0.962],[13,0.09081,0.940],[13,0.1467,0.904],[13,0.2371,0.849],[13,0.383,0.767],[13,0.6188,0.648],[13,0.9997,0.489],[13,1.615,0.299],[13,2.609,0.124],[13,4.216,0.015],[13,6.811,0.000],[13,0.004881,0.997],[13,0.007889,0.995],[13,0.01277,0.991],[13,0.02063,0.986],[13,0.03332,0.977],[13,0.05384,0.964],[13,0.08698,0.942],[13,0.1405,0.908],[13,0.2271,0.857],[13,0.3669,0.779],[13,0.5927,0.668],[13,0.9575,0.520],[13,1.547,0.346],[13,2.499,0.173],[13,4.038,0.050],[13,6.524,0.003],[13,10.54,0.000],[13,17.03,0.000],[13,0.006045,0.996],[13,0.009791,0.994],[13,0.01581,0.990],[13,0.02554,0.984],[13,0.04126,0.974],[13,0.06666,0.957],[13,0.1077,0.932],[13,0.174,0.891],[13,0.2811,0.829],[13,0.4541,0.737],[13,0.7337,0.608],[13,1.185,0.447],[13,1.915,0.272],[13,3.094,0.123],[13,4.999,0.030],[13,8.076,0.001],[13,13.05,0.000],[13,21.08,0.000],[14,0.005139,0.996],[14,0.008301,0.994],[14,0.01341,0.991],[14,0.02166,0.985],[14,0.035,0.976],[14,0.05655,0.961],[14,0.09136,0.938],[14,0.1476,0.902],[14,0.2385,0.848],[14,0.3853,0.766],[14,0.6225,0.646],[14,1.006,0.484],[14,1.625,0.294],[14,2.625,0.128],[14,4.241,0.020],[14,6.852,0.000],[14,0.004928,0.997],[14,0.007958,0.995],[14,0.01283,0.991],[14,0.02074,0.986],[14,0.03352,0.977],[14,0.05415,0.964],[14,0.08752,0.942],[14,0.1414,0.908],[14,0.2284,0.856],[14,0.369,0.779],[14,0.5962,0.669],[14,0.9632,0.521],[14,1.556,0.344],[14,2.514,0.172],[14,4.062,0.048],[14,6.562,0.001],[14,10.6,0.000],[14,17.13,0.000],[14,0.006087,0.996],[14,0.009829,0.994],[14,0.01589,0.990],[14,0.02569,0.984],[14,0.0415,0.974],[14,0.06707,0.958],[14,0.1083,0.932],[14,0.175,0.893],[14,0.2828,0.831],[14,0.4568,0.738],[14,0.7381,0.610],[14,1.192,0.451],[14,1.926,0.281],[14,3.112,0.128],[14,5.028,0.037],[14,8.124,0.003],[14,13.12,0.000],[14,21.2,0.000],[15,0.005165,0.997],[15,0.008338,0.994],[15,0.01348,0.991],[15,0.02177,0.985],[15,0.0352,0.976],[15,0.05684,0.962],[15,0.09184,0.939],[15,0.1484,0.903],[15,0.2397,0.848],[15,0.3873,0.765],[15,0.6257,0.646],[15,1.011,0.484],[15,1.633,0.286],[15,2.638,0.109],[15,4.263,0.016],[15,6.887,0.000],[15,0.004944,0.997],[15,0.007993,0.995],[15,0.01291,0.991],[15,0.02086,0.986],[15,0.0337,0.978],[15,0.05445,0.964],[15,0.08795,0.943],[15,0.1421,0.909],[15,0.2296,0.857],[15,0.3709,0.779],[15,0.5993,0.666],[15,0.9682,0.518],[15,1.564,0.346],[15,2.527,0.180],[15,4.083,0.052],[15,6.596,0.001],[15,10.66,0.000],[15,17.22,0.000],[15,0.006124,0.996],[15,0.009887,0.994],[15,0.01599,0.990],[15,0.02583,0.983],[15,0.04171,0.973],[15,0.06739,0.957],[15,0.1089,0.931],[15,0.1759,0.889],[15,0.2842,0.827],[15,0.4592,0.735],[15,0.7418,0.610],[15,1.199,0.448],[15,1.936,0.266],[15,3.128,0.115],[15,5.054,0.038],[15,8.165,0.006],[15,13.19,0.000],[15,21.31,0.000]];
+const LKAP=[[5,0.7371,0.0051],[6,0.604,0.0054],[7,0.5334,0.0029],[8,0.4595,0.0034],[9,0.414,0.0029],[10,0.3718,0.0031],[11,0.3324,0.0027],[12,0.3113,0.0021],[13,0.2871,0.0018],[14,0.2644,0.0017],[15,0.2483,0.0018]];
+const LCOLR=n=>{const u=(n-5)/10;return `hsl(${Math.round(200-u*170)},70%,${Math.round(62+u*4)}%)`;};
+const CHN=[ // device, colour, dashed, [[N_q, lambda]...]
+ ["ibm_fez","#C9B27C",0,[[10,.086],[20,.0668],[30,.0767],[40,.0874],[50,.0919],[60,.0979]]],
+ ["ibm_marrakesh","#E58FB5",0,[[10,.0658],[20,.078],[30,.0932],[40,.1048],[50,.1262],[60,.1358]]],
+ ["ibm_kingston","#B3A2E6",0,[[10,.0579],[20,.0476],[30,.0479],[40,.0539],[50,.0545],[60,.0588]]],
+ ["ibm_pittsburgh","#8FC23A",0,[[10,.0331],[20,.028],[30,.0406],[40,.0471],[50,.0434],[60,.0422]]],
+ ["ibm_boston","#FAEB5A",0,[[10,.0221],[20,.0401],[30,.0336],[40,.0463],[50,.0512],[60,.0482]]],
+ ["ibm_phoenix","#6CB4E8",0,[[10,.0604],[20,.0919],[30,.0694],[40,.0897]]],
+ ["ibm_chicago","#E8A15A",0,[[10,.0649],[20,.0954],[30,.117],[40,.2084],[50,.2851]]],
+ ["ibm_chicago, median","#E8A15A",1,[[10,.1697],[20,.1514],[30,.2011],[40,.2545],[50,.2956]]],
+ ["Helios-1","#F0627A",0,[[20,.00117],[30,.00224],[40,.00372],[50,.00406]]],
+ ["H2-1","#D6CCF5",0,[[30,.00486]]]];
+
+Object.assign(DRAW,{
+ lambda(t){
+  let h=T_(60,70,"From a score to an error per gadget",{fs:19,fw:600})+T_(60,96,"a noise model, calibrated in simulation, turns a measured r"+SB("ovl")+" into λ, the error of one gadget in one layer",{fs:14,fill:C.ink2});
+  const ax=axes({xlog:true,xmin:.004,xmax:40,ymin:0,ymax:1.05,yt:[0,.25,.5,.75,1],xt:[.01,.1,1,10],fy:v=>v.toFixed(2),fx:v=>String(v),
+    xl:"κ"+SB("r")+" ε"+SB("acc")+" = (κ₀/N"+SB("q")+") · N"+SB("edges")+" · p · λ",yl:"r"+SB("ovl")+"  (1 noiseless, 0 random)"});
+  h+=ax.h;
+  // simulated points, one colour per chain length, appearing size by size
+  LCOL.forEach(([n,x,y])=>{const a=ease(seg(t,1+(n-5)*.28,1.5+(n-5)*.28));if(a<=0)return;
+    h+=el("circle",{cx:r1(ax.X(x)),cy:r1(ax.Y(Math.max(0,y))),r:2.6,fill:LCOLR(n),opacity:(.75*a).toFixed(2)},"");});
+  const lA=ease(seg(t,.6,1.4));
+  h+=T_(CH.x1-150,CH.y0+6,"simulation, N"+SB("q")+" = 5 … 15",{fs:12,fill:C.ink2,op:lA});
+  for(let n=5;n<=15;n++)h+=el("rect",{x:CH.x1-150+(n-5)*13,y:CH.y0+14,width:12,height:6,fill:LCOLR(n),opacity:lA},"");
+  h+=T_(CH.x1-150,CH.y0+36,"p = 2, 5, 10, every λ",{fs:11.5,fill:C.muted,op:lA});
+  // the one curve
+  const cA=ease(seg(t,4.4,5.6)),P=[];for(let k=0;k<=120;k++){const x=.004*Math.pow(1e4,k/120);P.push([ax.X(x),ax.Y(Math.pow(2,-x))]);}
+  h+=el("path",{d:pathOf(P.slice(0,Math.max(1,Math.round(cA*120)))),fill:"none",stroke:C.ink,"stroke-width":2.4},"");
+  h+=T_(ax.X(2.6),ax.Y(.34),"r"+SB("ovl")+" = 2"+SP("−κ_r ε_acc"),{fs:15,fill:C.ink,fw:600,op:cA});
+  // a device on the curve: ibm_boston, N_q = 10
+  const bA=ease(seg(t,9,9.8)),BX=[[3,.807],[5,.735],[10,.65]];
+  BX.forEach(([p,y])=>{const x=ax.X(.3689*9*p*.0221),yy=ax.Y(y);
+    h+=el("path",{d:`M${x},${yy-7}L${x+6.5},${yy+5}L${x-6.5},${yy+5}Z`,fill:hexA(C.y,bA),stroke:C.bg,"stroke-width":1.2},"");
+    h+=T_(x-12,yy-3,"p="+p,{fs:10.5,fill:C.y,anchor:"end",mono:true,op:bA});});
+  h+=T_(ax.X(.012),ax.Y(.52),"ibm_boston, N"+SB("q")+" = 10:",{fs:12.5,fill:C.y,fw:600,op:bA})+T_(ax.X(.012),ax.Y(.52)+17,"λ"+SB("eff")+" = 0.022 puts its",{fs:12,fill:C.ink2,op:bA})
+    +T_(ax.X(.012),ax.Y(.52)+33,"three depths on the curve",{fs:12,fill:C.ink2,op:bA});
+  // right: kappa_r against N_q, then the recipe
+  const kA=ease(seg(t,6,6.8)),kx0=660,kx1=960,ky0=150,ky1=268,KX=n=>kx0+(n-4)/(16-4)*(kx1-kx0),KY=v=>ky1-(v-.2)/(.8-.2)*(ky1-ky0);
+  h+=T_(kx0-20,ky0-12,"κ"+SB("r")+" of each size",{fs:12.5,fill:C.ink2,op:kA});
+  h+=el("line",{x1:kx0,x2:kx1,y1:ky1,y2:ky1,stroke:hexA(C.line2,kA)},"");
+  [.25,.5,.75].forEach(v=>{h+=T_(kx0-6,KY(v)+4,v.toFixed(2),{fs:10.5,fill:C.muted,anchor:"end",mono:true,op:kA});});
+  [5,10,15].forEach(n=>{h+=T_(KX(n),ky1+15,String(n),{fs:10.5,fill:C.muted,anchor:"middle",mono:true,op:kA});});
+  h+=T_(kx1,ky1+15,"N"+SB("q"),{fs:11,fill:C.muted,anchor:"end",op:kA});
+  const KP=[];for(let n=4.6;n<=15.6;n+=.2)KP.push([KX(n),KY(3.689/n)]);
+  h+=el("path",{d:pathOf(KP),fill:"none",stroke:hexA(C.X,kA),"stroke-width":1.6,"stroke-dasharray":"4 3"},"");
+  LKAP.forEach(([n,k])=>{h+=el("circle",{cx:KX(n),cy:KY(k),r:3.8,fill:LCOLR(n),opacity:kA},"");});
+  h+=T_(KX(9.6),KY(.6),"κ₀/N"+SB("q")+",  κ₀ = 3.69",{fs:12,fill:C.X,op:kA});
+  const rA=ease(seg(t,7.4,8.2)),R=[
+    ["1","each gadget fails with probability λ per layer"],
+    ["2","errors add up: ε"+SB("acc")+" = N"+SB("edges")+" · p · λ"],
+    ["3","every size and depth falls on 2"+SP("−κ_r ε_acc")],
+    ["4","on a chip: measure r"+SB("ovl")+" at p = 3, 5, 10, solve for λ"]];
+  R.forEach(([k,s],i)=>{const y=318+i*30,a=ease(seg(t,7.4+i*.4,8+i*.4));
+    h+=el("circle",{cx:654,cy:y-5,r:10,fill:hexA(C.g,.18*a),stroke:hexA(C.g,a)},"")+T_(654,y-1,k,{fs:11.5,fill:C.g,anchor:"middle",fw:600,op:a})+T_(672,y,s,{fs:13,fill:C.ink2,op:a});});
+  const nA=ease(seg(t,10.4,11.2));
+  h+=el("rect",{x:636,y:448,width:348,height:60,rx:10,fill:hexA(C.g,.07*nA),stroke:hexA(C.g,.55*nA),"stroke-width":1.2},"");
+  h+=T_(652,472,"λ is a per-gadget error: it can be compared",{fs:13.5,fill:C.ink,op:nA})+T_(652,492,"across chips, chain lengths and depths.",{fs:13.5,fill:C.ink,op:nA});
+  return h;},
+
+ chains(t){
+  let h=T_(60,70,"Longer chains: up to 60 gadgets in a row",{fs:19,fw:600})+T_(60,96,"λ of each chain length on each chip, MCM chains of N"+SB("q")+" = 10 … 60 spins",{fs:14,fill:C.ink2});
+  const ax=axes({ylog:true,xmin:5,xmax:65,ymin:7e-4,ymax:.5,yt:[.001,.003,.01,.03,.1,.3],xt:[10,20,30,40,50,60],fy:v=>String(v),fx:v=>String(v),
+    xl:"spins in the chain N"+SB("q"),yl:"λ"+SB("eff")+" per gadget"});
+  h+=ax.h;
+  CHN.forEach(([dev,col,dash,pts],i)=>{const a=ease(seg(t,.8+i*.75,1.6+i*.75));if(a<=0)return;
+    const P=pts.map(([n,l])=>[ax.X(n),ax.Y(l)]),k=Math.max(1,Math.round(a*P.length));
+    if(P.length>1)h+=el("path",{d:pathOf(P.slice(0,k)),fill:"none",stroke:hexA(col,dash?.6:.85),"stroke-width":dash?1.4:2,"stroke-dasharray":dash?"5 4":"none"},"");
+    P.slice(0,k).forEach(([x,y])=>{h+=dash?el("circle",{cx:x,cy:y,r:3.4,fill:C.bg,stroke:col,"stroke-width":1.5},""):el("circle",{cx:x,cy:y,r:4,fill:col,stroke:C.bg,"stroke-width":1.2},"");});
+    // legend on the right
+    const ly=150+i*21;
+    h+=el("line",{x1:640,x2:662,y1:ly-4,y2:ly-4,stroke:col,"stroke-width":2,"stroke-dasharray":dash?"5 4":"none",opacity:a},"")+(dash?el("circle",{cx:651,cy:ly-4,r:3.4,fill:C.bg,stroke:col,"stroke-width":1.5,opacity:a},""):el("circle",{cx:651,cy:ly-4,r:4,fill:col,opacity:a},""))
+      +T_(670,ly,dev+(dev==="ibm_chicago"?", best placement":""),{fs:12.5,fill:col,op:a});});
+  const nA=ease(seg(t,9.6,10.6)),bx=632,by=372;
+  h+=el("rect",{x:bx,y:by,width:352,height:124,rx:10,fill:hexA(C.g,.07*nA),stroke:hexA(C.g,.55*nA),"stroke-width":1.2},"");
+  h+=T_(bx+16,by+26,"λ is a property of the chip",{fs:14,fw:600,op:nA});
+  ["On kingston, pittsburgh and boston λ stays","within 2× from 10 to 60 spins. It grows with","the chain on marrakesh (2×), Helios-1 (3.5×)","and chicago (4×)."].forEach((s,i)=>{h+=T_(bx+16,by+50+i*19,s,{fs:13,fill:C.ink2,op:nA});});
+  return h;},
+});
+/* =====================================================================================
+   timeline, captions, controls
+   ===================================================================================== */
+const dyn=$("dyn"),scrub=$("scrub"),pills=$("pills");
+const DEFS=`<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${C.ink2}"/></marker></defs>`;
+let T=0,playing=false,lastNow=null,pauseAt=null,capStep=-1;
+const stepIndex=(t=T)=>{let i=0;while(i<S.length-1&&t>=starts[i+1])i++;return i;};
+S.forEach((s,i)=>{const b=document.createElement("button");b.className="pill";b.innerHTML=`<span class="n">${i+1}</span>${s.short}`;b.onclick=()=>go(i);pills.appendChild(b);});
+function caption(i){if(i===capStep)return;capStep=i;const s=S[i];
+  $("stepNo").textContent=`STEP ${i+1} / ${S.length}`;$("capTitle").textContent=s.title;$("capBody").innerHTML=s.body;
+  $("capRealP").innerHTML=s.real;$("presNo").textContent=`${i+1}/${S.length}`;$("presTitle").textContent=s.title;
+  [...pills.querySelectorAll(".pill:not(.cvpill)")].forEach((p,j)=>p.classList.toggle("on",j===i));
+  const P=PARTS[s.part||1];$("partEb").textContent=P.eb;$("partH1").textContent=P.h1;$("legend1").hidden=(s.part||1)!==1;}
+function render(t){t=clamp(t,0,TOTAL-1e-6);const i=stepIndex(t),s=S[i];caption(i);
+  dyn.innerHTML=DEFS+DRAW[s.id](t-starts[i]);
+  scrub.value=Math.round(t/TOTAL*1000);
+  const m=Math.floor(t/60),sec=Math.floor(t%60);$("clock").textContent=`${m}:${String(sec).padStart(2,"0")} / ${Math.floor(TOTAL/60)}:${String(Math.round(TOTAL%60)).padStart(2,"0")}`;}
+function updBtn(){$("play").textContent=playing?"Pause":"Play";const atEnd=!playing&&pauseAt===null&&T>0&&Math.abs(T-(starts[stepIndex()]+S[stepIndex()].d))<.05;
+  $("next").classList.toggle("nudge",!playing&&T>0&&atEnd);}
+function play(){if(T>=TOTAL-.01)T=0;playing=true;lastNow=null;const i=stepIndex();pauseAt=$("autopause").checked?starts[i]+S[i].d-.001:null;updBtn();}
+function pause(){playing=false;updBtn();}
+function go(i){i=clamp(i,0,S.length-1);T=starts[i];render(T);if(!reduce)play();else{T=starts[i]+S[i].d-.01;render(T);playing=false;updBtn();}}
+function frame(now){
+  if(playing){if(lastNow!=null){T+=Math.min(.1,(now-lastNow)/1000);
+      if(pauseAt!=null&&T>=pauseAt){T=pauseAt;playing=false;pauseAt=null;render(T);updBtn();$("next").classList.add("nudge");}
+      else if(T>=TOTAL){T=TOTAL-1e-3;playing=false;render(T);updBtn();}
+      else render(T);}
+    lastNow=now;}
+  requestAnimationFrame(frame);}
+$("play").onclick=()=>playing?pause():play();
+$("next").onclick=()=>{const i=stepIndex(),endOf=starts[i]+S[i].d;
+  if(T<endOf-.05&&T>starts[i]+.05&&!playing){play();return;}           // resume a paused step
+  if(i<S.length-1)go(i+1);};
+$("prev").onclick=()=>{const i=stepIndex();if(T-starts[i]>1.5||i===0)go(i);else go(i-1);};
+scrub.addEventListener("input",()=>{pause();T=scrub.value/1000*TOTAL;render(T);});
+$("autopause").addEventListener("change",()=>{if(playing){const i=stepIndex();pauseAt=$("autopause").checked?starts[i]+S[i].d-.001:null;}});
+// presentation mode
+let uiTimer=null;
+function present(on){document.body.classList.toggle("present",on);if(on){document.documentElement.requestFullscreen?.().catch(()=>{});}else if(document.fullscreenElement)document.exitFullscreen?.();}
+$("present").onclick=()=>present(!document.body.classList.contains("present"));
+document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement)document.body.classList.remove("present");});
+document.addEventListener("mousemove",()=>{if(!document.body.classList.contains("present"))return;document.body.classList.add("ui-on");document.body.classList.remove("no-cursor");
+  clearTimeout(uiTimer);uiTimer=setTimeout(()=>{document.body.classList.remove("ui-on");document.body.classList.add("no-cursor");},2200);});
+const svgEl=$("svg");
+function svgPt(e){const pt=svgEl.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svgEl.getScreenCTM().inverse());}
+const inChart=p=>p.x>=CH.x0&&p.x<=CH.x1&&p.y>=CH.y0&&p.y<=CH.y1;
+svgEl.addEventListener("pointermove",e=>{if(!HOVER[S[stepIndex()].id]){hoverU=null;return;}const p=svgPt(e);
+  const u=inChart(p)?(p.x-CH.x0)/(CH.x1-CH.x0):null;
+  if(u!==hoverU){hoverU=u;if(!playing)render(T);}});
+svgEl.addEventListener("pointerleave",()=>{if(hoverU!==null){hoverU=null;if(!playing)render(T);}});
+svgEl.addEventListener("click",e=>{if(HOVER[S[stepIndex()].id]&&inChart(svgPt(e)))return;$("next").click();});
+document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT"&&e.target.type==="range")return;if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key;
+  if(k==="f"||k==="F"){present(!document.body.classList.contains("present"));}
+  else if(k==="c"||k==="C"){document.body.classList.toggle("cap-off");}
+  else if(k==="Escape"){present(false);}
+  else if(k===" "||e.code==="Space"){e.preventDefault();$("play").click();}
+  else if(k==="ArrowRight"||k==="PageDown"){e.preventDefault();$("next").click();}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();$("prev").click();}});
+
+/* =====================================================================================
+   title page: d = 5 patches running syndrome extraction
+   ===================================================================================== */
+const cover=$("cover"),cvs=$("cvCanvas"),cx=cvs.getContext("2d"),cvHud=$("cvHud"),cvTip=$("cvTip");
+const HD=5,HQ=buildCode(HD),HN=HD*HD,HM=HQ.length,RT=5.0;
+const PH={h1:[0,.07],L0:.08,Ld:.14,h2:[.64,.7],m:[.72,.84],reset:[.86,1]};
+let rs=7;const rnd=()=>{rs=(Math.imul(rs,1664525)+1013904223)>>>0;return rs/4294967296;};
+let hp=[],hS=40,hW=0,hH=0,hT=0,hRound=-1,hMeasured=-1,hOn=false,hLast=null,hRaf=null,hHover=null,hEvents=0;
+function newPatch(ox,oy){return {ox,oy,xe:new Uint8Array(HN),ze:new Uint8Array(HN),age:new Int16Array(HN),fixT:new Float64Array(HN).fill(-99),errT:new Float64Array(HN).fill(-99),
+  out:new Uint8Array(HM),det:new Uint8Array(HM),hist:Array.from({length:HM},()=>[]),paths:HQ.map(q=>new Path2D(plaqPath(q,ox,oy,hS,HD)))};}
+function hLayout(){const r=cvs.getBoundingClientRect(),dpr=window.devicePixelRatio||1;hW=r.width;hH=r.height;
+  cvs.width=Math.round(hW*dpr);cvs.height=Math.round(hH*dpr);cx.setTransform(dpr,0,0,dpr,0,0);
+  const padT=hW<600?50:44,padB=16,padX=22,aw=hW-2*padX,ah=hH-padT-padB;
+  hS=Math.max(14,Math.min(ah/HD,74));let gap=hS*1.1,k=Math.max(1,Math.min(8,Math.floor((aw+gap)/(HD*hS+gap))));
+  if(k===1)hS=Math.min(hS,aw/HD);
+  const tw=k*HD*hS+(k-1)*gap,x0=(hW-tw)/2+hS/2,y0=padT+(ah-HD*hS)/2+hS/2;
+  const old=hp;hp=[];for(let i=0;i<k;i++){const p=newPatch(x0+i*(HD*hS+gap),y0);if(old[i]){for(const f of ["xe","ze","age","fixT","errT","out","det"])p[f].set(old[i][f]);p.hist=old[i].hist;}hp.push(p);}}
+const hd=(p,n)=>[p.ox+(n%HD)*hS,p.oy+Math.floor(n/HD)*hS],ha=(p,k)=>[p.ox+HQ[k].ac*hS,p.oy+HQ[k].ar*hS];
+function hRoundStart(){for(const p of hp){for(let n=0;n<HN;n++){
+    if(p.xe[n]||p.ze[n]){p.age[n]++;if(p.age[n]>=3){p.xe[n]=p.ze[n]=0;p.fixT[n]=hT;}}
+    else if(rnd()<.01){const u=rnd();if(u<.45)p.xe[n]=1;else if(u<.9)p.ze[n]=1;else{p.xe[n]=p.ze[n]=1;}p.age[n]=0;p.errT[n]=hT;}}}}
+function hMeasure(){for(const p of hp)for(let k=0;k<HM;k++){const q=HQ[k],e=q.type==="Z"?p.xe:p.ze;let b=0;for(const n of q.s)b^=e[n];
+    if(rnd()<.005)b^=1;p.det[k]=b!==p.out[k]?1:0;if(p.det[k])hEvents++;p.out[k]=b;p.hist[k].push(b);if(p.hist[k].length>12)p.hist[k].shift();}}
+function hStep(dt){hT+=dt;const r=Math.floor(hT/RT),ph=(hT/RT)%1;
+  if(r!==hRound){hRound=r;hRoundStart();}
+  if(ph>=PH.m[0]&&hMeasured!==r){hMeasured=r;hMeasure();}}
+function hDraw(){
+  cx.clearRect(0,0,hW,hH);const ph=(hT/RT)%1,since=ph>=PH.m[0]?(ph-PH.m[0])*RT:(ph+1-PH.m[0])*RT;
+  const L=ph>=PH.L0&&ph<PH.L0+4*PH.Ld?Math.floor((ph-PH.L0)/PH.Ld):-1,lu=L>=0?((ph-PH.L0)/PH.Ld)%1:0;
+  const fm=seg(ph,PH.m[0],PH.m[1]),hA=Math.max(bump(seg(ph,...PH.h1)),bump(seg(ph,...PH.h2)));
+  const rD=Math.max(1.6,hS*.11),rA=Math.max(1.2,hS*.075),lw=Math.max(1,hS*.03);
+  for(const p of hp){
+    for(let k=0;k<HM;k++){const q=HQ[k],col=q.type==="X"?C.X:C.Z,hov=hHover&&hHover.p===p&&hHover.k===k;
+      cx.fillStyle=hexA(col,hov?.32:.15);cx.fill(p.paths[k]);
+      if(p.out[k]){cx.fillStyle=hexA(C.y,.16);cx.fill(p.paths[k]);}
+      if(p.det[k]&&since<RT*.95){const g=1-since/(RT*.95);cx.fillStyle=hexA(C.y,.55*g);cx.fill(p.paths[k]);cx.strokeStyle=hexA(C.y,.9*g);cx.lineWidth=lw*2;cx.stroke(p.paths[k]);}
+      cx.strokeStyle=hexA(col,hov?.95:.45);cx.lineWidth=lw;cx.stroke(p.paths[k]);}
+    if(L>=0){const a=bump(lu*1.15);
+      for(let k=0;k<HM;k++){const q=HQ[k],n=q.order[L];if(n<0)continue;const [ax,ay]=ha(p,k),[dx,dy]=hd(p,n),col=q.type==="X"?C.X:C.Z;
+        cx.strokeStyle=hexA(col,.85*a);cx.lineWidth=lw*2.4;cx.beginPath();cx.moveTo(ax,ay);cx.lineTo(dx,dy);cx.stroke();
+        const toA=q.type==="Z",u=ease(lu),fx=toA?dx:ax,fy=toA?dy:ay,tx=toA?ax:dx,ty=toA?ay:dy;
+        cx.fillStyle=hexA("#ffffff",a);cx.beginPath();cx.arc(fx+(tx-fx)*u,fy+(ty-fy)*u,rA*.75,0,7);cx.fill();}}
+    for(let n=0;n<HN;n++){const [x,y]=hd(p,n),er=p.xe[n]||p.ze[n],hov=hHover&&hHover.p===p&&hHover.n===n;
+      if(er){const pop=clamp((hT-p.errT[n])/.4);cx.fillStyle=hexA(C.r,.25);cx.beginPath();cx.arc(x,y,rD*(1.6+1.4*(1-pop)),0,7);cx.fill();}
+      cx.fillStyle=er?C.r:hov?"#ffffff":"#dfe6ee";cx.beginPath();cx.arc(x,y,rD*(hov?1.3:1),0,7);cx.fill();
+      cx.strokeStyle="#05111f";cx.lineWidth=lw;cx.stroke();
+      const fa=1-clamp((hT-p.fixT[n])/1.1);if(fa>0){cx.strokeStyle=hexA(C.g,fa);cx.lineWidth=lw*2;cx.beginPath();cx.arc(x,y,rD*(1.4+2.2*(1-fa)),0,7);cx.stroke();}}
+    for(let k=0;k<HM;k++){const q=HQ[k],[x,y]=ha(p,k),col=q.type==="X"?C.X:C.Z;
+      if(fm>0&&fm<1){cx.strokeStyle=hexA("#ffffff",1-fm);cx.lineWidth=lw*1.5;cx.beginPath();cx.arc(x,y,rA*(1.5+3*fm),0,7);cx.stroke();}
+      if(q.type==="X"&&hA>0){cx.strokeStyle=hexA(C.ink,hA*.8);cx.lineWidth=lw;cx.strokeRect(x-rA*1.9,y-rA*1.9,rA*3.8,rA*3.8);}
+      cx.fillStyle=fm>0&&fm<1?hexA("#ffffff",.5+.5*(1-fm)):col;cx.beginPath();cx.arc(x,y,rA,0,7);cx.fill();}}
+  const nA=hp.length*HM,lab=ph<PH.L0?"H on the X ancillas":L>=0?`CNOT layer <b>${L+1}</b> / 4`:ph<PH.m[0]?"H on the X ancillas":ph<PH.reset[0]?`<b>mid-circuit measurement</b> of ${nA} ancillas`:"reset ancillas to |0⟩";
+  const s=`${hp.length>1?hp.length+" × ":""}d = 5 surface-code patch${hp.length>1?"es":""} · round <b>${hRound+1}</b> · ${lab} · detection events ${hEvents}`;
+  if(cvHud._s!==s){cvHud.innerHTML=s;cvHud._s=s;}
+  if(hHover)hTip();}
+function hTip(){const {p,k,n}=hHover;let s;
+  if(k!=null){const q=HQ[k],hs=p.hist[k];
+    s=`<span class="k">${q.type} check</span> · weight ${q.w} · ${q.type==="Z"?"catches X errors":"catches Z errors"}<br>last outcomes <span class="k">${hs.length?hs.map(b=>b?'<span class="b1">1</span>':"0").join(" "):"–"}</span>`;}
+  else{const ks=HQ.map((q,i)=>q.s.includes(n)?q.type:null).filter(Boolean),nx=ks.filter(x=>x==="X").length,nz=ks.length-nx;
+    const st=p.xe[n]&&p.ze[n]?"Y error":p.xe[n]?"X error":p.ze[n]?"Z error":"no error";
+    s=`<span class="k">data qubit (${Math.floor(n/HD)}, ${n%HD})</span> · ${st}<br>watched by ${nx} X and ${nz} Z check${nz>1?"s":""}`;}
+  if(cvTip._s!==s){cvTip.innerHTML=s;cvTip._s=s;}}
+function hLoop(now){if(!hOn)return;if(hLast!=null)hStep(Math.min(.05,(now-hLast)/1000));hLast=now;hDraw();hRaf=requestAnimationFrame(hLoop);}
+cvs.addEventListener("mousemove",e=>{const r=cvs.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=hS*.42;
+  for(const p of hp){for(let n=0;n<HN;n++){const [px,py]=hd(p,n),d=Math.hypot(px-x,py-y);if(d<bd*.6){bd=d/.6;best={p,n,k:null};}}
+    for(let k=0;k<HM;k++){const [px,py]=ha(p,k),d=Math.hypot(px-x,py-y);if(d<bd){bd=d;best={p,k,n:null};}}}
+  hHover=best;if(!best){cvTip.classList.remove("on");}else{hTip();cvTip.classList.add("on");
+    const tw=cvTip.offsetWidth,th=cvTip.offsetHeight;cvTip.style.left=Math.min(hW-tw-8,Math.max(8,x+14))+"px";cvTip.style.top=(y+th+18>hH?y-th-12:y+16)+"px";}
+  if(reduce)hDraw();});
+cvs.addEventListener("mouseleave",()=>{hHover=null;cvTip.classList.remove("on");if(reduce)hDraw();});
+function countUp(){document.querySelectorAll("#cover [data-to]").forEach((el,i)=>{const to=+el.dataset.to,t0=performance.now()+250+i*90,dur=1300;
+  const chip=el.closest(".cv-chip");if(reduce){el.textContent=to.toLocaleString("en-US");chip.classList.add("lit");return;}
+  const f=now=>{const u=clamp((now-t0)/dur),v=Math.round(to*(1-Math.pow(1-u,3)));el.textContent=v.toLocaleString("en-US");
+    if(u<1)requestAnimationFrame(f);else chip.classList.add("lit");};requestAnimationFrame(f);});}
+const pageUp=el=>!el.hidden&&!el.classList.contains("gone");
+function showCover(){pause();cover.hidden=false;document.body.classList.add("cover-on");requestAnimationFrame(()=>{cover.classList.remove("gone");
+  hLayout();hOn=true;hLast=null;if(reduce){if(hRound<0){for(let i=0;i<5;i++){hStep(RT);}}hT=hRound*RT+PH.m[0]*RT+.3;hDraw();}else{cancelAnimationFrame(hRaf);hRaf=requestAnimationFrame(hLoop);}
+  countUp();$("cvBegin").focus({preventScroll:true});});}
+function startTour(){hOn=false;cover.classList.add("gone");setTimeout(()=>{if(cover.classList.contains("gone"))cover.hidden=true;},650);document.body.classList.remove("cover-on");
+  if(stepIndex()===0&&T<1.5){T=0;render(0);if(!reduce)play();}}
+cover.addEventListener("click",startTour);
+window.addEventListener("resize",()=>{if(pageUp(cover)){hLayout();hDraw();}});
+window.addEventListener("keydown",e=>{const k=e.key,fwd=k==="Enter"||k===" "||e.code==="Space"||k==="ArrowRight"||k==="PageDown"||k==="ArrowDown",back=k==="ArrowLeft"||k==="PageUp"||k==="ArrowUp";
+  if(pageUp(cover)){if(k==="f"||k==="F"||k==="Escape"||k==="Tab"||e.metaKey||e.ctrlKey||e.altKey)return;
+    if(fwd){e.preventDefault();startTour();}e.stopImmediatePropagation();return;}
+  if(back&&stepIndex()===0&&T<1.5&&!(e.target.tagName==="INPUT"&&e.target.type==="range")){e.preventDefault();e.stopImmediatePropagation();showCover();}
+},true);
+{const a=document.createElement("button");a.className="pill cvpill";a.innerHTML=`<span class="n">0</span>Title`;a.onclick=showCover;pills.prepend(a);}
+
+const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const q=new URLSearchParams(location.search);
+if(q.has("t")){T=parseFloat(q.get("t"));render(T);}else{render(reduce?S[0].d-.01:0);if(reduce)T=S[0].d-.01;}
+updBtn();requestAnimationFrame(frame);
+if(q.has("t")||q.get("cover")==="0"){cover.hidden=true;cover.classList.add("gone");document.body.classList.remove("cover-on");
+  if(!reduce&&!q.has("t"))setTimeout(()=>{if(!playing&&T===0)play();},700);}
+else showCover();
+if(q.get("present")==="1")document.body.classList.add("present");
+window.__render=t=>{T=t;playing=false;render(t);updBtn();};
+window.__starts=starts;window.__S=S;
+})();
+</script>
+</body>
+</html>

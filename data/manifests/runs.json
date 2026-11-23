@@ -247,5 +247,37 @@
   },
   "submitted": "2026-11-17T10:10:49",
   "status": "collected"
+ },
+ {
+  "manifest": "data/manifests/iqm_emerald/20261123_155502_iqm_emerald_surface_code_memory.json",
+  "experiment": "memory",
+  "backend": "iqm_emerald",
+  "config": {
+   "code": "surface",
+   "d": [
+    3
+   ],
+   "rounds": [
+    1,
+    2,
+    3,
+    5
+   ],
+   "bases": [
+    "Z",
+    "X"
+   ],
+   "shots": 2000,
+   "p_2q_model": 0.003,
+   "positions": 3,
+   "max_coupler_error": 0.3,
+   "max_readout_error": 0.3,
+   "experiment": "memory",
+   "backend": "iqm_emerald",
+   "provider": {},
+   "local": false
+  },
+  "submitted": "2026-11-23T15:55:18",
+  "status": "collected"
  }
 ]
